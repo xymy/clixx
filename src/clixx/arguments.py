@@ -117,12 +117,6 @@ class Flag(Option):
 
 
 class SideOption(OptionBase):
-    def __init__(
-        self, *decls: str, nargs: int = 1, required: bool = False, default: Any = None, help: Optional[str] = None
-    ) -> None:
-        super().__init__(nargs=nargs, required=required, default=default, help=help)
-        self.long_options, self.short_options = _parse_decls(decls)
-
     @staticmethod
     def _parse(decls: Sequence[str], *, dest: Optional[str] = None) -> Tuple[str, List[str], List[str]]:
         return "", *_parse_decls(decls)
