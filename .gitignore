@@ -1,0 +1,13 @@
+/.idea/
+/.tox/
+/.vscode/
+/build/
+/dist/
+/docs/build/
+/htmlcov/
+/temp/
+/venv/
+/.coverage
+__pycache__/
+*.egg-info/
+.DS_Store
