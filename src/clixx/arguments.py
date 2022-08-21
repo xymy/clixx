@@ -39,7 +39,7 @@ def _parse_decls(decls: Sequence[str]) -> Tuple[List[str], List[str]]:
 class ArgumentBase(metaclass=ABCMeta):
     """Abstract base class for argument and option."""
 
-    def __init__(self, nargs: int = 1, required: bool = False, default: Any = None, help: Optional[str] = None) -> None:
+    def __init__(self, nargs: int, required: bool, default: Any, help: str) -> None:
         self.nargs = _check_nargs(nargs)
         self.required = required
         self.default = default
@@ -55,13 +55,14 @@ class Argument(ArgumentBase):
         nargs: int = 1,
         required: bool = False,
         default: Any = None,
-        help: Optional[str] = None,
+        help: str = "",
     ) -> None:
         super().__init__(nargs=nargs, required=required, default=default, help=help)
         self.dest, self.argument = self._parse(decl, dest=dest)
 
     @staticmethod
     def _parse(decl: str, *, dest: Optional[str]) -> Tuple[str, str]:
+        # Infer the destination argument from the declaration if dest not given.
         if dest is not None:
             dest = _check_dest(dest)
         else:
@@ -79,7 +80,7 @@ class OptionBase(ArgumentBase, metaclass=ABCMeta):
         nargs: int = 1,
         required: bool = False,
         default: Any = None,
-        help: Optional[str] = None,
+        help: str = "",
     ) -> None:
         super().__init__(nargs=nargs, required=required, default=default, help=help)
         self.dest, self.long_options, self.short_options = self._parse(decls, dest=dest)
@@ -95,6 +96,7 @@ class Option(OptionBase):
     def _parse(decls: Sequence[str], *, dest: Optional[str] = None) -> Tuple[str, List[str], List[str]]:
         long_options, short_options = _parse_decls(decls)
 
+        # Infer the destination argument from the declarations if dest not given.
         if dest is not None:
             dest = _check_dest(dest)
         elif long_options:
@@ -106,12 +108,7 @@ class Option(OptionBase):
 
 class Flag(Option):
     def __init__(
-        self,
-        *decls: str,
-        dest: Optional[str] = None,
-        required: bool = False,
-        default: bool = False,
-        help: Optional[str] = None,
+        self, *decls: str, dest: Optional[str] = None, required: bool = False, default: bool = False, help: str = ""
     ) -> None:
         super().__init__(*decls, dest=dest, nargs=0, required=required, default=default, help=help)
 
@@ -119,9 +116,10 @@ class Flag(Option):
 class SideOption(OptionBase):
     @staticmethod
     def _parse(decls: Sequence[str], *, dest: Optional[str] = None) -> Tuple[str, List[str], List[str]]:
+        # SideOption does not output the destination argument.
         return "", *_parse_decls(decls)
 
 
 class SideFlag(SideOption):
-    def __init__(self, *decls: str, required: bool = False, default: bool = False, help: Optional[str] = None) -> None:
+    def __init__(self, *decls: str, required: bool = False, default: bool = False, help: str = "") -> None:
         super().__init__(*decls, nargs=0, required=required, default=default, help=help)
