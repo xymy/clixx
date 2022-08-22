@@ -8,21 +8,21 @@ from .exceptions import DefinitionError
 def _check_dest(dest: str) -> str:
     dest = dest.replace("-", "_")
     if not dest.isidentifier():
-        raise DefinitionError(f"{dest!r} is not a valid identifier")
+        raise DefinitionError(f"{dest!r} is not a valid identifier.")
     if iskeyword(dest):
-        raise DefinitionError(f"{dest!r} is a keyword")
+        raise DefinitionError(f"{dest!r} is a keyword.")
     return dest
 
 
 def _check_nargs(nargs: int) -> int:
     if nargs < -1:
-        raise DefinitionError(f"require nargs >= -1, got {nargs!r}")
+        raise DefinitionError(f"Require nargs >= -1, got {nargs!r}.")
     return nargs
 
 
 def _parse_decls(decls: Sequence[str]) -> Tuple[List[str], List[str]]:
     if not decls:
-        raise DefinitionError("no option defined")
+        raise DefinitionError("No option defined.")
 
     long_options: List[str] = []
     short_options: List[str] = []
@@ -32,7 +32,7 @@ def _parse_decls(decls: Sequence[str]) -> Tuple[List[str], List[str]]:
         elif decl.startswith("-"):
             short_options.append(decl)
         else:
-            raise DefinitionError(f"{decl!r} is not a valid option")
+            raise DefinitionError(f"{decl!r} is not a valid option.")
     return long_options, short_options
 
 
