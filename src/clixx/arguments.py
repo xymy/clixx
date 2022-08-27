@@ -2,6 +2,7 @@ from abc import ABCMeta, abstractmethod
 from keyword import iskeyword
 from typing import Any, List, Optional, Sequence, Tuple
 
+from .constants import LONG_PREFIX, SHORT_PREFIX
 from .exceptions import DefinitionError
 
 
@@ -27,12 +28,16 @@ def _parse_decls(decls: Sequence[str]) -> Tuple[List[str], List[str]]:
     long_options: List[str] = []
     short_options: List[str] = []
     for decl in decls:
-        if decl.startswith("--"):
+        if decl.startswith(LONG_PREFIX):
+            if len(decl) == len(LONG_PREFIX):
+                raise DefinitionError(f"{decl!r} is not a valid option.")
             long_options.append(decl)
-        elif decl.startswith("-"):
+        elif decl.startswith(SHORT_PREFIX):
+            if len(decl) == len(SHORT_PREFIX):
+                raise DefinitionError(f"{decl!r} is not a valid option.")
             short_options.append(decl)
         else:
-            raise DefinitionError(f"{decl!r} is not a valid option.")
+            raise DefinitionError(f"Option must start with {LONG_PREFIX!r} or {SHORT_PREFIX!r}, got {decl!r}.")
     return long_options, short_options
 
 
