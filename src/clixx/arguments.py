@@ -31,10 +31,14 @@ def _parse_decls(decls: Sequence[str]) -> Tuple[List[str], List[str]]:
         if decl.startswith(LONG_PREFIX):
             if len(decl) == len(LONG_PREFIX):
                 raise DefinitionError(f"{decl!r} is not a valid option.")
+            if len(decl) <= len(LONG_PREFIX) + 1:
+                raise DefinitionError(f"{decl!r} is too short.")
             long_options.append(decl)
         elif decl.startswith(SHORT_PREFIX):
             if len(decl) == len(SHORT_PREFIX):
                 raise DefinitionError(f"{decl!r} is not a valid option.")
+            if len(decl) >= len(SHORT_PREFIX) + 2:
+                raise DefinitionError(f"{decl!r} is too long.")
             short_options.append(decl)
         else:
             raise DefinitionError(f"Option must start with {LONG_PREFIX!r} or {SHORT_PREFIX!r}, got {decl!r}.")
