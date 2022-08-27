@@ -1,0 +1,3 @@
+SEPARATOR = "--"
+LONG_PREFIX = "--"
+SHORT_PREFIX = "-"
