@@ -121,9 +121,16 @@ class Flag(Option):
     """The flag argument."""
 
     def __init__(
-        self, *decls: str, dest: Optional[str] = None, required: bool = False, default: bool = False, help: str = ""
+        self,
+        *decls: str,
+        dest: Optional[str] = None,
+        required: bool = False,
+        const: Any = True,
+        default: Any = False,
+        help: str = "",
     ) -> None:
         super().__init__(*decls, dest=dest, required=required, default=default, help=help)
+        self.const = const
 
     @property
     def nargs(self) -> int:
@@ -146,8 +153,11 @@ class SideOption(OptionBase):
 class SideFlag(SideOption):
     """The flag argument that can intercept control flow."""
 
-    def __init__(self, *decls: str, required: bool = False, default: bool = False, help: str = "") -> None:
+    def __init__(
+        self, *decls: str, required: bool = False, const: Any = True, default: Any = False, help: str = ""
+    ) -> None:
         super().__init__(*decls, required=required, default=default, help=help)
+        self.const = const
 
     @property
     def nargs(self) -> int:
