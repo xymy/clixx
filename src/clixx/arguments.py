@@ -78,16 +78,9 @@ class OptionBase(metaclass=ABCMeta):
     """Abstract base class for option."""
 
     def __init__(
-        self,
-        *decls: str,
-        dest: Optional[str] = None,
-        nargs: int = 1,
-        required: bool = False,
-        default: Any = None,
-        help: str = "",
+        self, *decls: str, dest: Optional[str] = None, required: bool = False, default: Any = None, help: str = ""
     ) -> None:
         self.dest, self.long_options, self.short_options = self._parse(decls, dest=dest)
-        self.nargs = _check_nargs(nargs)
         self.required = required
         self.default = default
         self.help = help
@@ -95,6 +88,11 @@ class OptionBase(metaclass=ABCMeta):
     @staticmethod
     @abstractmethod
     def _parse(decls: Sequence[str], *, dest: Optional[str] = None) -> Tuple[str, List[str], List[str]]:
+        ...
+
+    @property
+    @abstractmethod
+    def nargs(self) -> int:
         ...
 
 
@@ -114,6 +112,10 @@ class Option(OptionBase):
             dest = _check_dest(short_options[0][1:])
         return dest, long_options, short_options
 
+    @property
+    def nargs(self) -> int:
+        return 1
+
 
 class Flag(Option):
     """The flag argument."""
@@ -121,7 +123,11 @@ class Flag(Option):
     def __init__(
         self, *decls: str, dest: Optional[str] = None, required: bool = False, default: bool = False, help: str = ""
     ) -> None:
-        super().__init__(*decls, dest=dest, nargs=0, required=required, default=default, help=help)
+        super().__init__(*decls, dest=dest, required=required, default=default, help=help)
+
+    @property
+    def nargs(self) -> int:
+        return 0
 
 
 class SideOption(OptionBase):
@@ -132,9 +138,17 @@ class SideOption(OptionBase):
         # SideOption does not output the destination argument.
         return "", *_parse_decls(decls)
 
+    @property
+    def nargs(self) -> int:
+        return 1
+
 
 class SideFlag(SideOption):
     """The flag argument that can intercept control flow."""
 
     def __init__(self, *decls: str, required: bool = False, default: bool = False, help: str = "") -> None:
-        super().__init__(*decls, nargs=0, required=required, default=default, help=help)
+        super().__init__(*decls, required=required, default=default, help=help)
+
+    @property
+    def nargs(self) -> int:
+        return 0
