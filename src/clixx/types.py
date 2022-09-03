@@ -1,7 +1,7 @@
 from abc import ABCMeta, abstractmethod
 from typing import Any
 
-from .exceptions import DefinitionError, UsageError
+from .exceptions import DefinitionError
 
 
 class TypeBase(metaclass=ABCMeta):
@@ -36,9 +36,9 @@ class Int(TypeBase):
             return int(value, base=self.base)
         except ValueError:
             if self.base in {0, 10}:
-                raise UsageError(f"{value!r} is not a valid int.")
+                raise ValueError(f"{value!r} is not a valid int.")
             else:
-                raise UsageError(f"{value!r} is not a valid int with base {self.base!r}.")
+                raise ValueError(f"{value!r} is not a valid int with base {self.base!r}.")
 
 
 class Float(TypeBase):
@@ -46,4 +46,4 @@ class Float(TypeBase):
         try:
             return float(value)
         except ValueError:
-            raise UsageError(f"{value!r} is not a valid float.")
+            raise ValueError(f"{value!r} is not a valid float.")

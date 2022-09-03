@@ -1,29 +1,47 @@
+class DefinitionError(Exception):
+    """Define a bad command, parser, argument, option, etc."""
+
+
 class CLIXXException(Exception):
     """The base class for all CLIXX exceptions."""
 
     exit_code = 128
 
 
-class DefinitionError(CLIXXException):
+class TooFewArguments(CLIXXException):
     exit_code = 129
 
 
-class GroupDefinitionError(DefinitionError):
+class TooManyArguments(CLIXXException):
     exit_code = 130
 
 
-class UsageError(CLIXXException):
-    exit_code = 137
+class MissingOption(CLIXXException):
+    exit_code = 131
 
 
-class GroupUsageError(UsageError):
-    exit_code = 138
+class UnknownOption(CLIXXException):
+    exit_code = 132
+
+
+class MissingValue(CLIXXException):
+    exit_code = 133
+
+
+class InvalidValue(CLIXXException):
+    exit_code = 134
+
+
+class GroupError(CLIXXException):
+    exit_code = 135
+
+
+class SubcommandError(CLIXXException):
+    exit_code = 136
 
 
 class CLIXXSignal(BaseException):
     """The base class for all CLIXX signals."""
-
-    exit_code = 0
 
 
 class HelpSignal(CLIXXSignal):
