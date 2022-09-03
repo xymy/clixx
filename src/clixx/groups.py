@@ -1,5 +1,5 @@
 from enum import Enum, auto
-from typing import List, Iterator
+from typing import Iterator, List
 
 from .arguments import Argument, OptionBase
 

@@ -15,12 +15,6 @@ def _check_dest(dest: str) -> str:
     return dest
 
 
-def _check_nargs(nargs: int) -> int:
-    if nargs < -1:
-        raise DefinitionError(f"Require nargs >= -1, got {nargs!r}.")
-    return nargs
-
-
 def _parse_decls(decls: Sequence[str]) -> Tuple[List[str], List[str]]:
     if not decls:
         raise DefinitionError("No option defined.")
@@ -59,7 +53,7 @@ class Argument:
         help: str = "",
     ) -> None:
         self.dest, self.argument = self._parse(decl, dest=dest)
-        self.nargs = _check_nargs(nargs)
+        self.nargs = nargs
         self.required = required
         self.default = default
         self.help = help
@@ -72,6 +66,16 @@ class Argument:
         else:
             dest = _check_dest(decl)
         return dest, decl
+
+    @property
+    def nargs(self) -> int:
+        return self._nargs
+
+    @nargs.setter
+    def nargs(self, value: int) -> None:
+        if not (value >= 1 or value == -1):
+            raise DefinitionError(f"Require nargs >= 1 or nargs == -1, got {value!r}.")
+        self._nargs = value
 
 
 class OptionBase(metaclass=ABCMeta):
