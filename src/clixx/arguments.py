@@ -4,6 +4,7 @@ from typing import Any, List, Optional, Sequence, Tuple
 
 from .constants import LONG_PREFIX, SHORT_PREFIX
 from .exceptions import DefinitionError
+from .types import Str, TypeBase
 
 
 def _check_dest(dest: str) -> str:
@@ -49,12 +50,14 @@ class Argument:
         dest: Optional[str] = None,
         nargs: int = 1,
         required: bool = False,
+        type: Optional[TypeBase] = None,
         default: Any = None,
         help: str = "",
     ) -> None:
         self.dest, self.argument = self._parse(decl, dest=dest)
         self.nargs = nargs
         self.required = required
+        self.type = type or Str()
         self.default = default
         self.help = help
 
@@ -82,10 +85,17 @@ class OptionBase(metaclass=ABCMeta):
     """The abstract base class for optional argument."""
 
     def __init__(
-        self, *decls: str, dest: Optional[str] = None, required: bool = False, default: Any = None, help: str = ""
+        self,
+        *decls: str,
+        dest: Optional[str] = None,
+        required: bool = False,
+        type: Optional[TypeBase] = None,
+        default: Any = None,
+        help: str = "",
     ) -> None:
         self.dest, self.long_options, self.short_options = self._parse(decls, dest=dest)
         self.required = required
+        self.type = type or Str()
         self.default = default
         self.help = help
 
@@ -129,11 +139,12 @@ class Flag(Option):
         *decls: str,
         dest: Optional[str] = None,
         required: bool = False,
+        type: Optional[TypeBase] = None,
         const: Any = True,
         default: Any = False,
         help: str = "",
     ) -> None:
-        super().__init__(*decls, dest=dest, required=required, default=default, help=help)
+        super().__init__(*decls, dest=dest, required=required, type=type, default=default, help=help)
         self.const = const
 
     @property
@@ -158,9 +169,15 @@ class SignalFlag(SignalOption):
     """The flag argument that can raise a signal."""
 
     def __init__(
-        self, *decls: str, required: bool = False, const: Any = True, default: Any = False, help: str = ""
+        self,
+        *decls: str,
+        required: bool = False,
+        type: Optional[TypeBase] = None,
+        const: Any = True,
+        default: Any = False,
+        help: str = "",
     ) -> None:
-        super().__init__(*decls, required=required, default=default, help=help)
+        super().__init__(*decls, required=required, type=type, default=default, help=help)
         self.const = const
 
     @property
