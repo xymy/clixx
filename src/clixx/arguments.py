@@ -75,7 +75,7 @@ class Argument:
 
 
 class OptionBase(metaclass=ABCMeta):
-    """Abstract base class for option."""
+    """The abstract base class for optional argument."""
 
     def __init__(
         self, *decls: str, dest: Optional[str] = None, required: bool = False, default: Any = None, help: str = ""
@@ -137,12 +137,12 @@ class Flag(Option):
         return 0
 
 
-class SideOption(OptionBase):
-    """The optional argument that can intercept control flow."""
+class SignalOption(OptionBase):
+    """The optional argument that can raise a signal."""
 
     @staticmethod
     def _parse(decls: Sequence[str], *, dest: Optional[str] = None) -> Tuple[str, List[str], List[str]]:
-        # SideOption does not output the destination argument.
+        # Side option does not output the destination argument.
         return "", *_parse_decls(decls)
 
     @property
@@ -150,8 +150,8 @@ class SideOption(OptionBase):
         return 1
 
 
-class SideFlag(SideOption):
-    """The flag argument that can intercept control flow."""
+class SignalFlag(SignalOption):
+    """The flag argument that can raise a signal."""
 
     def __init__(
         self, *decls: str, required: bool = False, const: Any = True, default: Any = False, help: str = ""
