@@ -4,7 +4,7 @@ from typing import Any, List, Optional, Sequence, Tuple
 
 from .constants import LONG_PREFIX, SHORT_PREFIX
 from .exceptions import DefinitionError
-from .types import Str, TypeBase
+from .types import Identity, Str, TypeBase
 
 
 def _check_dest(dest: str) -> str:
@@ -144,6 +144,7 @@ class Flag(Option):
         default: Any = False,
         help: str = "",
     ) -> None:
+        type = type or Identity()
         super().__init__(*decls, dest=dest, required=required, type=type, default=default, help=help)
         self.const = const
 
@@ -177,6 +178,7 @@ class SignalFlag(SignalOption):
         default: Any = False,
         help: str = "",
     ) -> None:
+        type = type or Identity()
         super().__init__(*decls, required=required, type=type, default=default, help=help)
         self.const = const
 
