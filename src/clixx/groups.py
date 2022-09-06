@@ -1,7 +1,7 @@
 from enum import Enum, auto
 from typing import Iterator, List
 
-from .arguments import Argument, OptionBase
+from .arguments import Argument, Option
 
 
 class GroupType(Enum):
@@ -43,10 +43,10 @@ class OptionGroup:
     def __init__(self, name: str, *, type: GroupType = ANY) -> None:
         self.name = name
         self.type = type
-        self.gourp: List[OptionBase] = []
+        self.gourp: List[Option] = []
 
-    def __iter__(self) -> Iterator[OptionBase]:
+    def __iter__(self) -> Iterator[Option]:
         yield from self.gourp
 
-    def add(self, option: OptionBase) -> None:
+    def add(self, option: Option) -> None:
         self.gourp.append(option)

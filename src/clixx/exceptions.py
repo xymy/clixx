@@ -2,6 +2,10 @@ import sys
 from typing import Optional, TextIO
 
 
+class InternalError(Exception):
+    """Invoke internal APIs incorrectly."""
+
+
 class DefinitionError(Exception):
     """Define a bad command, parser, argument, option, etc."""
 

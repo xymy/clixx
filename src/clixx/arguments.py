@@ -1,9 +1,8 @@
-from abc import ABCMeta, abstractmethod
 from keyword import iskeyword
 from typing import Any, Dict, List, Optional, Sequence, Tuple
 
 from .constants import LONG_PREFIX, SHORT_PREFIX
-from .exceptions import DefinitionError
+from .exceptions import DefinitionError, InternalError
 from .types import Identity, Str, TypeBase
 
 
@@ -95,8 +94,8 @@ class Argument:
         self._nargs = value
 
 
-class OptionBase(metaclass=ABCMeta):
-    """The abstract base class for optional argument."""
+class Option:
+    """The optional argument."""
 
     def __init__(
         self,
@@ -114,32 +113,6 @@ class OptionBase(metaclass=ABCMeta):
         self.help = help
 
     @staticmethod
-    @abstractmethod
-    def _parse(decls: Sequence[str], *, dest: Optional[str] = None) -> Tuple[str, List[str], List[str]]:
-        ...
-
-    @abstractmethod
-    def _store_0(self, args: Dict[str, Any]) -> None:
-        ...
-
-    @abstractmethod
-    def _store_1(self, args: Dict[str, Any], value: str) -> None:
-        ...
-
-    @abstractmethod
-    def _store_default(self, args: Dict[str, Any]) -> None:
-        ...
-
-    @property
-    @abstractmethod
-    def nargs(self) -> int:
-        ...
-
-
-class Option(OptionBase):
-    """The optional argument."""
-
-    @staticmethod
     def _parse(decls: Sequence[str], *, dest: Optional[str] = None) -> Tuple[str, List[str], List[str]]:
         long_options, short_options = _parse_decls(decls)
 
@@ -153,7 +126,7 @@ class Option(OptionBase):
         return dest, long_options, short_options
 
     def _store_0(self, args: Dict[str, Any]) -> None:
-        raise AssertionError()
+        raise InternalError()
 
     def _store_1(self, args: Dict[str, Any], value: str) -> None:
         result = self.type.convert_str(value)
@@ -190,11 +163,7 @@ class Flag(Option):
         args[self.dest] = result
 
     def _store_1(self, args: Dict[str, Any], value: str) -> None:
-        raise AssertionError()
-
-    def _store_default(self, args: Dict[str, Any]) -> None:
-        result = self.type(self.default)
-        args[self.dest] = result
+        raise InternalError()
 
     @property
     def nargs(self) -> int:
