@@ -1,6 +1,6 @@
 from abc import ABCMeta, abstractmethod
 from keyword import iskeyword
-from typing import Any, List, Optional, Sequence, Tuple
+from typing import Any, Dict, List, Optional, Sequence, Tuple
 
 from .constants import LONG_PREFIX, SHORT_PREFIX
 from .exceptions import DefinitionError
@@ -70,6 +70,20 @@ class Argument:
             dest = _check_dest(decl)
         return dest, decl
 
+    def _store(self, args: Dict[str, Any], values: Sequence[str]) -> None:
+        result = tuple(map(self.type.convert_str, values))
+        args[self.dest] = result
+
+    def _store_default(self, args: Dict[str, Any]) -> None:
+        if self.nargs == 1:
+            result = self.type(self.default)
+        else:
+            if isinstance(self.default, (tuple, list)):
+                result = tuple(map(self.type, self.default))
+            else:
+                result = (self.type(self.default),)
+        args[self.dest] = result
+
     @property
     def nargs(self) -> int:
         return self._nargs
@@ -104,6 +118,18 @@ class OptionBase(metaclass=ABCMeta):
     def _parse(decls: Sequence[str], *, dest: Optional[str] = None) -> Tuple[str, List[str], List[str]]:
         ...
 
+    @abstractmethod
+    def _store_0(self, args: Dict[str, Any]) -> None:
+        ...
+
+    @abstractmethod
+    def _store_1(self, args: Dict[str, Any], value: str) -> None:
+        ...
+
+    @abstractmethod
+    def _store_default(self, args: Dict[str, Any]) -> None:
+        ...
+
     @property
     @abstractmethod
     def nargs(self) -> int:
@@ -125,6 +151,17 @@ class Option(OptionBase):
         else:
             dest = _check_dest(short_options[0][1:])
         return dest, long_options, short_options
+
+    def _store_0(self, args: Dict[str, Any]) -> None:
+        raise AssertionError()
+
+    def _store_1(self, args: Dict[str, Any], value: str) -> None:
+        result = self.type.convert_str(value)
+        args[self.dest] = result
+
+    def _store_default(self, args: Dict[str, Any]) -> None:
+        result = self.type(self.default)
+        args[self.dest] = result
 
     @property
     def nargs(self) -> int:
@@ -148,40 +185,35 @@ class Flag(Option):
         super().__init__(*decls, dest=dest, required=required, type=type, default=default, help=help)
         self.const = const
 
+    def _store_0(self, args: Dict[str, Any]) -> None:
+        result = self.type(self.const)
+        args[self.dest] = result
+
+    def _store_1(self, args: Dict[str, Any], value: str) -> None:
+        raise AssertionError()
+
+    def _store_default(self, args: Dict[str, Any]) -> None:
+        result = self.type(self.default)
+        args[self.dest] = result
+
     @property
     def nargs(self) -> int:
         return 0
 
 
-class SignalOption(OptionBase):
+class SignalOption(Option):
     """The optional argument that can raise a signal."""
 
     @staticmethod
     def _parse(decls: Sequence[str], *, dest: Optional[str] = None) -> Tuple[str, List[str], List[str]]:
-        # Side option does not output the destination argument.
+        # The signal option does not output the destination argument.
         return "", *_parse_decls(decls)
 
-    @property
-    def nargs(self) -> int:
-        return 1
 
-
-class SignalFlag(SignalOption):
+class SignalFlag(Flag):
     """The flag argument that can raise a signal."""
 
-    def __init__(
-        self,
-        *decls: str,
-        required: bool = False,
-        type: Optional[TypeBase] = None,
-        const: Any = True,
-        default: Any = False,
-        help: str = "",
-    ) -> None:
-        type = type or Identity()
-        super().__init__(*decls, required=required, type=type, default=default, help=help)
-        self.const = const
-
-    @property
-    def nargs(self) -> int:
-        return 0
+    @staticmethod
+    def _parse(decls: Sequence[str], *, dest: Optional[str] = None) -> Tuple[str, List[str], List[str]]:
+        # The signal flag does not output the destination argument.
+        return "", *_parse_decls(decls)
