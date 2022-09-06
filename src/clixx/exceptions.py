@@ -1,3 +1,7 @@
+import sys
+from typing import Optional, TextIO
+
+
 class DefinitionError(Exception):
     """Define a bad command, parser, argument, option, etc."""
 
@@ -6,6 +10,14 @@ class CLIXXException(Exception):
     """The base class for all CLIXX exceptions."""
 
     exit_code = 128
+
+    def __init__(self, message: str) -> None:
+        super().__init__(message)
+        self.message = message
+
+    def show(self, *, file: Optional[TextIO] = None) -> None:
+        file = file or sys.stderr
+        file.write(f"Error: {self.message}\n")
 
 
 class TooFewArguments(CLIXXException):
