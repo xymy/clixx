@@ -8,10 +8,16 @@ class TypeBase(metaclass=ABCMeta):
     def __call__(self, value: Any) -> Any:
         if value is None:
             return None
+        if isinstance(value, str):
+            return self.convert_str(value)
         return self.convert(value)
 
     @abstractmethod
     def convert(self, value: Any) -> Any:
+        ...
+
+    @abstractmethod
+    def convert_str(self, value: str) -> Any:
         ...
 
 
@@ -19,10 +25,16 @@ class Identity(TypeBase):
     def convert(self, value: Any) -> Any:
         return value
 
+    def convert_str(self, value: str) -> Any:
+        return value
+
 
 class Str(TypeBase):
     def convert(self, value: Any) -> Any:
-        return str(value)
+        raise ValueError(f"{value!r} is not a valid str.")
+
+    def convert_str(self, value: str) -> Any:
+        return value
 
 
 class Int(TypeBase):
@@ -32,6 +44,11 @@ class Int(TypeBase):
         self.base = base
 
     def convert(self, value: Any) -> Any:
+        if isinstance(value, int):
+            return value
+        raise ValueError(f"{value!r} is not a valid int.")
+
+    def convert_str(self, value: str) -> Any:
         try:
             return int(value, base=self.base)
         except ValueError:
@@ -43,6 +60,11 @@ class Int(TypeBase):
 
 class Float(TypeBase):
     def convert(self, value: Any) -> Any:
+        if isinstance(value, float):
+            return value
+        raise ValueError(f"{value!r} is not a valid float.")
+
+    def convert_str(self, value: str) -> Any:
         try:
             return float(value)
         except ValueError:
