@@ -42,20 +42,24 @@ class UnknownOption(CLIXXException):
     exit_code = 132
 
 
-class MissingValue(CLIXXException):
+class TooFewOptionValues(CLIXXException):
     exit_code = 133
 
 
-class InvalidValue(CLIXXException):
+class TooManyOptionValues(CLIXXException):
     exit_code = 134
 
 
-class GroupError(CLIXXException):
+class InvalidValue(CLIXXException):
     exit_code = 135
 
 
+class GroupError(CLIXXException):
+    exit_code = 144
+
+
 class SubcommandError(CLIXXException):
-    exit_code = 136
+    exit_code = 145
 
 
 class CLIXXSignal(BaseException):
