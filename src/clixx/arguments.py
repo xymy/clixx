@@ -178,6 +178,9 @@ class SignalOption(Option):
         # The signal option does not output the destination argument.
         return "", *_parse_decls(decls)
 
+    def _store_1(self, args: Dict[str, Any], value: str) -> None:
+        raise InternalError()
+
 
 class SignalFlag(Flag):
     """The flag argument that can raise a signal."""
@@ -186,3 +189,6 @@ class SignalFlag(Flag):
     def _parse(decls: Sequence[str], *, dest: Optional[str] = None) -> Tuple[str, List[str], List[str]]:
         # The signal flag does not output the destination argument.
         return "", *_parse_decls(decls)
+
+    def _store_0(self, args: Dict[str, Any]) -> None:
+        raise InternalError()
