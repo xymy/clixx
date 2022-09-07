@@ -1,5 +1,7 @@
+from __future__ import annotations
+
 import sys
-from typing import Optional, TextIO
+from typing import TextIO
 
 
 class InternalError(Exception):
@@ -19,7 +21,7 @@ class CLIXXException(Exception):
         super().__init__(message)
         self.message = message
 
-    def show(self, *, file: Optional[TextIO] = None) -> None:
+    def show(self, *, file: TextIO | None = None) -> None:
         file = file or sys.stderr
         file.write(f"Error: {self.message}\n")
 

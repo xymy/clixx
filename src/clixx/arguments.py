@@ -1,5 +1,7 @@
+from __future__ import annotations
+
 from keyword import iskeyword
-from typing import Any, Dict, List, Optional, Sequence, Tuple
+from typing import Any, Sequence
 
 from .constants import LONG_PREFIX, SHORT_PREFIX
 from .exceptions import DefinitionError, InternalError
@@ -15,12 +17,12 @@ def _check_dest(dest: str) -> str:
     return dest
 
 
-def _parse_decls(decls: Sequence[str]) -> Tuple[List[str], List[str]]:
+def _parse_decls(decls: Sequence[str]) -> tuple[list[str], list[str]]:
     if not decls:
         raise DefinitionError("No option defined.")
 
-    long_options: List[str] = []
-    short_options: List[str] = []
+    long_options: list[str] = []
+    short_options: list[str] = []
     for decl in decls:
         if decl.startswith(LONG_PREFIX):
             if len(decl) == len(LONG_PREFIX):
@@ -46,10 +48,10 @@ class Argument:
         self,
         decl: str,
         *,
-        dest: Optional[str] = None,
+        dest: str | None = None,
         nargs: int = 1,
         required: bool = False,
-        type: Optional[Type] = None,
+        type: Type | None = None,
         default: Any = None,
         help: str = "",
     ) -> None:
@@ -61,7 +63,7 @@ class Argument:
         self.help = help
 
     @staticmethod
-    def _parse(decl: str, *, dest: Optional[str]) -> Tuple[str, str]:
+    def _parse(decl: str, *, dest: str | None) -> tuple[str, str]:
         # Infer the destination argument from the declaration if dest not given.
         if dest is not None:
             dest = _check_dest(dest)
@@ -69,11 +71,11 @@ class Argument:
             dest = _check_dest(decl)
         return dest, decl
 
-    def _store(self, args: Dict[str, Any], values: Sequence[str]) -> None:
+    def _store(self, args: dict[str, Any], values: Sequence[str]) -> None:
         result = tuple(map(self.type.convert_str, values))
         args[self.dest] = result
 
-    def _store_default(self, args: Dict[str, Any]) -> None:
+    def _store_default(self, args: dict[str, Any]) -> None:
         if self.nargs == 1:
             result = self.type(self.default)
         else:
@@ -100,9 +102,9 @@ class Option:
     def __init__(
         self,
         *decls: str,
-        dest: Optional[str] = None,
+        dest: str | None = None,
         required: bool = False,
-        type: Optional[Type] = None,
+        type: Type | None = None,
         default: Any = None,
         help: str = "",
     ) -> None:
@@ -113,7 +115,7 @@ class Option:
         self.help = help
 
     @staticmethod
-    def _parse(decls: Sequence[str], *, dest: Optional[str] = None) -> Tuple[str, List[str], List[str]]:
+    def _parse(decls: Sequence[str], *, dest: str | None = None) -> tuple[str, list[str], list[str]]:
         long_options, short_options = _parse_decls(decls)
 
         # Infer the destination argument from the declarations if dest not given.
@@ -125,14 +127,14 @@ class Option:
             dest = _check_dest(short_options[0][1:])
         return dest, long_options, short_options
 
-    def _store_0(self, args: Dict[str, Any]) -> None:
+    def _store_0(self, args: dict[str, Any]) -> None:
         raise InternalError()
 
-    def _store_1(self, args: Dict[str, Any], value: str) -> None:
+    def _store_1(self, args: dict[str, Any], value: str) -> None:
         result = self.type.convert_str(value)
         args[self.dest] = result
 
-    def _store_default(self, args: Dict[str, Any]) -> None:
+    def _store_default(self, args: dict[str, Any]) -> None:
         result = self.type(self.default)
         args[self.dest] = result
 
@@ -147,9 +149,9 @@ class Flag(Option):
     def __init__(
         self,
         *decls: str,
-        dest: Optional[str] = None,
+        dest: str | None = None,
         required: bool = False,
-        type: Optional[Type] = None,
+        type: Type | None = None,
         const: Any = True,
         default: Any = False,
         help: str = "",
@@ -158,11 +160,11 @@ class Flag(Option):
         super().__init__(*decls, dest=dest, required=required, type=type, default=default, help=help)
         self.const = const
 
-    def _store_0(self, args: Dict[str, Any]) -> None:
+    def _store_0(self, args: dict[str, Any]) -> None:
         result = self.type(self.const)
         args[self.dest] = result
 
-    def _store_1(self, args: Dict[str, Any], value: str) -> None:
+    def _store_1(self, args: dict[str, Any], value: str) -> None:
         raise InternalError()
 
     @property
@@ -174,11 +176,11 @@ class SignalOption(Option):
     """The optional argument that can raise a signal."""
 
     @staticmethod
-    def _parse(decls: Sequence[str], *, dest: Optional[str] = None) -> Tuple[str, List[str], List[str]]:
+    def _parse(decls: Sequence[str], *, dest: str | None = None) -> tuple[str, list[str], list[str]]:
         # The signal option does not output the destination argument.
         return "", *_parse_decls(decls)
 
-    def _store_1(self, args: Dict[str, Any], value: str) -> None:
+    def _store_1(self, args: dict[str, Any], value: str) -> None:
         raise InternalError()
 
 
@@ -186,9 +188,9 @@ class SignalFlag(Flag):
     """The flag argument that can raise a signal."""
 
     @staticmethod
-    def _parse(decls: Sequence[str], *, dest: Optional[str] = None) -> Tuple[str, List[str], List[str]]:
+    def _parse(decls: Sequence[str], *, dest: str | None = None) -> tuple[str, list[str], list[str]]:
         # The signal flag does not output the destination argument.
         return "", *_parse_decls(decls)
 
-    def _store_0(self, args: Dict[str, Any]) -> None:
+    def _store_0(self, args: dict[str, Any]) -> None:
         raise InternalError()
