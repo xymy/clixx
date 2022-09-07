@@ -3,7 +3,7 @@ from typing import Any, Dict, List, Optional, Sequence, Tuple
 
 from .constants import LONG_PREFIX, SHORT_PREFIX
 from .exceptions import DefinitionError, InternalError
-from .types import Identity, Str, TypeBase
+from .types import Str, Type
 
 
 def _check_dest(dest: str) -> str:
@@ -49,7 +49,7 @@ class Argument:
         dest: Optional[str] = None,
         nargs: int = 1,
         required: bool = False,
-        type: Optional[TypeBase] = None,
+        type: Optional[Type] = None,
         default: Any = None,
         help: str = "",
     ) -> None:
@@ -102,7 +102,7 @@ class Option:
         *decls: str,
         dest: Optional[str] = None,
         required: bool = False,
-        type: Optional[TypeBase] = None,
+        type: Optional[Type] = None,
         default: Any = None,
         help: str = "",
     ) -> None:
@@ -149,12 +149,12 @@ class Flag(Option):
         *decls: str,
         dest: Optional[str] = None,
         required: bool = False,
-        type: Optional[TypeBase] = None,
+        type: Optional[Type] = None,
         const: Any = True,
         default: Any = False,
         help: str = "",
     ) -> None:
-        type = type or Identity()
+        type = type or Type()
         super().__init__(*decls, dest=dest, required=required, type=type, default=default, help=help)
         self.const = const
 
