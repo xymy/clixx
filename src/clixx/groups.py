@@ -1,5 +1,7 @@
+from __future__ import annotations
+
 from enum import Enum, auto
-from typing import Iterator, List
+from typing import Iterator
 
 from .arguments import Argument, Option
 
@@ -28,7 +30,7 @@ class ArgumentGroup:
 
     def __init__(self, name: str) -> None:
         self.name = name
-        self.gourp: List[Argument] = []
+        self.gourp: list[Argument] = []
 
     def __iter__(self) -> Iterator[Argument]:
         yield from self.gourp
@@ -43,7 +45,7 @@ class OptionGroup:
     def __init__(self, name: str, *, type: GroupType = ANY) -> None:
         self.name = name
         self.type = type
-        self.gourp: List[Option] = []
+        self.gourp: list[Option] = []
 
     def __iter__(self) -> Iterator[Option]:
         yield from self.gourp

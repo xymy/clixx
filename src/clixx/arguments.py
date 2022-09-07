@@ -122,9 +122,9 @@ class Option:
         if dest is not None:
             dest = _check_dest(dest)
         elif long_options:
-            dest = _check_dest(long_options[0][2:])
+            dest = _check_dest(long_options[0][len(LONG_PREFIX) :])
         else:
-            dest = _check_dest(short_options[0][1:])
+            dest = _check_dest(short_options[0][len(SHORT_PREFIX) :])
         return dest, long_options, short_options
 
     def _store_0(self, args: dict[str, Any]) -> None:
