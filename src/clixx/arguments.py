@@ -71,9 +71,12 @@ class Argument:
             dest = _check_dest(decl)
         return dest, decl
 
-    def _store(self, args: dict[str, Any], values: Sequence[str]) -> None:
-        result = tuple(map(self.type.convert_str, values))
-        args[self.dest] = result
+    def _store(self, args: dict[str, Any], value: str) -> None:
+        result = self.type(value)
+        if self.nargs == 1:
+            args[self.dest] = result
+        else:
+            args.setdefault(self.dest, []).append(result)
 
     def _store_default(self, args: dict[str, Any]) -> None:
         if self.nargs == 1:
