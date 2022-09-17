@@ -100,6 +100,20 @@ class Argument:
             raise DefinitionError(f"Require nargs >= 1 or nargs == -1, got {value!r}.")
         self._nargs = value
 
+    @property
+    def default(self) -> Any:
+        return self._default
+
+    @default.setter
+    def default(self, value: Any) -> None:
+        if value is not None and (nargs := self.nargs) > 1:
+            if not isinstance(value, (tuple, list)):
+                tn = type(value).__name__
+                raise DefinitionError(f"If nargs > 1, the default value must be a tuple or list, not {tn}.")
+            if (l := len(value)) != nargs:
+                raise DefinitionError(f"If nargs > 1, the length of default value must be equal to {nargs!r}, got {l}.")
+        self._default = value
+
 
 class Option:
     """The optional argument."""
@@ -155,14 +169,14 @@ class Flag(Option):
         self,
         *decls: str,
         dest: str | None = None,
-        required: bool = False,
         type: Type | None = None,
         const: Any = True,
         default: Any = False,
         help: str = "",
     ) -> None:
+        # The value of a flag is not parsed from command-line, so type conversion is unnecessary.
         type = type or Type()
-        super().__init__(*decls, dest=dest, required=required, type=type, default=default, help=help)
+        super().__init__(*decls, dest=dest, required=False, type=type, default=default, help=help)
         self.const = const
 
     def _store_0(self, args: dict[str, Any]) -> None:
