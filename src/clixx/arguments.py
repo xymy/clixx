@@ -146,12 +146,12 @@ class Option:
             dest = _check_dest(short_options[0][SHORT_PREFIX_LEN:])
         return dest, long_options, short_options
 
-    def _store_0(self, args: dict[str, Any]) -> None:
-        raise InternalError()
-
-    def _store_1(self, args: dict[str, Any], value: str) -> None:
+    def _store(self, args: dict[str, Any], value: str) -> None:
         result = self.type.convert_str(value)
         args[self.dest] = result
+
+    def _store_const(self, args: dict[str, Any]) -> None:
+        raise InternalError()
 
     def _store_default(self, args: dict[str, Any]) -> None:
         result = self.type(self.default)
@@ -179,12 +179,12 @@ class Flag(Option):
         super().__init__(*decls, dest=dest, required=False, type=type, default=default, help=help)
         self.const = const
 
-    def _store_0(self, args: dict[str, Any]) -> None:
+    def _store(self, args: dict[str, Any], value: str) -> None:
+        raise InternalError()
+
+    def _store_const(self, args: dict[str, Any]) -> None:
         result = self.type(self.const)
         args[self.dest] = result
-
-    def _store_1(self, args: dict[str, Any], value: str) -> None:
-        raise InternalError()
 
     @property
     def nargs(self) -> int:
@@ -199,8 +199,14 @@ class SignalOption(Option):
         # The signal option does not have destination argument.
         return "", *_parse_decls(decls)
 
-    def _store_1(self, args: dict[str, Any], value: str) -> None:
+    def _store(self, args: dict[str, Any], value: str) -> None:
         raise InternalError()
+
+    def _store_const(self, args: dict[str, Any]) -> None:
+        raise InternalError()
+
+    def _store_default(self, args: dict[str, Any]) -> None:
+        pass
 
 
 class SignalFlag(Flag):
@@ -211,5 +217,11 @@ class SignalFlag(Flag):
         # The signal flag does not have destination argument.
         return "", *_parse_decls(decls)
 
-    def _store_0(self, args: dict[str, Any]) -> None:
+    def _store(self, args: dict[str, Any], value: str) -> None:
         raise InternalError()
+
+    def _store_const(self, args: dict[str, Any]) -> None:
+        raise InternalError()
+
+    def _store_default(self, args: dict[str, Any]) -> None:
+        pass
