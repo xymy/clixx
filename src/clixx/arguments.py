@@ -3,7 +3,7 @@ from __future__ import annotations
 from keyword import iskeyword
 from typing import Any, Sequence
 
-from .constants import LONG_PREFIX, SHORT_PREFIX
+from .constants import LONG_PREFIX, LONG_PREFIX_LEN, SHORT_PREFIX, SHORT_PREFIX_LEN
 from .exceptions import DefinitionError, InternalError
 from .types import Str, Type
 
@@ -25,15 +25,15 @@ def _parse_decls(decls: Sequence[str]) -> tuple[list[str], list[str]]:
     short_options: list[str] = []
     for decl in decls:
         if decl.startswith(LONG_PREFIX):
-            if len(decl) == len(LONG_PREFIX):
+            if len(decl) == LONG_PREFIX_LEN:
                 raise DefinitionError(f"{decl!r} is not a valid option.")
-            if len(decl) <= len(LONG_PREFIX) + 1:
+            if len(decl) <= LONG_PREFIX_LEN + 1:
                 raise DefinitionError(f"{decl!r} is too short.")
             long_options.append(decl)
         elif decl.startswith(SHORT_PREFIX):
-            if len(decl) == len(SHORT_PREFIX):
+            if len(decl) == SHORT_PREFIX_LEN:
                 raise DefinitionError(f"{decl!r} is not a valid option.")
-            if len(decl) >= len(SHORT_PREFIX) + 2:
+            if len(decl) >= SHORT_PREFIX_LEN + 2:
                 raise DefinitionError(f"{decl!r} is too long.")
             short_options.append(decl)
         else:
@@ -125,9 +125,9 @@ class Option:
         if dest is not None:
             dest = _check_dest(dest)
         elif long_options:
-            dest = _check_dest(long_options[0][len(LONG_PREFIX) :])
+            dest = _check_dest(long_options[0][LONG_PREFIX_LEN:])
         else:
-            dest = _check_dest(short_options[0][len(SHORT_PREFIX) :])
+            dest = _check_dest(short_options[0][SHORT_PREFIX_LEN:])
         return dest, long_options, short_options
 
     def _store_0(self, args: dict[str, Any]) -> None:
