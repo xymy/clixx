@@ -25,16 +25,18 @@ def _parse_decls(decls: Sequence[str]) -> tuple[list[str], list[str]]:
     short_options: list[str] = []
     for decl in decls:
         if decl.startswith(LONG_PREFIX):
-            if len(decl) == LONG_PREFIX_LEN:
-                raise DefinitionError(f"{decl!r} is not a valid option.")
-            if len(decl) <= LONG_PREFIX_LEN + 1:
-                raise DefinitionError(f"{decl!r} is too short.")
+            decl_len = len(decl)
+            if decl_len == LONG_PREFIX_LEN:
+                raise DefinitionError(f"{decl!r} is not a valid long option.")
+            if decl_len <= LONG_PREFIX_LEN + 1:
+                raise DefinitionError(f"Long option {decl!r} is too short.")
             long_options.append(decl)
         elif decl.startswith(SHORT_PREFIX):
-            if len(decl) == SHORT_PREFIX_LEN:
-                raise DefinitionError(f"{decl!r} is not a valid option.")
-            if len(decl) >= SHORT_PREFIX_LEN + 2:
-                raise DefinitionError(f"{decl!r} is too long.")
+            decl_len = len(decl)
+            if decl_len == SHORT_PREFIX_LEN:
+                raise DefinitionError(f"{decl!r} is not a valid short option.")
+            if decl_len >= SHORT_PREFIX_LEN + 2:
+                raise DefinitionError(f"Short option {decl!r} is too long.")
             short_options.append(decl)
         else:
             raise DefinitionError(f"Option must start with {LONG_PREFIX!r} or {SHORT_PREFIX!r}, got {decl!r}.")
@@ -64,7 +66,7 @@ class Argument:
 
     @staticmethod
     def _parse(decl: str, *, dest: str | None) -> tuple[str, str]:
-        # Infer the destination argument from the declaration if dest not given.
+        # Infer destination argument from declaration if `dest` not given.
         if dest is not None:
             dest = _check_dest(dest)
         else:
@@ -121,7 +123,7 @@ class Option:
     def _parse(decls: Sequence[str], *, dest: str | None = None) -> tuple[str, list[str], list[str]]:
         long_options, short_options = _parse_decls(decls)
 
-        # Infer the destination argument from the declarations if dest not given.
+        # Infer destination argument from declarations if `dest` not given.
         if dest is not None:
             dest = _check_dest(dest)
         elif long_options:
@@ -180,7 +182,7 @@ class SignalOption(Option):
 
     @staticmethod
     def _parse(decls: Sequence[str], *, dest: str | None = None) -> tuple[str, list[str], list[str]]:
-        # The signal option does not output the destination argument.
+        # The signal option does not have destination argument.
         return "", *_parse_decls(decls)
 
     def _store_1(self, args: dict[str, Any], value: str) -> None:
@@ -192,7 +194,7 @@ class SignalFlag(Flag):
 
     @staticmethod
     def _parse(decls: Sequence[str], *, dest: str | None = None) -> tuple[str, list[str], list[str]]:
-        # The signal flag does not output the destination argument.
+        # The signal flag does not have destination argument.
         return "", *_parse_decls(decls)
 
     def _store_0(self, args: dict[str, Any]) -> None:
