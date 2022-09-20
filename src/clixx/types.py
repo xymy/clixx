@@ -28,6 +28,21 @@ class Str(Type):
         return value
 
 
+class Bool(Type):
+    def convert(self, value: Any) -> Any:
+        if isinstance(value, bool):
+            return value
+        raise ValueError(f"{value!r} is not a valid bool.")
+
+    def convert_str(self, value: str) -> Any:
+        v = value.lower()
+        if v in {"t", "true", "y", "yes", "on", "1"}:
+            return True
+        if v in {"f", "false", "n", "no", "off", "0"}:
+            return False
+        raise ValueError(f"{value!r} is not a valid bool.")
+
+
 class Int(Type):
     def __init__(self, *, base: int = 10) -> None:
         if not (2 <= base <= 36 or base == 0):
