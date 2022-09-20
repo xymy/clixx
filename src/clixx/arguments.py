@@ -78,13 +78,17 @@ class Argument:
         if self.nargs == 1:
             args[self.dest] = result
         else:
-            args.setdefault(self.dest, []).append(result)
+            # Multivalue argument is stored as tuple.
+            args[self.dest] = args.get(self.dest, ()) + (result,)
 
     def _store_default(self, args: dict[str, Any]) -> None:
         if self.nargs == 1:
             result = self.type(self.default)
         else:
-            if isinstance(self.default, (tuple, list)):
+            # Multivalue argument is stored as tuple. The default is a empty tuple.
+            if self.default is None:
+                result = ()
+            elif isinstance(self.default, (tuple, list)):
                 result = tuple(map(self.type, self.default))
             else:
                 result = (self.type(self.default),)
