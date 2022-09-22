@@ -78,14 +78,14 @@ class Argument:
         if self.nargs == 1:
             args[self.dest] = result
         else:
-            # Multivalue argument is stored as tuple.
+            # Variadic arguments are stored as tuple.
             args[self.dest] = args.get(self.dest, ()) + (result,)
 
     def _store_default(self, args: dict[str, Any]) -> None:
         if self.nargs == 1:
             result = self.type(self.default)
         else:
-            # Multivalue argument is stored as tuple. The default is a empty tuple.
+            # Variadic arguments are stored as tuple. The default is a empty tuple.
             if self.default is None:
                 result = ()
             elif isinstance(self.default, (tuple, list)):
@@ -100,23 +100,9 @@ class Argument:
 
     @nargs.setter
     def nargs(self, value: int) -> None:
-        if not (value >= 1 or value == -1):
-            raise DefinitionError(f"Require nargs >= 1 or nargs == -1, got {value!r}.")
+        if not (value == 1 or value == -1):
+            raise DefinitionError(f"Require nargs == 1 or nargs == -1, got {value!r}.")
         self._nargs = value
-
-    @property
-    def default(self) -> Any:
-        return self._default
-
-    @default.setter
-    def default(self, value: Any) -> None:
-        if value is not None and (nargs := self.nargs) > 1:
-            if not isinstance(value, (tuple, list)):
-                tn = type(value).__name__
-                raise DefinitionError(f"If nargs > 1, the default value must be a tuple or list, not {tn}.")
-            if (l := len(value)) != nargs:
-                raise DefinitionError(f"If nargs > 1, the length of default value must be equal to {nargs!r}, got {l}.")
-        self._default = value
 
 
 class Option:
