@@ -73,7 +73,7 @@ class Argument:
             dest = _check_dest(decl)
         return dest, decl
 
-    def _store(self, args: dict[str, Any], value: str) -> None:
+    def store(self, args: dict[str, Any], value: str) -> None:
         result = self.type(value)
         if self.nargs == 1:
             args[self.dest] = result
@@ -81,7 +81,7 @@ class Argument:
             # Variadic arguments are stored as tuple.
             args[self.dest] = args.get(self.dest, ()) + (result,)
 
-    def _store_default(self, args: dict[str, Any]) -> None:
+    def store_default(self, args: dict[str, Any]) -> None:
         if self.nargs == 1:
             result = self.type(self.default)
         else:
@@ -136,14 +136,14 @@ class Option:
             dest = _check_dest(short_options[0][SHORT_PREFIX_LEN:])
         return dest, long_options, short_options
 
-    def _store(self, args: dict[str, Any], value: str) -> None:
+    def store(self, args: dict[str, Any], value: str) -> None:
         result = self.type.convert_str(value)
         args[self.dest] = result
 
-    def _store_const(self, args: dict[str, Any]) -> None:
+    def store_const(self, args: dict[str, Any]) -> None:
         raise InternalError()
 
-    def _store_default(self, args: dict[str, Any]) -> None:
+    def store_default(self, args: dict[str, Any]) -> None:
         result = self.type(self.default)
         args[self.dest] = result
 
@@ -169,10 +169,10 @@ class Flag(Option):
         super().__init__(*decls, dest=dest, required=False, type=type, default=default, help=help)
         self.const = const
 
-    def _store(self, args: dict[str, Any], value: str) -> None:
+    def store(self, args: dict[str, Any], value: str) -> None:
         raise InternalError()
 
-    def _store_const(self, args: dict[str, Any]) -> None:
+    def store_const(self, args: dict[str, Any]) -> None:
         result = self.type(self.const)
         args[self.dest] = result
 
@@ -189,13 +189,13 @@ class SignalOption(Option):
         # The signal option does not have destination argument.
         return "", *_parse_decls(decls)
 
-    def _store(self, args: dict[str, Any], value: str) -> None:
+    def store(self, args: dict[str, Any], value: str) -> None:
         raise InternalError()
 
-    def _store_const(self, args: dict[str, Any]) -> None:
+    def store_const(self, args: dict[str, Any]) -> None:
         raise InternalError()
 
-    def _store_default(self, args: dict[str, Any]) -> None:
+    def store_default(self, args: dict[str, Any]) -> None:
         pass
 
 
@@ -207,11 +207,11 @@ class SignalFlag(Flag):
         # The signal flag does not have destination argument.
         return "", *_parse_decls(decls)
 
-    def _store(self, args: dict[str, Any], value: str) -> None:
+    def store(self, args: dict[str, Any], value: str) -> None:
         raise InternalError()
 
-    def _store_const(self, args: dict[str, Any]) -> None:
+    def store_const(self, args: dict[str, Any]) -> None:
         raise InternalError()
 
-    def _store_default(self, args: dict[str, Any]) -> None:
+    def store_default(self, args: dict[str, Any]) -> None:
         pass

@@ -21,12 +21,12 @@ class ArgumentInfo:
     group_info: ArgumentGroupInfo
     occurred: bool = False
 
-    def _store(self, args: dict[str, Any], value: str) -> None:
-        self.argument._store(args, value)
+    def store(self, args: dict[str, Any], value: str) -> None:
+        self.argument.store(args, value)
         self.occurred = True
 
-    def _store_default(self, args: dict[str, Any]) -> None:
-        self.argument._store_default(args)
+    def store_default(self, args: dict[str, Any]) -> None:
+        self.argument.store_default(args)
         self.occurred = True
 
     @property
@@ -46,16 +46,16 @@ class OptionInfo:
     group_info: OptionGroupInfo
     occurred: bool = False
 
-    def _store(self, args: dict[str, Any], value: str) -> None:
-        self.option._store(args, value)
+    def store(self, args: dict[str, Any], value: str) -> None:
+        self.option.store(args, value)
         self.occurred = True
 
-    def _store_const(self, args: dict[str, Any]) -> None:
-        self.option._store_const(args)
+    def store_const(self, args: dict[str, Any]) -> None:
+        self.option.store_const(args)
         self.occurred = True
 
-    def _store_default(self, args: dict[str, Any]) -> None:
-        self.option._store_default(args)
+    def store_default(self, args: dict[str, Any]) -> None:
+        self.option.store_default(args)
         self.occurred = True
 
     @property
@@ -130,7 +130,7 @@ class Parser:
         except IndexError:
             raise TooManyArguments("Got too many arguments")
 
-        argument._store(args, arg)
+        argument.store(args, arg)
         if argument.nargs == 1:
             ctx.pos += 1
 
@@ -148,17 +148,17 @@ class Parser:
             option = self._lookup(key)
             if option.nargs == 0:
                 raise TooManyOptionValues(f"Option {key!r} does not take a value.")
-            option._store(args, value)
+            option.store(args, value)
 
         else:  # --option [value]
             key = arg
             option = self._lookup(key)
             if option.nargs == 0:
-                option._store_const(args)
+                option.store_const(args)
             else:
                 if (value := ctx.next_arg) is None:
                     raise TooFewOptionValues(f"Option {key!r} requires a value.")
-                option._store(args, value)
+                option.store(args, value)
 
     def _parse_short_option(self, ctx: Context, args: dict[str, Any], arg: str) -> None:
         index = len(SHORT_PREFIX)
@@ -168,7 +168,7 @@ class Parser:
             option = self._lookup(key)
 
             if option.nargs == 0:
-                option._store_const(args)
+                option.store_const(args)
 
             else:
                 value: str | None
@@ -177,5 +177,5 @@ class Parser:
                 else:  # -o value
                     if (value := ctx.next_arg) is None:
                         raise TooFewOptionValues(f"Option {key!r} requires a value.")
-                option._store(args, value)
+                option.store(args, value)
                 break  # end of parsing
