@@ -17,6 +17,7 @@ class GroupType(Enum):
     EXACTLY_ONE = auto()
 
 
+# Aliases for GroupType.
 ANY = GroupType.ANY
 ALL = GroupType.ALL
 NONE = GroupType.NONE
