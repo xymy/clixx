@@ -56,7 +56,7 @@ class InvalidValue(CLIXXException):
 
     def format_message(self) -> str:
         message = super().format_message()
-        return f"Invalid value {self.value!r} for {self.key!r} {message}"
+        return f"Invalid value {self.value!r} for {self.key!r}. {message}"
 
 
 class GroupError(CLIXXException):
