@@ -1,8 +1,5 @@
 from __future__ import annotations
 
-import sys
-from typing import TextIO
-
 
 class InternalError(Exception):
     """Invoke internal APIs incorrectly."""
@@ -21,45 +18,53 @@ class CLIXXException(Exception):
         super().__init__(message)
         self.message = message
 
-    def show(self, *, file: TextIO | None = None) -> None:
-        file = file or sys.stderr
-        file.write(f"Error: {self.message}\n")
+    def format_message(self) -> str:
+        return self.message
 
 
 class TooFewArguments(CLIXXException):
-    exit_code = 129
+    """Too few arguments given."""
 
 
 class TooManyArguments(CLIXXException):
-    exit_code = 130
+    """Too many arguments given."""
 
 
 class MissingOption(CLIXXException):
-    exit_code = 131
+    """Missing required option."""
 
 
 class UnknownOption(CLIXXException):
-    exit_code = 132
+    """Unknown option."""
 
 
 class TooFewOptionValues(CLIXXException):
-    exit_code = 133
+    """Too few option values given."""
 
 
 class TooManyOptionValues(CLIXXException):
-    exit_code = 134
+    """Too many option values given."""
 
 
 class InvalidValue(CLIXXException):
-    exit_code = 135
+    """Invalid value given."""
+
+    def __init__(self, message: str, *, key: str, value: str) -> None:
+        super().__init__(message)
+        self.key = key
+        self.value = value
+
+    def format_message(self) -> str:
+        message = super().format_message()
+        return f"Invalid value {self.value!r} for {self.key!r} {message}"
 
 
 class GroupError(CLIXXException):
-    exit_code = 144
+    """Group error."""
 
 
 class SubcommandError(CLIXXException):
-    exit_code = 145
+    """Subcommand error."""
 
 
 class CLIXXSignal(BaseException):
