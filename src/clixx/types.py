@@ -1,5 +1,8 @@
 from __future__ import annotations
 
+import os
+import pathlib
+import stat
 from typing import Any
 
 from .exceptions import DefinitionError
@@ -88,3 +91,69 @@ class Float(Type):
 
     def check(self, value: Any) -> bool:
         return isinstance(value, float)
+
+
+class Path(Type):
+    def __init__(
+        self,
+        *,
+        resolve: bool = False,
+        exists: bool = False,
+        readable: bool = False,
+        writable: bool = False,
+        executable: bool = False,
+    ) -> None:
+        self.resolve = resolve
+        self.exists = exists
+        self.readable = readable
+        self.writable = writable
+        self.executable = executable
+
+    def convert(self, value: Any) -> Any:
+        if isinstance(value, pathlib.Path):
+            return self._check_path(value)
+        raise ValueError(f"{value!r} is not a valid path.")
+
+    def convert_str(self, value: str) -> Any:
+        return self._check_path(pathlib.Path(value))
+
+    def _check_path(self, path: pathlib.Path) -> pathlib.Path:
+        if self.resolve:
+            path = path.resolve()
+
+        try:
+            st = path.stat()
+        except OSError:
+            if not self.exists:
+                return path
+            raise ValueError(f"{str(path)!r} does not exist.")
+
+        self._check_path_attr(path, st)
+        if self.readable and not os.access(path, os.R_OK):
+            raise ValueError(f"{str(path)!r} is not readable.")
+        if self.writable and not os.access(path, os.W_OK):
+            raise ValueError(f"{str(path)!r} is not writable.")
+        if self.executable and not os.access(path, os.X_OK):
+            raise ValueError(f"{str(path)!r} is not executable.")
+        return path
+
+    @staticmethod
+    def _check_path_attr(path: pathlib.Path, st: os.stat_result) -> None:
+        pass
+
+    def check(self, value: Any) -> bool:
+        return isinstance(value, (str, pathlib.Path))
+
+
+class DirPath(Path):
+    @staticmethod
+    def _check_path_attr(path: pathlib.Path, st: os.stat_result) -> None:
+        if not stat.S_ISDIR(st.st_mode):
+            raise ValueError(f"{str(path)!r} is not a directory.")
+
+
+class FilePath(Path):
+    @staticmethod
+    def _check_path_attr(path: pathlib.Path, st: os.stat_result) -> None:
+        if not stat.S_ISREG(st.st_mode):
+            raise ValueError(f"{str(path)!r} is not a file.")
