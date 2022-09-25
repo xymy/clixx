@@ -19,6 +19,9 @@ class Type:
     def convert_str(self, value: str) -> Any:
         return value
 
+    def check(self, value: Any) -> bool:
+        return True
+
 
 class Str(Type):
     def convert(self, value: Any) -> Any:
@@ -26,6 +29,9 @@ class Str(Type):
 
     def convert_str(self, value: str) -> Any:
         return value
+
+    def check(self, value: Any) -> bool:
+        return isinstance(value, str)
 
 
 class Bool(Type):
@@ -41,6 +47,9 @@ class Bool(Type):
         if v in {"f", "false", "n", "no", "off", "0"}:
             return False
         raise ValueError(f"{value!r} is not a valid bool.")
+
+    def check(self, value: Any) -> bool:
+        return isinstance(value, bool)
 
 
 class Int(Type):
@@ -63,6 +72,9 @@ class Int(Type):
             else:
                 raise ValueError(f"{value!r} is not a valid int with base {self.base!r}.")
 
+    def check(self, value: Any) -> bool:
+        return isinstance(value, int)
+
 
 class Float(Type):
     def convert(self, value: Any) -> Any:
@@ -75,3 +87,6 @@ class Float(Type):
             return float(value)
         except ValueError:
             raise ValueError(f"{value!r} is not a valid float.")
+
+    def check(self, value: Any) -> bool:
+        return isinstance(value, float)

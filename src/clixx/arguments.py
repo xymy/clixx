@@ -104,6 +104,16 @@ class Argument:
             raise DefinitionError(f"Require nargs == 1 or nargs == -1, got {value!r}.")
         self._nargs = value
 
+    @property
+    def default(self) -> Any:
+        return self._default  # type: ignore
+
+    @default.setter
+    def default(self, value: Any) -> None:
+        if value is not None and not self.type.check(value):
+            raise DefinitionError(f"Invalid default value {value!r}.")
+        self._default = value
+
 
 class Option:
     """The optional argument."""
@@ -151,6 +161,16 @@ class Option:
     def nargs(self) -> int:
         return 1
 
+    @property
+    def default(self) -> Any:
+        return self._default
+
+    @default.setter
+    def default(self, value: Any) -> None:
+        if value is not None and not self.type.check(value):
+            raise DefinitionError(f"Invalid default value {value!r}.")
+        self._default = value
+
 
 class Flag(Option):
     """The flag argument."""
@@ -179,6 +199,16 @@ class Flag(Option):
     @property
     def nargs(self) -> int:
         return 0
+
+    @property
+    def const(self) -> Any:
+        return self._const
+
+    @const.setter
+    def const(self, value: Any) -> None:
+        if value is not None and not self.type.check(value):
+            raise DefinitionError(f"Invalid const value {value!r}.")
+        self._const = value
 
 
 class SignalOption(Option):
