@@ -74,7 +74,7 @@ class Argument:
         return dest, decl
 
     def store(self, args: dict[str, Any], value: str) -> None:
-        result = self.type(value)
+        result = self.type.convert_str(value)
         if self.nargs == 1:
             args[self.dest] = result
         else:
@@ -83,7 +83,7 @@ class Argument:
 
     def store_default(self, args: dict[str, Any]) -> None:
         if self.nargs == 1:
-            result = self.type(self.default)
+            result = None if self.default is None else self.type(self.default)
         else:
             # Variadic arguments are stored as tuple. The default is a empty tuple.
             if self.default is None:
@@ -154,7 +154,7 @@ class Option:
         raise InternalError()
 
     def store_default(self, args: dict[str, Any]) -> None:
-        result = self.type(self.default)
+        result = None if self.default is None else self.type(self.default)
         args[self.dest] = result
 
     @property
@@ -193,7 +193,7 @@ class Flag(Option):
         raise InternalError()
 
     def store_const(self, args: dict[str, Any]) -> None:
-        result = self.type(self.const)
+        result = None if self.const is None else self.type(self.const)
         args[self.dest] = result
 
     @property

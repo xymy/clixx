@@ -7,8 +7,6 @@ from .exceptions import DefinitionError
 
 class Type:
     def __call__(self, value: Any) -> Any:
-        if value is None:
-            return None
         if isinstance(value, str):
             return self.convert_str(value)
         return self.convert(value)
