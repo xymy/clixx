@@ -93,6 +93,39 @@ class Float(Type):
         return isinstance(value, float)
 
 
+class File(Type):
+    def __init__(
+        self,
+        mode: str = "r",
+        buffering: int = -1,
+        *,
+        encoding: str | None = None,
+        errors: str | None = None,
+        newline: str | None = None,
+    ) -> None:
+        self.mode = mode
+        self.buffering = buffering
+        self.encoding = encoding
+        self.errors = errors
+        self.newline = newline
+
+    def convert(self, value: Any, *, key: str) -> Any:
+        if hasattr(value, "read") or hasattr(value, "write"):
+            return value
+        raise InvalidValue(f"{value!r} is not a valid file.", key=key)
+
+    def convert_str(self, value: str, *, key: str) -> Any:
+        try:
+            return open(  # noqa
+                value, self.mode, self.buffering, encoding=self.encoding, errors=self.errors, newline=self.newline
+            )
+        except OSError as e:
+            raise InvalidValue(f"{e.strerror}: {value!r}.", key=key)
+
+    def check(self, value: Any) -> bool:
+        return isinstance(value, str) or hasattr(value, "read") or hasattr(value, "write")
+
+
 class Path(Type):
     def __init__(
         self,
