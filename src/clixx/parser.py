@@ -46,8 +46,8 @@ class OptionInfo:
     group_info: OptionGroupInfo
     occurred: bool = False
 
-    def store(self, args: dict[str, Any], value: str) -> None:
-        self.option.store(args, value)
+    def store(self, args: dict[str, Any], value: str, *, key: str) -> None:
+        self.option.store(args, value, key=key)
         self.occurred = True
 
     def store_const(self, args: dict[str, Any]) -> None:
@@ -148,7 +148,7 @@ class Parser:
             option = self._lookup(key)
             if option.nargs == 0:
                 raise TooManyOptionValues(f"Option {key!r} does not take a value.")
-            option.store(args, value)
+            option.store(args, value, key=key)
 
         else:  # --option [value]
             key = arg
@@ -158,7 +158,7 @@ class Parser:
             else:
                 if (value := ctx.next_arg) is None:
                     raise TooFewOptionValues(f"Option {key!r} requires a value.")
-                option.store(args, value)
+                option.store(args, value, key=key)
 
     def _parse_short_option(self, ctx: Context, args: dict[str, Any], arg: str) -> None:
         index = len(SHORT_PREFIX)
@@ -177,5 +177,5 @@ class Parser:
                 else:  # -o value
                     if (value := ctx.next_arg) is None:
                         raise TooFewOptionValues(f"Option {key!r} requires a value.")
-                option.store(args, value)
+                option.store(args, value, key=key)
                 break  # end of parsing

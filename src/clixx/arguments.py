@@ -74,7 +74,7 @@ class Argument:
         return dest, decl
 
     def store(self, args: dict[str, Any], value: str) -> None:
-        result = self.type.convert_str(value)
+        result = self.type.convert_str(value, key=self.argument)
         if self.nargs == 1:
             args[self.dest] = result
         else:
@@ -83,15 +83,15 @@ class Argument:
 
     def store_default(self, args: dict[str, Any]) -> None:
         if self.nargs == 1:
-            result = None if self.default is None else self.type(self.default)
+            result = None if self.default is None else self.type(self.default, key=self.dest)
         else:
             # Variadic arguments are stored as tuple. The default is a empty tuple.
             if self.default is None:
                 result = ()
             elif isinstance(self.default, (tuple, list)):
-                result = tuple(map(self.type, self.default))
+                result = tuple(self.type(value, key=self.dest) for value in self.default)
             else:
-                result = (self.type(self.default),)
+                result = (self.type(self.default, key=self.dest),)
         args[self.dest] = result
 
     @property
@@ -146,15 +146,15 @@ class Option:
             dest = _check_dest(short_options[0][SHORT_PREFIX_LEN:])
         return dest, long_options, short_options
 
-    def store(self, args: dict[str, Any], value: str) -> None:
-        result = self.type.convert_str(value)
+    def store(self, args: dict[str, Any], value: str, *, key: str) -> None:
+        result = self.type.convert_str(value, key=key)
         args[self.dest] = result
 
     def store_const(self, args: dict[str, Any]) -> None:
         raise InternalError()
 
     def store_default(self, args: dict[str, Any]) -> None:
-        result = None if self.default is None else self.type(self.default)
+        result = None if self.default is None else self.type(self.default, key=self.dest)
         args[self.dest] = result
 
     @property
@@ -189,11 +189,11 @@ class Flag(Option):
         super().__init__(*decls, dest=dest, required=False, type=type, default=default, help=help)
         self.const = const
 
-    def store(self, args: dict[str, Any], value: str) -> None:
+    def store(self, args: dict[str, Any], value: str, *, key: str) -> None:
         raise InternalError()
 
     def store_const(self, args: dict[str, Any]) -> None:
-        result = None if self.const is None else self.type(self.const)
+        result = None if self.const is None else self.type(self.const, key=self.dest)
         args[self.dest] = result
 
     @property
@@ -219,7 +219,7 @@ class SignalOption(Option):
         # The signal option does not have destination argument.
         return "", *_parse_decls(decls)
 
-    def store(self, args: dict[str, Any], value: str) -> None:
+    def store(self, args: dict[str, Any], value: str, *, key: str) -> None:
         raise InternalError()
 
     def store_const(self, args: dict[str, Any]) -> None:
@@ -237,7 +237,7 @@ class SignalFlag(Flag):
         # The signal flag does not have destination argument.
         return "", *_parse_decls(decls)
 
-    def store(self, args: dict[str, Any], value: str) -> None:
+    def store(self, args: dict[str, Any], value: str, *, key: str) -> None:
         raise InternalError()
 
     def store_const(self, args: dict[str, Any]) -> None:

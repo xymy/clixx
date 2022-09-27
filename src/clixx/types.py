@@ -5,19 +5,19 @@ import pathlib
 import stat
 from typing import Any
 
-from .exceptions import DefinitionError
+from .exceptions import DefinitionError, InvalidValue
 
 
 class Type:
-    def __call__(self, value: Any) -> Any:
+    def __call__(self, value: Any, *, key: str) -> Any:
         if isinstance(value, str):
-            return self.convert_str(value)
-        return self.convert(value)
+            return self.convert_str(value, key=key)
+        return self.convert(value, key=key)
 
-    def convert(self, value: Any) -> Any:
+    def convert(self, value: Any, *, key: str) -> Any:
         return value
 
-    def convert_str(self, value: str) -> Any:
+    def convert_str(self, value: str, *, key: str) -> Any:
         return value
 
     def check(self, value: Any) -> bool:
@@ -25,10 +25,10 @@ class Type:
 
 
 class Str(Type):
-    def convert(self, value: Any) -> Any:
-        raise ValueError(f"{value!r} is not a valid str.")
+    def convert(self, value: Any, *, key: str) -> Any:
+        raise InvalidValue(f"{value!r} is not a valid string.", key=key)
 
-    def convert_str(self, value: str) -> Any:
+    def convert_str(self, value: str, *, key: str) -> Any:
         return value
 
     def check(self, value: Any) -> bool:
@@ -36,18 +36,18 @@ class Str(Type):
 
 
 class Bool(Type):
-    def convert(self, value: Any) -> Any:
+    def convert(self, value: Any, *, key: str) -> Any:
         if isinstance(value, bool):
             return value
-        raise ValueError(f"{value!r} is not a valid bool.")
+        raise InvalidValue(f"{value!r} is not a valid boolean.", key=key)
 
-    def convert_str(self, value: str) -> Any:
+    def convert_str(self, value: str, *, key: str) -> Any:
         v = value.lower()
         if v in {"t", "true", "y", "yes", "on", "1"}:
             return True
         if v in {"f", "false", "n", "no", "off", "0"}:
             return False
-        raise ValueError(f"{value!r} is not a valid bool.")
+        raise InvalidValue(f"{value!r} is not a valid boolean.", key=key)
 
     def check(self, value: Any) -> bool:
         return isinstance(value, bool)
@@ -59,35 +59,35 @@ class Int(Type):
             raise DefinitionError(f"Require 2 <= base <= 36 or base == 0, got {base!r}.")
         self.base = base
 
-    def convert(self, value: Any) -> Any:
+    def convert(self, value: Any, *, key: str) -> Any:
         if isinstance(value, int):
             return value
-        raise ValueError(f"{value!r} is not a valid int.")
+        raise InvalidValue(f"{value!r} is not a valid integer.", key=key)
 
-    def convert_str(self, value: str) -> Any:
+    def convert_str(self, value: str, *, key: str) -> Any:
         try:
             return int(value, base=self.base)
         except ValueError:
             if self.base in {0, 10}:
-                raise ValueError(f"{value!r} is not a valid int.")
+                raise InvalidValue(f"{value!r} is not a valid integer.", key=key)
             else:
-                raise ValueError(f"{value!r} is not a valid int with base {self.base!r}.")
+                raise InvalidValue(f"{value!r} is not a valid integer with base {self.base!r}.", key=key)
 
     def check(self, value: Any) -> bool:
         return isinstance(value, int)
 
 
 class Float(Type):
-    def convert(self, value: Any) -> Any:
+    def convert(self, value: Any, *, key: str) -> Any:
         if isinstance(value, float):
             return value
-        raise ValueError(f"{value!r} is not a valid float.")
+        raise InvalidValue(f"{value!r} is not a valid floating point number.", key=key)
 
-    def convert_str(self, value: str) -> Any:
+    def convert_str(self, value: str, *, key: str) -> Any:
         try:
             return float(value)
         except ValueError:
-            raise ValueError(f"{value!r} is not a valid float.")
+            raise InvalidValue(f"{value!r} is not a valid floating point number.", key=key)
 
     def check(self, value: Any) -> bool:
         return isinstance(value, float)
@@ -109,15 +109,15 @@ class Path(Type):
         self.writable = writable
         self.executable = executable
 
-    def convert(self, value: Any) -> Any:
+    def convert(self, value: Any, *, key: str) -> Any:
         if isinstance(value, pathlib.Path):
-            return self._check_path(value)
-        raise ValueError(f"{value!r} is not a valid path.")
+            return self._check_path(value, key=key)
+        raise InvalidValue(f"{value!r} is not a valid path.", key=key)
 
-    def convert_str(self, value: str) -> Any:
-        return self._check_path(pathlib.Path(value))
+    def convert_str(self, value: str, *, key: str) -> Any:
+        return self._check_path(pathlib.Path(value), key=key)
 
-    def _check_path(self, path: pathlib.Path) -> pathlib.Path:
+    def _check_path(self, path: pathlib.Path, *, key: str) -> pathlib.Path:
         if self.resolve:
             path = path.resolve()
 
@@ -126,19 +126,19 @@ class Path(Type):
         except OSError:
             if not self.exists:
                 return path
-            raise ValueError(f"{str(path)!r} does not exist.")
+            raise InvalidValue(f"{str(path)!r} does not exist.", key=key)
 
-        self._check_path_attr(path, st)
+        self._check_path_attr(path, st, key=key)
         if self.readable and not os.access(path, os.R_OK):
-            raise ValueError(f"{str(path)!r} is not readable.")
+            raise InvalidValue(f"{str(path)!r} is not readable.", key=key)
         if self.writable and not os.access(path, os.W_OK):
-            raise ValueError(f"{str(path)!r} is not writable.")
+            raise InvalidValue(f"{str(path)!r} is not writable.", key=key)
         if self.executable and not os.access(path, os.X_OK):
-            raise ValueError(f"{str(path)!r} is not executable.")
+            raise InvalidValue(f"{str(path)!r} is not executable.", key=key)
         return path
 
     @staticmethod
-    def _check_path_attr(path: pathlib.Path, st: os.stat_result) -> None:
+    def _check_path_attr(path: pathlib.Path, st: os.stat_result, *, key: str) -> None:
         pass
 
     def check(self, value: Any) -> bool:
@@ -147,13 +147,13 @@ class Path(Type):
 
 class DirPath(Path):
     @staticmethod
-    def _check_path_attr(path: pathlib.Path, st: os.stat_result) -> None:
+    def _check_path_attr(path: pathlib.Path, st: os.stat_result, *, key: str) -> None:
         if not stat.S_ISDIR(st.st_mode):
-            raise ValueError(f"{str(path)!r} is not a directory.")
+            raise InvalidValue(f"{str(path)!r} is not a directory.", key=key)
 
 
 class FilePath(Path):
     @staticmethod
-    def _check_path_attr(path: pathlib.Path, st: os.stat_result) -> None:
+    def _check_path_attr(path: pathlib.Path, st: os.stat_result, *, key: str) -> None:
         if not stat.S_ISREG(st.st_mode):
-            raise ValueError(f"{str(path)!r} is not a file.")
+            raise InvalidValue(f"{str(path)!r} is not a file.", key=key)
