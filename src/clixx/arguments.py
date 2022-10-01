@@ -44,7 +44,25 @@ def _parse_decls(decls: Sequence[str]) -> tuple[list[str], list[str]]:
 
 
 class Argument:
-    """The positional argument."""
+    """The positional argument.
+
+    Parameters:
+        decl (str):
+            The declaration for this argument.
+        dest (str | None, default=None):
+            The destination used to store/forward the argument value.
+        nargs (int, default=1):
+            The number of argument values. Valid values are ``nargs == 1`` or
+            ``nargs == -1``.
+        required (bool, default=False):
+            Whether this argument is required or optional.
+        type (Type | None, default=None):
+            The type converter.
+        default (Any, default=None):
+            The default value if omitted.
+        help (str, default=''):
+            The help information.
+    """
 
     def __init__(
         self,
