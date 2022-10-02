@@ -59,7 +59,7 @@ class Argument:
         type (Type | None, default=None):
             The type converter.
         default (Any, default=None):
-            The default value if omitted.
+            The default value used if argument omitted.
         help (str, default=''):
             The help information.
     """
@@ -134,7 +134,22 @@ class Argument:
 
 
 class Option:
-    """The optional argument."""
+    """The optional argument.
+
+    Parameters:
+        decls (tuple[str, ...]):
+            The declarations for this option.
+        dest (str | None, default=None):
+            The destination used to store/forward the option value.
+        required (bool, default=False):
+            Whether this option is required or optional.
+        type (Type | None, default=None):
+            The type converter.
+        default (Any, default=None):
+            The default value used if option omitted.
+        help (str, default=''):
+            The help information.
+    """
 
     def __init__(
         self,
@@ -191,7 +206,24 @@ class Option:
 
 
 class Flag(Option):
-    """The flag argument."""
+    """The flag argument.
+
+    Parameters:
+        decls (tuple[str, ...]):
+            The declarations for this flag.
+        dest (str | None, default=None):
+            The destination used to store/forward the flag value.
+        required (bool, default=False):
+            Whether this flag is required or optional.
+        type (Type | None, default=None):
+            The type converter.
+        const (Any, default=None):
+            The constant value used if flag occurred.
+        default (Any, default=None):
+            The default value used if flag omitted.
+        help (str, default=''):
+            The help information.
+    """
 
     def __init__(
         self,

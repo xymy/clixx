@@ -11,7 +11,7 @@ from .exceptions import DefinitionError, InvalidValue
 class Type:
     """The base class for all CLIXX type converters.
 
-    This class also represents any type, and does not apply type conversion.
+    This class also represents any type which does not apply type conversion.
     """
 
     def __call__(self, value: Any, *, key: str) -> Any:
