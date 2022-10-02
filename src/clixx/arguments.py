@@ -257,7 +257,7 @@ class Flag(Option):
     @const.setter
     def const(self, value: Any) -> None:
         if value is not None and not self.type.check(value):
-            raise DefinitionError(f"Invalid const value {value!r}.")
+            raise DefinitionError(f"Invalid constant value {value!r}.")
         self._const = value
 
 
