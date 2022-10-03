@@ -95,24 +95,29 @@ def _build_option_tree(option_groups: list[OptionGroup]) -> tuple[list[OptionGro
 
 
 class Context:
-    def __init__(self, argv: list[str]) -> None:
-        self.argv = argv
-        self.index = 0
-        self.pos = 0
+    def __init__(self, argument_groups: list[ArgumentGroup], option_groups: list[OptionGroup], argv: list[str]) -> None:
         self.args: dict[str, Any] = {}
 
+        self.argv = argv
+        self._index = 0
         self._curr_arg: str | None = None
 
-    @property
-    def next_arg(self) -> str | None:
-        try:
-            arg = self.argv[self.index]
-            self.index += 1
-        except IndexError:
-            arg = None
-        self._curr_arg = arg
-        return arg
+        self.argument_groups = argument_groups
+        self.option_groups = option_groups
+        self.argument_tree = _build_argument_tree(argument_groups)
+        self.option_tree, self.option_lookup = _build_option_tree(option_groups)
+        self._pos = 0
 
     @property
     def curr_arg(self) -> str | None:
         return self._curr_arg
+
+    @property
+    def next_arg(self) -> str | None:
+        if self._index < len(self.argv):
+            arg = self.argv[self._index]
+            self._index += 1
+        else:
+            arg = None
+        self._curr_arg = arg
+        return arg
