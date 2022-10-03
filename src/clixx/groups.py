@@ -31,13 +31,14 @@ class ArgumentGroup:
 
     def __init__(self, name: str) -> None:
         self.name = name
-        self.gourp: list[Argument] = []
+        self.arguments: list[Argument] = []
 
     def __iter__(self) -> Iterator[Argument]:
-        yield from self.gourp
+        yield from self.arguments
 
-    def add(self, argument: Argument) -> None:
-        self.gourp.append(argument)
+    def add(self, *args, **kwargs) -> ArgumentGroup:
+        self.arguments.append(Argument(*args, **kwargs))
+        return self
 
 
 class OptionGroup:
@@ -46,10 +47,11 @@ class OptionGroup:
     def __init__(self, name: str, *, type: GroupType = ANY) -> None:
         self.name = name
         self.type = type
-        self.gourp: list[Option] = []
+        self.options: list[Option] = []
 
     def __iter__(self) -> Iterator[Option]:
-        yield from self.gourp
+        yield from self.options
 
-    def add(self, option: Option) -> None:
-        self.gourp.append(option)
+    def add(self, *args, **kwargs) -> OptionGroup:
+        self.options.append(Option(*args, **kwargs))
+        return self
