@@ -5,7 +5,7 @@ from dataclasses import dataclass
 from typing import Any, cast
 
 from .arguments import Argument, Option
-from .exceptions import DefinitionError, TooManyArguments, UnknownOption
+from .exceptions import ProgrammingError, TooManyArguments, UnknownOption
 from .groups import ArgumentGroup, OptionGroup
 
 
@@ -87,11 +87,11 @@ def _build_option_tree(option_groups: list[OptionGroup]) -> tuple[list[OptionGro
             group_node.children.append(node)
             for key in option.long_options:
                 if key in map:
-                    raise DefinitionError(f"Option {key!r} conflicts.")
+                    raise ProgrammingError(f"Option {key!r} conflicts.")
                 map[key] = node
             for key in option.short_options:
                 if key in map:
-                    raise DefinitionError(f"Option {key!r} conflicts.")
+                    raise ProgrammingError(f"Option {key!r} conflicts.")
                 map[key] = node
     return tree, map
 
@@ -106,9 +106,13 @@ class Context:
 
         self.argument_groups = argument_groups
         self.option_groups = option_groups
+
         self.argument_tree, self.argument_seq = _build_argument_tree(argument_groups)
         self.option_tree, self.option_map = _build_option_tree(option_groups)
         self._pos = 0
+
+        if not self.argument_seq and not self.option_map:
+            raise ProgrammingError("No arguments defined.")
 
     @property
     def curr_arg(self) -> str | None:

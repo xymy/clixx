@@ -5,8 +5,12 @@ class InternalError(Exception):
     """Invoke internal APIs incorrectly."""
 
 
-class DefinitionError(Exception):
-    """Define a bad command, parser, argument, option, etc."""
+class ProgrammingError(Exception):
+    """Invoke APIs incorrectly."""
+
+
+class DefinitionError(ProgrammingError):
+    """Define a bad command, argument, option, type, etc."""
 
 
 class CLIXXException(Exception):

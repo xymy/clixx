@@ -4,12 +4,15 @@ from typing import Any
 
 from .constants import LONG_PREFIX, LONG_PREFIX_LEN, SEPARATOR, SHORT_PREFIX, SHORT_PREFIX_LEN
 from .context import Context
-from .exceptions import TooFewOptionValues, TooManyOptionValues
+from .exceptions import ProgrammingError, TooFewOptionValues, TooManyOptionValues
 from .groups import ArgumentGroup, OptionGroup
 
 
 class Parser:
     def __init__(self, argument_groups: list[ArgumentGroup], option_groups: list[OptionGroup]) -> None:
+        if not argument_groups and not option_groups:
+            raise ProgrammingError("No group defined.")
+
         self.argument_groups = argument_groups
         self.option_groups = option_groups
 
@@ -21,6 +24,7 @@ class Parser:
         while (arg := ctx.next_arg) is not None:
             if arg == SEPARATOR:
                 switch_to_positional_only = True
+                break
             elif arg.startswith(LONG_PREFIX) and len(arg) > LONG_PREFIX_LEN:
                 self._parse_long_option(ctx, args, arg)
             elif arg.startswith(SHORT_PREFIX) and len(arg) > SHORT_PREFIX_LEN:
