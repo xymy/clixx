@@ -5,7 +5,7 @@ from dataclasses import dataclass
 from typing import Any, cast
 
 from .arguments import Argument, Option
-from .exceptions import DefinitionError
+from .exceptions import DefinitionError, TooManyArguments, UnknownOption
 from .groups import ArgumentGroup, OptionGroup
 
 
@@ -123,3 +123,17 @@ class Context:
             arg = None
         self._curr_arg = arg
         return arg
+
+    def get_argument(self) -> ArgumentNode:
+        if self._pos >= len(self.argument_seq):
+            raise TooManyArguments("Got too many arguments.")
+        argument = self.argument_seq[self._pos]
+        if argument.nargs == 1:
+            self._pos += 1
+        return argument
+
+    def get_option(self, key: str) -> OptionNode:
+        option = self.option_map.get(key, None)
+        if option is None:
+            raise UnknownOption(f"Unknown option {key!r}.")
+        return option
