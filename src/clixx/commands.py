@@ -1,5 +1,8 @@
 from __future__ import annotations
 
+import sys
+from typing import Any
+
 from .groups import ArgumentGroup, OptionGroup
 from .parser import Parser
 
@@ -22,6 +25,9 @@ class Command:
         self.option_groups.append(group)
         return group
 
-    def parse_args(self, argv):
+    def parse_args(self, argv: list[str] | None = None) -> dict[str, Any]:
+        args: dict[str, Any] = {}
+        argv = sys.argv[1:] if argv is None else argv
         parser = Parser(self.argument_groups, self.option_groups)
-        parser.parse_args(argv)
+        parser.parse_args(args, argv)
+        return args

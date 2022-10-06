@@ -16,9 +16,8 @@ class Parser:
         self.argument_groups = argument_groups
         self.option_groups = option_groups
 
-    def parse_args(self, argv: list[str]) -> Context:
-        ctx = Context(self.argument_groups, self.option_groups, argv)
-        args = ctx.args
+    def parse_args(self, args: dict[str, Any], argv: list[str]) -> Context:
+        ctx = Context(self.argument_groups, self.option_groups, args, argv)
 
         switch_to_positional_only = False
         while (arg := ctx.next_arg) is not None:

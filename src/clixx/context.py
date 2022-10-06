@@ -97,9 +97,14 @@ def _build_option_tree(option_groups: list[OptionGroup]) -> tuple[list[OptionGro
 
 
 class Context:
-    def __init__(self, argument_groups: list[ArgumentGroup], option_groups: list[OptionGroup], argv: list[str]) -> None:
-        self.args: dict[str, Any] = {}
-
+    def __init__(
+        self,
+        argument_groups: list[ArgumentGroup],
+        option_groups: list[OptionGroup],
+        args: dict[str, Any],
+        argv: list[str],
+    ) -> None:
+        self.args = args
         self.argv = argv
         self._index = 0
         self._curr_arg: str | None = None
