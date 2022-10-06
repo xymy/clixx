@@ -60,6 +60,8 @@ class Argument:
             The type converter.
         default (Any, default=None):
             The default value used if argument omitted.
+        metavar (str | None, default=None):
+            The metavar in usage.
         help (str, default=''):
             The help information.
     """
@@ -73,6 +75,7 @@ class Argument:
         required: bool = False,
         type: Type | None = None,
         default: Any = None,
+        metavar: str | None = None,
         help: str = "",
     ) -> None:
         self.dest, self.argument = self._parse(decl, dest=dest)
@@ -80,6 +83,7 @@ class Argument:
         self.required = required
         self.type = type or Str()
         self.default = default
+        self.metavar = metavar
         self.help = help
 
     @staticmethod
@@ -147,6 +151,8 @@ class Option:
             The type converter.
         default (Any, default=None):
             The default value used if option omitted.
+        metavar (str | None, default=None):
+            The metavar for option value.
         help (str, default=''):
             The help information.
     """
@@ -158,12 +164,14 @@ class Option:
         required: bool = False,
         type: Type | None = None,
         default: Any = None,
+        metavar: str | None = None,
         help: str = "",
     ) -> None:
         self.dest, self.long_options, self.short_options = self._parse(decls, dest=dest)
         self.required = required
         self.type = type or Str()
         self.default = default
+        self.metavar = metavar
         self.help = help
 
     @staticmethod
