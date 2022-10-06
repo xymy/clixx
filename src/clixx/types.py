@@ -20,13 +20,24 @@ class Type:
         return self.convert(value, key=key)
 
     def convert(self, value: Any, *, key: str) -> Any:
+        """Convert non-string to expected value."""
+
         return value
 
     def convert_str(self, value: str, *, key: str) -> Any:
+        """Convert string to expected value."""
+
         return value
 
     def check(self, value: Any) -> bool:
+        """Check the constant/default value."""
+
         return True
+
+    def suggest_metavar(self) -> str | None:
+        """Suggest metavar for help information."""
+
+        return None
 
 
 class Str(Type):
@@ -228,6 +239,9 @@ class Path(Type):
     def check(self, value: Any) -> bool:
         return isinstance(value, (str, pathlib.Path))
 
+    def suggest_metavar(self) -> str | None:
+        return "<path>"
+
 
 class DirPath(Path):
     """Similar to :class:`Path`, but check whether the path is a directory if it
@@ -238,6 +252,9 @@ class DirPath(Path):
         if not stat.S_ISDIR(st.st_mode):
             raise InvalidValue(f"{str(path)!r} is not a directory.", key=key)
 
+    def suggest_metavar(self) -> str | None:
+        return "<file>"
+
 
 class FilePath(Path):
     """Similar to :class:`Path`, but check whether the path is a file if it
@@ -247,3 +264,6 @@ class FilePath(Path):
     def _check_path_attr(path: pathlib.Path, st: os.stat_result, *, key: str) -> None:
         if not stat.S_ISREG(st.st_mode):
             raise InvalidValue(f"{str(path)!r} is not a file.", key=key)
+
+    def suggest_metavar(self) -> str | None:
+        return "<directory>"
