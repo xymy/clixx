@@ -253,7 +253,7 @@ class DirPath(Path):
             raise InvalidValue(f"{str(path)!r} is not a directory.", key=key)
 
     def suggest_metavar(self) -> str | None:
-        return "<file>"
+        return "<directory>"
 
 
 class FilePath(Path):
@@ -266,4 +266,4 @@ class FilePath(Path):
             raise InvalidValue(f"{str(path)!r} is not a file.", key=key)
 
     def suggest_metavar(self) -> str | None:
-        return "<directory>"
+        return "<file>"
