@@ -59,38 +59,38 @@ class OptionGroup:
 
     def check(self, num_occurred: int) -> None:
         if self.type == ANY:
-            return self.check_any(num_occurred)
+            return self._check_any(num_occurred)
         if self.type == ALL:
-            return self.check_all(num_occurred)
+            return self._check_all(num_occurred)
         if self.type == NONE:
-            return self.check_none(num_occurred)
+            return self._check_none(num_occurred)
         if self.type == AT_LEAST_ONE:
-            return self.check_at_least_one(num_occurred)
+            return self._check_at_least_one(num_occurred)
         if self.type == AT_MOST_ONE:
-            return self.check_at_most_one(num_occurred)
+            return self._check_at_most_one(num_occurred)
         if self.type == EXACTLY_ONE:
-            return self.check_exactly_one(num_occurred)
+            return self._check_exactly_one(num_occurred)
 
-    def check_any(self, num_occurred: int) -> None:
+    def _check_any(self, num_occurred: int) -> None:
         pass
 
-    def check_all(self, num_occurred: int) -> None:
+    def _check_all(self, num_occurred: int) -> None:
         num_options = len(self.options)
         if num_occurred != num_options:
             raise GroupError(f"Option group {self.name!r} requires all {num_options!r} options.")
 
-    def check_none(self, num_occurred: int) -> None:
+    def _check_none(self, num_occurred: int) -> None:
         if num_occurred != 0:
             raise GroupError(f"Option group {self.name!r} does not take a option.")
 
-    def check_at_least_one(self, num_occurred: int) -> None:
+    def _check_at_least_one(self, num_occurred: int) -> None:
         if num_occurred < 1:
             raise GroupError(f"Option group {self.name!r} requires at least one option.")
 
-    def check_at_most_one(self, num_occurred: int) -> None:
+    def _check_at_most_one(self, num_occurred: int) -> None:
         if num_occurred > 1:
             raise GroupError(f"Option group {self.name!r} requires at most one option.")
 
-    def check_exactly_one(self, num_occurred: int) -> None:
+    def _check_exactly_one(self, num_occurred: int) -> None:
         if num_occurred != 1:
             raise GroupError(f"Option group {self.name!r} requires exactly one option.")

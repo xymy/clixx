@@ -21,11 +21,14 @@ class ArgumentNode:
 
     def store_default(self, args: dict[str, Any]) -> None:
         self.argument.store_default(args)
-        self.occurred = True
 
     @property
     def nargs(self) -> int:
         return self.argument.nargs
+
+    @property
+    def required(self) -> bool:
+        return self.argument.required
 
 
 @dataclass
@@ -42,25 +45,40 @@ class OptionNode:
 
     def store(self, args: dict[str, Any], value: str, *, key: str) -> None:
         self.option.store(args, value, key=key)
-        self.occurred = True
+
+        # The same option may occur more than once.
+        if not self.occurred:
+            self.occurred = True
+            self.parent.num_occurred += 1
 
     def store_const(self, args: dict[str, Any]) -> None:
         self.option.store_const(args)
-        self.occurred = True
+
+        # The same option may occur more than once.
+        if not self.occurred:
+            self.occurred = True
+            self.parent.num_occurred += 1
 
     def store_default(self, args: dict[str, Any]) -> None:
         self.option.store_default(args)
-        self.occurred = True
 
     @property
     def nargs(self) -> int:
         return self.option.nargs
+
+    @property
+    def required(self) -> bool:
+        return self.option.required
 
 
 @dataclass
 class OptionGroupNode:
     group: OptionGroup
     children: list[OptionNode]
+    num_occurred: int = 0
+
+    def check(self) -> None:
+        self.group.check(self.num_occurred)
 
 
 def _build_argument_tree(argument_groups: list[ArgumentGroup]) -> tuple[list[ArgumentGroupNode], list[ArgumentNode]]:
@@ -109,15 +127,24 @@ class Context:
         self._index = 0
         self._curr_arg: str | None = None
 
-        self.argument_groups = argument_groups
-        self.option_groups = option_groups
-
         self.argument_tree, self.argument_seq = _build_argument_tree(argument_groups)
         self.option_tree, self.option_map = _build_option_tree(option_groups)
         self._pos = 0
 
         if not self.argument_seq and not self.option_map:
             raise ProgrammingError("No arguments defined.")
+
+    def finalize(self) -> None:
+        for argument_group in self.argument_tree:
+            for argument in argument_group.children:
+                if not argument.occurred:
+                    argument.store_default(self.args)
+
+        for option_group in self.option_tree:
+            for option in option_group.children:
+                if not option.occurred:
+                    option.store_default(self.args)
+            option_group.check()
 
     @property
     def curr_arg(self) -> str | None:
