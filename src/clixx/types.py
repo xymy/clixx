@@ -29,10 +29,10 @@ class Type:
 
         return value
 
-    def check(self, value: Any) -> bool:
-        """Check the constant/default value."""
+    def pre_convert(self, value: Any) -> Any:
+        """Pre convert the constant/default value."""
 
-        return True
+        return self(value)
 
     def suggest_metavar(self) -> str | None:
         """Suggest metavar for help information."""
@@ -48,9 +48,6 @@ class Str(Type):
 
     def convert_str(self, value: str) -> Any:
         return value
-
-    def check(self, value: Any) -> bool:
-        return isinstance(value, str)
 
 
 class Bool(Type):
@@ -68,9 +65,6 @@ class Bool(Type):
         if v in {"f", "false", "n", "no", "off", "0"}:
             return False
         raise TypeConversionError(f"{value!r} is not a valid boolean.")
-
-    def check(self, value: Any) -> bool:
-        return isinstance(value, bool)
 
 
 class Int(Type):
@@ -101,9 +95,6 @@ class Int(Type):
             else:
                 raise TypeConversionError(f"{value!r} is not a valid integer with base {self.base!r}.")
 
-    def check(self, value: Any) -> bool:
-        return isinstance(value, int)
-
 
 class Float(Type):
     """The class used to convert command-line arguments to floating point
@@ -119,9 +110,6 @@ class Float(Type):
             return float(value)
         except ValueError:
             raise TypeConversionError(f"{value!r} is not a valid floating point number.")
-
-    def check(self, value: Any) -> bool:
-        return isinstance(value, float)
 
 
 class File(Type):
@@ -168,8 +156,10 @@ class File(Type):
         except OSError as e:
             raise TypeConversionError(f"{e.strerror}: {value!r}.")
 
-    def check(self, value: Any) -> bool:
-        return isinstance(value, str) or hasattr(value, "read") or hasattr(value, "write")
+    def pre_convert(self, value: Any) -> Any:
+        if isinstance(value, str) or hasattr(value, "read") or hasattr(value, "write"):
+            return value
+        raise TypeConversionError(f"{value!r} is not a valid file.")
 
 
 class Path(Type):
@@ -236,8 +226,11 @@ class Path(Type):
     def _check_path_attr(path: pathlib.Path, st: os.stat_result) -> None:
         pass
 
-    def check(self, value: Any) -> bool:
-        return isinstance(value, (str, pathlib.Path))
+    def pre_convert(self, value: Any) -> Any:
+        try:
+            return pathlib.Path(value)
+        except TypeError:
+            raise TypeConversionError(f"{value!r} is not a valid path.")
 
     def suggest_metavar(self) -> str | None:
         return "<path>"

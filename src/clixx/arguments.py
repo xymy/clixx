@@ -143,8 +143,11 @@ class Argument:
 
     @default.setter
     def default(self, value: Any) -> None:
-        if value is not None and not self.type.check(value):
-            raise DefinitionError(f"Invalid default value {value!r}.")
+        if value is not None:
+            try:
+                value = self.type.pre_convert(value)
+            except TypeConversionError as e:
+                raise DefinitionError(f"Invalid default value for {self.dest}. {str(e)}")
         self._default = value
 
 
@@ -221,8 +224,11 @@ class Option:
 
     @default.setter
     def default(self, value: Any) -> None:
-        if value is not None and not self.type.check(value):
-            raise DefinitionError(f"Invalid default value {value!r}.")
+        if value is not None:
+            try:
+                value = self.type.pre_convert(value)
+            except TypeConversionError as e:
+                raise DefinitionError(f"Invalid default value for {self.dest}. {str(e)}")
         self._default = value
 
 
@@ -276,8 +282,11 @@ class Flag(Option):
 
     @const.setter
     def const(self, value: Any) -> None:
-        if value is not None and not self.type.check(value):
-            raise DefinitionError(f"Invalid constant value {value!r}.")
+        if value is not None:
+            try:
+                value = self.type.pre_convert(value)
+            except TypeConversionError as e:
+                raise DefinitionError(f"Invalid constant value for {self.dest}. {str(e)}")
         self._const = value
 
 
