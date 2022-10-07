@@ -1,9 +1,11 @@
 from __future__ import annotations
 
+import datetime
 import os
 import pathlib
 import stat
-from typing import Any
+from contextlib import suppress
+from typing import Any, Sequence
 
 from .exceptions import DefinitionError, TypeConversionError
 
@@ -260,3 +262,38 @@ class FilePath(Path):
 
     def suggest_metavar(self) -> str | None:
         return "<file>"
+
+
+class DateTime(Type):
+    """The class used to convert command-line arguments to datetime.
+
+    Parameters:
+        formats (Sequence[str] | None, default=None):
+            The datetime formats used when parsing from string. See
+            https://docs.python.org/3/library/datetime.html#strftime-and-strptime-behavior.
+    """
+
+    def __init__(self, formats: Sequence[str] | None = None) -> None:
+        if formats is None:
+            self.formats = ["%Y-%m-%dT%H:%M:%S", "%Y-%m-%d", "%H:%M:%S"]
+        else:
+            if not formats:
+                raise DefinitionError("No format defined.")
+            self.formats = list(formats)
+
+    def convert(self, value: Any) -> Any:
+        if isinstance(value, datetime.datetime):
+            return value
+        raise TypeConversionError(f"{value!r} is not a valid datetime.")
+
+    def convert_str(self, value: str) -> Any:
+        for format in self.formats:
+            with suppress(ValueError):
+                return datetime.datetime.strptime(value, format)
+
+        formats_str = ", ".join(f"{format!r}" for format in self.formats)
+        if len(self.formats) == 1:
+            hint = f"Valid format is {formats_str}."
+        else:
+            hint = f"Valid formats are {formats_str}."
+        raise TypeConversionError(f"{value!r} is not a valid datetime. {hint}")
