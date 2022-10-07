@@ -13,6 +13,10 @@ class DefinitionError(ProgrammingError):
     """Define a bad command, argument, option, type, etc."""
 
 
+class TypeConversionError(ProgrammingError):
+    """Type conversion failure."""
+
+
 class CLIXXException(Exception):
     """The base class for all CLIXX exceptions."""
 

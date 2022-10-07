@@ -1,10 +1,11 @@
 from __future__ import annotations
 
+from contextlib import contextmanager
 from keyword import iskeyword
-from typing import Any, Sequence
+from typing import Any, Generator, Sequence
 
 from .constants import LONG_PREFIX, LONG_PREFIX_LEN, SHORT_PREFIX, SHORT_PREFIX_LEN
-from .exceptions import DefinitionError, InternalError
+from .exceptions import DefinitionError, InternalError, InvalidValue, TypeConversionError
 from .types import Str, Type
 
 
@@ -41,6 +42,14 @@ def _parse_decls(decls: Sequence[str]) -> tuple[list[str], list[str]]:
         else:
             raise DefinitionError(f"Option must start with {LONG_PREFIX!r} or {SHORT_PREFIX!r}, got {decl!r}.")
     return long_options, short_options
+
+
+@contextmanager
+def _raise_invalid_value(*, key: str) -> Generator[None, None, None]:
+    try:
+        yield None
+    except TypeConversionError as e:
+        raise InvalidValue(str(e), key=key)
 
 
 class Argument:
@@ -96,7 +105,8 @@ class Argument:
         return dest, decl
 
     def store(self, args: dict[str, Any], value: str) -> None:
-        result = self.type.convert_str(value, key=self.argument)
+        with _raise_invalid_value(key=self.argument):
+            result = self.type.convert_str(value)
         if self.nargs == 1:
             args[self.dest] = result
         else:
@@ -104,16 +114,17 @@ class Argument:
             args[self.dest] = args.get(self.dest, ()) + (result,)
 
     def store_default(self, args: dict[str, Any]) -> None:
-        if self.nargs == 1:
-            result = None if self.default is None else self.type(self.default, key=self.dest)
-        else:
-            # Variadic arguments are stored as tuple. The default is a empty tuple.
-            if self.default is None:
-                result = ()
-            elif isinstance(self.default, (tuple, list)):
-                result = tuple(self.type(value, key=self.dest) for value in self.default)
+        with _raise_invalid_value(key=self.dest):
+            if self.nargs == 1:
+                result = None if self.default is None else self.type(self.default)
             else:
-                result = (self.type(self.default, key=self.dest),)
+                # Variadic arguments are stored as tuple. The default is a empty tuple.
+                if self.default is None:
+                    result = ()
+                elif isinstance(self.default, (tuple, list)):
+                    result = tuple(self.type(value) for value in self.default)
+                else:
+                    result = (self.type(self.default),)
         args[self.dest] = result
 
     @property
@@ -188,14 +199,16 @@ class Option:
         return dest, long_options, short_options
 
     def store(self, args: dict[str, Any], value: str, *, key: str) -> None:
-        result = self.type.convert_str(value, key=key)
+        with _raise_invalid_value(key=key):
+            result = self.type.convert_str(value)
         args[self.dest] = result
 
     def store_const(self, args: dict[str, Any]) -> None:
         raise InternalError()
 
     def store_default(self, args: dict[str, Any]) -> None:
-        result = None if self.default is None else self.type(self.default, key=self.dest)
+        with _raise_invalid_value(key=self.dest):
+            result = None if self.default is None else self.type(self.default)
         args[self.dest] = result
 
     @property
@@ -249,7 +262,8 @@ class Flag(Option):
         raise InternalError()
 
     def store_const(self, args: dict[str, Any]) -> None:
-        result = None if self.const is None else self.type(self.const, key=self.dest)
+        with _raise_invalid_value(key=self.dest):
+            result = None if self.const is None else self.type(self.const)
         args[self.dest] = result
 
     @property
