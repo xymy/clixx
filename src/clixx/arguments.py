@@ -45,11 +45,11 @@ def _parse_decls(decls: Sequence[str]) -> tuple[list[str], list[str]]:
 
 
 @contextmanager
-def _raise_invalid_value(*, key: str) -> Generator[None, None, None]:
+def _raise_invalid_value(*, target: str) -> Generator[None, None, None]:
     try:
         yield None
     except TypeConversionError as e:
-        raise InvalidValue(str(e), key=key)
+        raise InvalidValue(str(e), target=target)
 
 
 class Argument:
@@ -105,7 +105,7 @@ class Argument:
         return dest, decl
 
     def store(self, args: dict[str, Any], value: str) -> None:
-        with _raise_invalid_value(key=self.argument):
+        with _raise_invalid_value(target=self.argument):
             result = self.type.convert_str(value)
         if self.nargs == 1:
             args[self.dest] = result
@@ -114,7 +114,7 @@ class Argument:
             args[self.dest] = args.get(self.dest, ()) + (result,)
 
     def store_default(self, args: dict[str, Any]) -> None:
-        with _raise_invalid_value(key=self.dest):
+        with _raise_invalid_value(target=self.dest):
             if self.nargs == 1:
                 result = None if self.default is None else self.type(self.default)
             else:
@@ -202,7 +202,7 @@ class Option:
         return dest, long_options, short_options
 
     def store(self, args: dict[str, Any], value: str, *, key: str) -> None:
-        with _raise_invalid_value(key=key):
+        with _raise_invalid_value(target=key):
             result = self.type.convert_str(value)
         args[self.dest] = result
 
@@ -210,7 +210,7 @@ class Option:
         raise InternalError()
 
     def store_default(self, args: dict[str, Any]) -> None:
-        with _raise_invalid_value(key=self.dest):
+        with _raise_invalid_value(target=self.dest):
             result = None if self.default is None else self.type(self.default)
         args[self.dest] = result
 
@@ -268,7 +268,7 @@ class Flag(Option):
         raise InternalError()
 
     def store_const(self, args: dict[str, Any]) -> None:
-        with _raise_invalid_value(key=self.dest):
+        with _raise_invalid_value(target=self.dest):
             result = None if self.const is None else self.type(self.const)
         args[self.dest] = result
 
