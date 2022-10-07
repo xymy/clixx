@@ -57,11 +57,11 @@ class Argument:
         required (bool, default=False):
             Whether this argument is required or optional.
         type (Type | None, default=None):
-            The type converter.
+            The type converter. If ``None``, use ``Str()``.
         default (Any, default=None):
             The default value used if argument omitted.
         metavar (str | None, default=None):
-            The metavar in usage.
+            The argument value name used in usage.
         help (str, default=''):
             The help information.
     """
@@ -148,11 +148,11 @@ class Option:
         required (bool, default=False):
             Whether this option is required or optional.
         type (Type | None, default=None):
-            The type converter.
+            The type converter. If ``None``, use ``Str()``.
         default (Any, default=None):
             The default value used if option omitted.
         metavar (str | None, default=None):
-            The metavar for option value.
+            The option value name used in usage.
         help (str, default=''):
             The help information.
     """
@@ -221,10 +221,8 @@ class Flag(Option):
             The declarations for this flag.
         dest (str | None, default=None):
             The destination used to store/forward the flag value.
-        required (bool, default=False):
-            Whether this flag is required or optional.
         type (Type | None, default=None):
-            The type converter.
+            The type converter. If ``None``, use ``Type()``.
         const (Any, default=None):
             The constant value used if flag occurred.
         default (Any, default=None):
