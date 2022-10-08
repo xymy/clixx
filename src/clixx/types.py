@@ -76,6 +76,9 @@ class Int(Type):
         base (int, default=10):
             The integer base used when parsing from string. Valid values are
             ``2 <= base <= 36`` or ``base == 0``.
+
+    See Also:
+        - https://docs.python.org/3/library/functions.html#int
     """
 
     def __init__(self, *, base: int = 10) -> None:
@@ -100,7 +103,11 @@ class Int(Type):
 
 class Float(Type):
     """The class used to convert command-line arguments to floating point
-    number."""
+    number.
+
+    See Also:
+        - https://docs.python.org/3/library/functions.html#float
+    """
 
     def convert(self, value: Any) -> Any:
         if isinstance(value, float):
@@ -128,6 +135,9 @@ class File(Type):
             The same as :func:`open`.
         newline (str | None, default=None):
             The same as :func:`open`.
+
+    See Also:
+        - https://docs.python.org/3/library/functions.html#open
     """
 
     def __init__(
@@ -269,8 +279,10 @@ class DateTime(Type):
 
     Parameters:
         formats (Sequence[str] | None, default=None):
-            The datetime formats used when parsing from string. See
-            https://docs.python.org/3/library/datetime.html#strftime-and-strptime-behavior.
+            The datetime formats used when parsing from string.
+
+    See Also:
+        - https://docs.python.org/3/library/datetime.html#strftime-and-strptime-behavior
     """
 
     def __init__(self, formats: Sequence[str] | None = None) -> None:
@@ -291,7 +303,7 @@ class DateTime(Type):
             with suppress(ValueError):
                 return datetime.datetime.strptime(value, format)
 
-        formats_str = ", ".join(f"{format!r}" for format in self.formats)
+        formats_str = ", ".join(self.formats)
         if len(self.formats) == 1:
             hint = f"Valid format is {formats_str}."
         else:
