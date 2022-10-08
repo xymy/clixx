@@ -69,6 +69,8 @@ class Argument:
             The type converter. If ``None``, use ``Str()``.
         default (Any, default=None):
             The default value used if argument omitted.
+        hidden (bool, default=False):
+            If ``True``, hide this argument from help information.
         metavar (str | None, default=None):
             The argument value name used in usage.
         help (str, default=''):
@@ -84,6 +86,7 @@ class Argument:
         required: bool = False,
         type: Type | None = None,
         default: Any = None,
+        hidden: bool = False,
         metavar: str | None = None,
         help: str = "",
     ) -> None:
@@ -92,6 +95,7 @@ class Argument:
         self.required = required
         self.type = type or Str()
         self.default = default
+        self.hidden = hidden
         self.metavar = metavar
         self.help = help
 
@@ -165,6 +169,8 @@ class Option:
             The type converter. If ``None``, use ``Str()``.
         default (Any, default=None):
             The default value used if option omitted.
+        hidden (bool, default=False):
+            If ``True``, hide this option from help information.
         metavar (str | None, default=None):
             The option value name used in usage.
         help (str, default=''):
@@ -178,6 +184,7 @@ class Option:
         required: bool = False,
         type: Type | None = None,
         default: Any = None,
+        hidden: bool = False,
         metavar: str | None = None,
         help: str = "",
     ) -> None:
@@ -185,6 +192,7 @@ class Option:
         self.required = required
         self.type = type or Str()
         self.default = default
+        self.hidden = hidden
         self.metavar = metavar
         self.help = help
 
@@ -246,6 +254,8 @@ class Flag(Option):
             The constant value used if flag occurred.
         default (Any, default=None):
             The default value used if flag omitted.
+        hidden (bool, default=False):
+            If ``True``, hide this flag from help information.
         help (str, default=''):
             The help information.
     """
@@ -257,11 +267,12 @@ class Flag(Option):
         type: Type | None = None,
         const: Any = True,
         default: Any = False,
+        hidden: bool = False,
         help: str = "",
     ) -> None:
         # The value of a flag is not parsed from command-line, so type conversion is unnecessary.
         type = type or Type()
-        super().__init__(*decls, dest=dest, required=False, type=type, default=default, help=help)
+        super().__init__(*decls, dest=dest, required=False, type=type, default=default, hidden=hidden, help=help)
         self.const = const
 
     def store(self, args: dict[str, Any], value: str, *, key: str) -> None:
