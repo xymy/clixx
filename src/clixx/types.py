@@ -98,7 +98,7 @@ class Int(Type):
             if self.base in {0, 10}:
                 raise TypeConversionError(f"{value!r} is not a valid integer.")
             else:
-                raise TypeConversionError(f"{value!r} is not a valid integer with base {self.base!r}.")
+                raise TypeConversionError(f"{value!r} is not a valid integer with base {self.base}.")
 
 
 class Float(Type):
@@ -166,7 +166,7 @@ class File(Type):
                 value, self.mode, self.buffering, encoding=self.encoding, errors=self.errors, newline=self.newline
             )
         except OSError as e:
-            raise TypeConversionError(f"{e.strerror}: {value!r}.")
+            raise TypeConversionError(f"Can not open {value!r}. {e.strerror}.")
 
     def pre_convert(self, value: Any) -> Any:
         if isinstance(value, str) or hasattr(value, "read") or hasattr(value, "write"):

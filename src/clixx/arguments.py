@@ -151,7 +151,7 @@ class Argument:
             try:
                 value = self.type.pre_convert(value)
             except TypeConversionError as e:
-                raise DefinitionError(f"Invalid default value for {self.dest}. {str(e)}")
+                raise DefinitionError(f"Invalid default value for {self.dest!r}. {str(e)}")
         self._default = value
 
 
@@ -236,7 +236,7 @@ class Option:
             try:
                 value = self.type.pre_convert(value)
             except TypeConversionError as e:
-                raise DefinitionError(f"Invalid default value for {self.dest}. {str(e)}")
+                raise DefinitionError(f"Invalid default value for {self.dest!r}. {str(e)}")
         self._default = value
 
 
@@ -297,7 +297,7 @@ class FlagOption(Option):
             try:
                 value = self.type.pre_convert(value)
             except TypeConversionError as e:
-                raise DefinitionError(f"Invalid constant value for {self.dest}. {str(e)}")
+                raise DefinitionError(f"Invalid constant value for {self.dest!r}. {str(e)}")
         self._const = value
 
 
