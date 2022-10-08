@@ -173,6 +173,9 @@ class File(Type):
             return value
         raise TypeConversionError(f"{value!r} is not a valid file.")
 
+    def suggest_metavar(self) -> str | None:
+        return "<file>"
+
 
 class Path(Type):
     """The class used to convert command-line arguments to path.
@@ -309,3 +312,6 @@ class DateTime(Type):
         else:
             hint = f"Valid formats are {formats_str}."
         raise TypeConversionError(f"{value!r} is not a valid datetime. {hint}")
+
+    def suggest_metavar(self) -> str | None:
+        return "<datetime>"
