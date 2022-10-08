@@ -301,6 +301,34 @@ class Flag(Option):
         self._const = value
 
 
+class CountOption(Option):
+    """The count option.
+
+    Parameters:
+        decls (tuple[str, ...]):
+            The declarations for this option.
+        dest (str | None, default=None):
+            The destination used to store/forward the option value.
+        hidden (bool, default=False):
+            If ``True``, hide this option from help information.
+        help (str, default=''):
+            The help information.
+    """
+
+    def __init__(self, *decls: str, dest: str | None = None, hidden: bool = False, help: str = "") -> None:
+        super().__init__(*decls, dest=dest, required=False, type=Type(), default=0, hidden=hidden, help=help)
+
+    def store(self, args: dict[str, Any], value: str, *, key: str) -> None:
+        raise InternalError()
+
+    def store_const(self, args: dict[str, Any]) -> None:
+        args[self.dest] = args.get(self.dest, 0) + 1
+
+    @property
+    def nargs(self) -> int:
+        return 0
+
+
 class SignalOption(Option):
     """The optional argument that can raise a signal."""
 
