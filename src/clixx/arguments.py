@@ -53,7 +53,7 @@ def _raise_invalid_value(*, target: str) -> Generator[None, None, None]:
 
 
 class Argument:
-    """The positional argument.
+    """The argument, aka positional argument.
 
     Parameters:
         decl (str):
@@ -156,7 +156,7 @@ class Argument:
 
 
 class Option:
-    """The optional argument.
+    """The option, aka optional argument.
 
     Parameters:
         decls (tuple[str, ...]):
@@ -240,22 +240,22 @@ class Option:
         self._default = value
 
 
-class Flag(Option):
-    """The flag argument.
+class FlagOption(Option):
+    """The flag option.
 
     Parameters:
         decls (tuple[str, ...]):
-            The declarations for this flag.
+            The declarations for this option.
         dest (str | None, default=None):
-            The destination used to store/forward the flag value.
+            The destination used to store/forward the option value.
         type (Type | None, default=None):
             The type converter. If ``None``, use ``Type()``.
         const (Any, default=None):
-            The constant value used if flag occurred.
+            The constant value used if option occurred.
         default (Any, default=None):
-            The default value used if flag omitted.
+            The default value used if option omitted.
         hidden (bool, default=False):
-            If ``True``, hide this flag from help information.
+            If ``True``, hide this option from help information.
         help (str, default=''):
             The help information.
     """
@@ -270,7 +270,7 @@ class Flag(Option):
         hidden: bool = False,
         help: str = "",
     ) -> None:
-        # The value of a flag is not parsed from command-line, so type conversion is unnecessary.
+        # The value of a flag option is not parsed from command-line, so type conversion is unnecessary.
         type = type or Type()
         super().__init__(*decls, dest=dest, required=False, type=type, default=default, hidden=hidden, help=help)
         self.const = const
@@ -330,7 +330,7 @@ class CountOption(Option):
 
 
 class SignalOption(Option):
-    """The optional argument that can raise a signal."""
+    """The option that can raise a signal."""
 
     @staticmethod
     def _parse(decls: Sequence[str], *, dest: str | None = None) -> tuple[str, list[str], list[str]]:
@@ -347,8 +347,8 @@ class SignalOption(Option):
         pass
 
 
-class SignalFlag(Flag):
-    """The flag argument that can raise a signal."""
+class SignalFlag(FlagOption):
+    """The flag option that can raise a signal."""
 
     @staticmethod
     def _parse(decls: Sequence[str], *, dest: str | None = None) -> tuple[str, list[str], list[str]]:
