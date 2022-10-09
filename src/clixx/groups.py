@@ -3,7 +3,7 @@ from __future__ import annotations
 import enum
 from typing import Iterator
 
-from .arguments import Argument, Option
+from .arguments import Argument, CountOption, FlagOption, Option
 from .exceptions import GroupError
 
 
@@ -37,9 +37,12 @@ class ArgumentGroup:
     def __iter__(self) -> Iterator[Argument]:
         yield from self.arguments
 
-    def add(self, *args, **kwargs) -> ArgumentGroup:
-        self.arguments.append(Argument(*args, **kwargs))
+    def add(self, argument: Argument) -> ArgumentGroup:
+        self.arguments.append(argument)
         return self
+
+    def add_argument(self, *args, **kwargs) -> ArgumentGroup:
+        return self.add(Argument(*args, **kwargs))
 
 
 class OptionGroup:
@@ -53,9 +56,18 @@ class OptionGroup:
     def __iter__(self) -> Iterator[Option]:
         yield from self.options
 
-    def add(self, *args, **kwargs) -> OptionGroup:
-        self.options.append(Option(*args, **kwargs))
+    def add(self, option: Option) -> OptionGroup:
+        self.options.append(option)
         return self
+
+    def add_option(self, *args, **kwargs) -> OptionGroup:
+        return self.add(Option(*args, **kwargs))
+
+    def add_flag_option(self, *args, **kwargs) -> OptionGroup:
+        return self.add(FlagOption(*args, **kwargs))
+
+    def add_count_option(self, *args, **kwargs) -> OptionGroup:
+        return self.add(CountOption(*args, **kwargs))
 
     def check(self, num_occurred: int) -> None:
         if self.type == ANY:
@@ -77,7 +89,12 @@ class OptionGroup:
     def _check_all(self, num_occurred: int) -> None:
         num_options = len(self.options)
         if num_occurred != num_options:
-            raise GroupError(f"Option group {self.name!r} requires all {num_options!r} options.")
+            if num_options == 0:
+                raise GroupError(f"Option group {self.name!r} does not take a option.")
+            elif num_options == 1:
+                raise GroupError(f"Option group {self.name!r} requires exactly one option.")
+            else:
+                raise GroupError(f"Option group {self.name!r} requires all {num_options!r} options.")
 
     def _check_none(self, num_occurred: int) -> None:
         if num_occurred != 0:
