@@ -97,6 +97,12 @@ class Int(Type):
         except ValueError:
             if self.base in {0, 10}:
                 raise TypeConversionError(f"{value!r} is not a valid integer.")
+            elif self.base == 16:
+                raise TypeConversionError(f"{value!r} is not a valid hexadecimal integer.")
+            elif self.base == 8:
+                raise TypeConversionError(f"{value!r} is not a valid octal integer.")
+            elif self.base == 2:
+                raise TypeConversionError(f"{value!r} is not a valid binary integer.")
             else:
                 raise TypeConversionError(f"{value!r} is not a valid integer with base {self.base}.")
 
@@ -290,7 +296,7 @@ class DateTime(Type):
 
     def __init__(self, formats: Sequence[str] | None = None) -> None:
         if formats is None:
-            self.formats = ["%Y-%m-%dT%H:%M:%S", "%Y-%m-%d", "%H:%M:%S"]
+            self.formats = ["%Y-%m-%dT%H:%M:%S", "%Y-%m-%d"]
         else:
             if not formats:
                 raise DefinitionError("No format defined.")
