@@ -330,7 +330,19 @@ class CountOption(Option):
 
 
 class SignalOption(Option):
-    """The option that can raise a signal."""
+    """The option that can raise a signal.
+
+    Parameters:
+        decls (tuple[str, ...]):
+            The declarations for this option.
+        hidden (bool, default=False):
+            If ``True``, hide this option from help information.
+        help (str, default=''):
+            The help information.
+    """
+
+    def __init__(self, *decls: str, hidden: bool = False, help: str = "") -> None:
+        super().__init__(*decls, required=False, type=Type(), hidden=hidden, help=help)
 
     @staticmethod
     def _parse(decls: Sequence[str], *, dest: str | None = None) -> tuple[str, list[str], list[str]]:
@@ -346,20 +358,6 @@ class SignalOption(Option):
     def store_default(self, args: dict[str, Any]) -> None:
         pass
 
-
-class SignalFlag(FlagOption):
-    """The flag option that can raise a signal."""
-
-    @staticmethod
-    def _parse(decls: Sequence[str], *, dest: str | None = None) -> tuple[str, list[str], list[str]]:
-        # The signal flag does not have destination argument.
-        return "", *_parse_decls(decls)
-
-    def store(self, args: dict[str, Any], value: str, *, key: str) -> None:
-        raise InternalError()
-
-    def store_const(self, args: dict[str, Any]) -> None:
-        raise InternalError()
-
-    def store_default(self, args: dict[str, Any]) -> None:
-        pass
+    @property
+    def nargs(self) -> int:
+        return 0
