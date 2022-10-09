@@ -5,7 +5,7 @@ from dataclasses import dataclass
 from typing import Any, cast
 
 from .arguments import Argument, Option
-from .exceptions import ProgrammingError, TooManyArguments, UnknownOption
+from .exceptions import MissingOption, ProgrammingError, TooFewArguments, TooManyArguments, UnknownOption
 from .groups import ArgumentGroup, OptionGroup
 
 
@@ -138,11 +138,15 @@ class Context:
         for argument_group in self.argument_tree:
             for argument in argument_group.children:
                 if not argument.occurred:
+                    if argument.required:
+                        raise TooFewArguments("Got too few arguments.")
                     argument.store_default(self.args)
 
         for option_group in self.option_tree:
             for option in option_group.children:
                 if not option.occurred:
+                    if option.required:
+                        raise MissingOption(f"Missing option {option.option.dest}.")
                     option.store_default(self.args)
             option_group.check()
 
