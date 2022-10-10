@@ -131,6 +131,15 @@ class Argument:
                     result = (self.type(self.default),)
         args[self.dest] = result
 
+    def show(self) -> str:
+        return f"{self.argument!r}"
+
+    def show_metavar(self) -> str:
+        if self.metavar is not None:
+            return self.metavar
+        else:
+            return self.dest.upper()
+
     @property
     def nargs(self) -> int:
         return self._nargs
@@ -221,6 +230,17 @@ class Option:
         with _raise_invalid_value(target=self.dest):
             result = None if self.default is None else self.type(self.default)
         args[self.dest] = result
+
+    def show(self) -> str:
+        return " / ".join(f"{option!r}" for option in self.short_options + self.long_options)
+
+    def show_metavar(self) -> str:
+        if self.metavar is not None:
+            return self.metavar
+        elif (metavar := self.type.suggest_metavar()) is not None:
+            return metavar
+        else:
+            return self.dest.upper()
 
     @property
     def nargs(self) -> int:

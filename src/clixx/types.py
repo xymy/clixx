@@ -185,7 +185,7 @@ class File(Type):
         raise TypeConversionError(f"{value!r} is not a valid file.")
 
     def suggest_metavar(self) -> str | None:
-        return "<file>"
+        return "FILE"
 
 
 class Path(Type):
@@ -260,7 +260,7 @@ class Path(Type):
         raise TypeConversionError(f"{value!r} is not a valid path.")
 
     def suggest_metavar(self) -> str | None:
-        return "<path>"
+        return "PATH"
 
 
 class DirPath(Path):
@@ -273,7 +273,7 @@ class DirPath(Path):
             raise TypeConversionError(f"{str(path)!r} is not a directory.")
 
     def suggest_metavar(self) -> str | None:
-        return "<directory>"
+        return "DIRECTORY"
 
 
 class FilePath(Path):
@@ -286,7 +286,7 @@ class FilePath(Path):
             raise TypeConversionError(f"{str(path)!r} is not a file.")
 
     def suggest_metavar(self) -> str | None:
-        return "<file>"
+        return "FILE"
 
 
 class DateTime(Type):
@@ -326,4 +326,4 @@ class DateTime(Type):
         raise TypeConversionError(f"{value!r} is not a valid datetime. {hint}")
 
     def suggest_metavar(self) -> str | None:
-        return "<datetime>"
+        return "DATETIME"
