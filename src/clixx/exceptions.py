@@ -57,12 +57,13 @@ class TooManyOptionValues(CLIXXException):
 class InvalidValue(CLIXXException):
     """Invalid value given."""
 
-    def __init__(self, message: str, *, target: str) -> None:
+    def __init__(self, message: str, *, type: str, name: str) -> None:
         super().__init__(message)
-        self.target = target
+        self.type = type
+        self.name = name
 
     def format_message(self) -> str:
-        return f"Invalid value for {self.target!r}. {self.message}"
+        return f"Invalid value for {self.type} {self.name}. {self.message}"
 
 
 class GroupError(CLIXXException):

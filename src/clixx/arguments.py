@@ -45,11 +45,11 @@ def _parse_decls(decls: Sequence[str]) -> tuple[list[str], list[str]]:
 
 
 @contextmanager
-def _raise_invalid_value(*, target: str) -> Generator[None, None, None]:
+def _raise_invalid_value(*, type: str, name: str) -> Generator[None, None, None]:
     try:
         yield None
     except TypeConversionError as e:
-        raise InvalidValue(str(e), target=target)
+        raise InvalidValue(str(e), type=type, name=name)
 
 
 class Argument:
@@ -109,7 +109,7 @@ class Argument:
         return dest, decl
 
     def store(self, args: dict[str, Any], value: str) -> None:
-        with _raise_invalid_value(target=self.argument):
+        with _raise_invalid_value(type="argument", name=self.show()):
             result = self.type.convert_str(value)
         if self.nargs == 1:
             args[self.dest] = result
@@ -118,7 +118,7 @@ class Argument:
             args[self.dest] = args.get(self.dest, ()) + (result,)
 
     def store_default(self, args: dict[str, Any]) -> None:
-        with _raise_invalid_value(target=self.dest):
+        with _raise_invalid_value(type="argument", name=self.show()):
             if self.nargs == 1:
                 result = None if self.default is None else self.type(self.default)
             else:
@@ -160,7 +160,7 @@ class Argument:
             try:
                 value = self.type.safe_convert(value)
             except TypeConversionError as e:
-                raise DefinitionError(f"Invalid default value for {self.dest!r}. {str(e)}")
+                raise DefinitionError(f"Invalid default value for {self.show()}. {str(e)}")
         self._default = value
 
 
@@ -219,7 +219,7 @@ class Option:
         return dest, long_options, short_options
 
     def store(self, args: dict[str, Any], value: str, *, key: str) -> None:
-        with _raise_invalid_value(target=key):
+        with _raise_invalid_value(type="option", name=f"{key!r}"):
             result = self.type.convert_str(value)
         args[self.dest] = result
 
@@ -227,7 +227,7 @@ class Option:
         raise InternalError()
 
     def store_default(self, args: dict[str, Any]) -> None:
-        with _raise_invalid_value(target=self.dest):
+        with _raise_invalid_value(type="option", name=self.show()):
             result = None if self.default is None else self.type(self.default)
         args[self.dest] = result
 
@@ -256,7 +256,7 @@ class Option:
             try:
                 value = self.type.safe_convert(value)
             except TypeConversionError as e:
-                raise DefinitionError(f"Invalid default value for {self.dest!r}. {str(e)}")
+                raise DefinitionError(f"Invalid default value for {self.show()}. {str(e)}")
         self._default = value
 
 
@@ -299,7 +299,7 @@ class FlagOption(Option):
         raise InternalError()
 
     def store_const(self, args: dict[str, Any]) -> None:
-        with _raise_invalid_value(target=self.dest):
+        with _raise_invalid_value(type="option", name=self.show()):
             result = None if self.const is None else self.type(self.const)
         args[self.dest] = result
 
@@ -317,7 +317,7 @@ class FlagOption(Option):
             try:
                 value = self.type.safe_convert(value)
             except TypeConversionError as e:
-                raise DefinitionError(f"Invalid constant value for {self.dest!r}. {str(e)}")
+                raise DefinitionError(f"Invalid constant value for {self.show()}. {str(e)}")
         self._const = value
 
 
