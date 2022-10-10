@@ -16,6 +16,9 @@ class Type:
     This class also represents any type which does not apply type conversion.
     """
 
+    #: Whether this type conversion is safe (independent of current system status).
+    is_safe = True
+
     def __call__(self, value: Any) -> Any:
         if isinstance(value, str):
             return self.convert_str(value)
@@ -31,8 +34,8 @@ class Type:
 
         return value
 
-    def pre_convert(self, value: Any) -> Any:
-        """Pre convert the constant/default value."""
+    def safe_convert(self, value: Any) -> Any:
+        """Safe convert to compatible value."""
 
         return self(value)
 
@@ -146,6 +149,8 @@ class File(Type):
         - https://docs.python.org/3/library/functions.html#open
     """
 
+    is_safe = False
+
     def __init__(
         self,
         mode: str = "r",
@@ -174,7 +179,7 @@ class File(Type):
         except OSError as e:
             raise TypeConversionError(f"Can not open {value!r}. {e.strerror}.")
 
-    def pre_convert(self, value: Any) -> Any:
+    def safe_convert(self, value: Any) -> Any:
         if isinstance(value, str) or hasattr(value, "read") or hasattr(value, "write"):
             return value
         raise TypeConversionError(f"{value!r} is not a valid file.")
@@ -199,6 +204,8 @@ class Path(Type):
         executable (bool, default=False):
             If ``True``, check whether the path is executable.
     """
+
+    is_safe = False
 
     def __init__(
         self,
@@ -247,11 +254,10 @@ class Path(Type):
     def _check_path_attr(path: pathlib.Path, st: os.stat_result) -> None:
         pass
 
-    def pre_convert(self, value: Any) -> Any:
-        try:
-            return pathlib.Path(value)
-        except TypeError:
-            raise TypeConversionError(f"{value!r} is not a valid path.")
+    def safe_convert(self, value: Any) -> Any:
+        if isinstance(value, (str, pathlib.Path)):
+            return value
+        raise TypeConversionError(f"{value!r} is not a valid path.")
 
     def suggest_metavar(self) -> str | None:
         return "<path>"

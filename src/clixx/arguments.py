@@ -149,7 +149,7 @@ class Argument:
     def default(self, value: Any) -> None:
         if value is not None:
             try:
-                value = self.type.pre_convert(value)
+                value = self.type.safe_convert(value)
             except TypeConversionError as e:
                 raise DefinitionError(f"Invalid default value for {self.dest!r}. {str(e)}")
         self._default = value
@@ -234,7 +234,7 @@ class Option:
     def default(self, value: Any) -> None:
         if value is not None:
             try:
-                value = self.type.pre_convert(value)
+                value = self.type.safe_convert(value)
             except TypeConversionError as e:
                 raise DefinitionError(f"Invalid default value for {self.dest!r}. {str(e)}")
         self._default = value
@@ -295,7 +295,7 @@ class FlagOption(Option):
     def const(self, value: Any) -> None:
         if value is not None:
             try:
-                value = self.type.pre_convert(value)
+                value = self.type.safe_convert(value)
             except TypeConversionError as e:
                 raise DefinitionError(f"Invalid constant value for {self.dest!r}. {str(e)}")
         self._const = value
