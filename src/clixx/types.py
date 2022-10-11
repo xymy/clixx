@@ -148,10 +148,12 @@ class Choice(Type):
         self.case_sensitive = case_sensitive
 
     def convert(self, value: Any) -> Any:
-        choices_str = ", ".join(map(repr, self.choices))
-        raise TypeConversionError(f"{value!r} is not one of {choices_str}.")
+        return self._check(cast(str, Str().convert(value)))
 
     def convert_str(self, value: str) -> Any:
+        return self._check(cast(str, Str().convert_str(value)))
+
+    def _check(self, value: str) -> str:
         norm = self._norm if self.case_sensitive else self._norm_case
         for choice in self.choices:
             if norm(value) == norm(choice):

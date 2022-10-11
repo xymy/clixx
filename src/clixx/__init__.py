@@ -1,6 +1,6 @@
 from .arguments import Argument, CountOption, FlagOption, Option, SignalOption
 from .groups import ALL, ANY, AT_LEAST_ONE, AT_MOST_ONE, EXACTLY_ONE, NONE, ArgumentGroup, GroupType, OptionGroup
-from .types import Bool, Choice, DateTime, DirPath, File, FilePath, Float, Int, Path, Str, Type
+from .types import Bool, Choice, DateTime, DirPath, File, FilePath, Float, Int, IntChoice, Path, Str, Type
 
 __all__ = [
     # arguments
@@ -26,6 +26,7 @@ __all__ = [
     "Int",
     "Float",
     "Choice",
+    "IntChoice",
     "DateTime",
     "File",
     "Path",
