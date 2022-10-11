@@ -130,6 +130,44 @@ class Float(Type):
             raise TypeConversionError(f"{value!r} is not a valid floating point number.")
 
 
+class Choice(Type):
+    """The class used to convert command-line arguments to string in choices.
+
+    Parameters:
+        choices (Sequence[str]):
+            The allowed values.
+        case_sensitive (bool, default=True):
+            If ``True``, the allowed values are case sensitive.
+    """
+
+    def __init__(self, choices: Sequence[str], *, case_sensitive: bool = True) -> None:
+        self.choices = list(choices)
+        self.case_sensitive = case_sensitive
+
+    def convert(self, value: Any) -> Any:
+        choices_str = ", ".join(f"{choice!r}" for choice in self.choices)
+        raise TypeConversionError(f"{value!r} is not one of {choices_str}.")
+
+    def convert_str(self, value: str) -> Any:
+        norm = self._norm if self.case_sensitive else self._norm_case
+        for choice in self.choices:
+            if norm(value) == norm(choice):
+                return choice
+        choices_str = ", ".join(f"{choice!r}" for choice in self.choices)
+        raise TypeConversionError(f"{value!r} is not one of {choices_str}.")
+
+    @staticmethod
+    def _norm(s: str) -> str:
+        return s
+
+    @staticmethod
+    def _norm_case(s: str) -> str:
+        return s.casefold()
+
+    def suggest_metavar(self) -> str | None:
+        return "[" + "|".join(self.choices) + "]"
+
+
 class File(Type):
     """The class used to convert command-line arguments to file.
 
