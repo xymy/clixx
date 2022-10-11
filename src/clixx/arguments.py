@@ -138,7 +138,7 @@ class Argument:
     def show(self) -> str:
         """Show argument."""
 
-        return f"{self.argument!r}"
+        return repr(self.argument)
 
     def show_metavar(self) -> str:
         """Resolve and show metavar."""
@@ -232,7 +232,7 @@ class Option:
         Availability: ``nargs == 1``.
         """
 
-        with _raise_invalid_value(type="option", name=f"{key!r}"):
+        with _raise_invalid_value(type="option", name=repr(key)):
             result = self.type.convert_str(value)
         args[self.dest] = result
 
@@ -254,7 +254,7 @@ class Option:
     def show(self) -> str:
         """Show short options and long options."""
 
-        return " / ".join(f"{option!r}" for option in self.short_options + self.long_options)
+        return " / ".join(map(repr, self.short_options + self.long_options))
 
     def show_metavar(self) -> str:
         """Resolve and show metavar."""
