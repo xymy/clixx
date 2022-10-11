@@ -5,7 +5,7 @@ import os
 import pathlib
 import stat
 from contextlib import suppress
-from typing import Any, Sequence
+from typing import Any, Sequence, cast
 
 from .exceptions import DefinitionError, TypeConversionError
 
@@ -170,6 +170,36 @@ class Choice(Type):
 
     def suggest_metavar(self) -> str | None:
         return "[" + "|".join(self.choices) + "]"
+
+
+class IntChoice(Type):
+    """The class used to convert command-line arguments to integer in choices.
+
+    Parameters:
+        choices (Sequence[int]):
+            The allowed values.
+    """
+
+    def __init__(self, choices: Sequence[int]) -> None:
+        if not choices:
+            raise DefinitionError("No choice defined.")
+        self.choices = list(choices)
+
+    def convert(self, value: Any) -> Any:
+        return self._check(cast(int, Int().convert(value)))
+
+    def convert_str(self, value: str) -> Any:
+        return self._check(cast(int, Int().convert_str(value)))
+
+    def _check(self, value: int) -> int:
+        if value in self.choices:
+            return value
+
+        choices_str = ", ".join(map(repr, self.choices))
+        raise TypeConversionError(f"{value!r} is not one of {choices_str}.")
+
+    def suggest_metavar(self) -> str | None:
+        return "[" + "|".join(map(str, self.choices)) + "]"
 
 
 class DateTime(Type):
