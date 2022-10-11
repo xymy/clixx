@@ -17,6 +17,7 @@ class Type:
     """
 
     #: Whether this type conversion is safe (independent of current system status).
+    #: If ``False``, subclass should overwrite ``safe_convert()``.
     is_safe = True
 
     def __call__(self, value: Any) -> Any:
@@ -107,7 +108,7 @@ class Int(Type):
             elif self.base == 2:
                 raise TypeConversionError(f"{value!r} is not a valid binary integer.")
             else:
-                raise TypeConversionError(f"{value!r} is not a valid integer with base {self.base}.")
+                raise TypeConversionError(f"{value!r} is not a valid integer with base {self.base!r}.")
 
 
 class Float(Type):
@@ -141,11 +142,13 @@ class Choice(Type):
     """
 
     def __init__(self, choices: Sequence[str], *, case_sensitive: bool = True) -> None:
+        if not choices:
+            raise DefinitionError("No choice defined.")
         self.choices = list(choices)
         self.case_sensitive = case_sensitive
 
     def convert(self, value: Any) -> Any:
-        choices_str = ", ".join(f"{choice!r}" for choice in self.choices)
+        choices_str = ", ".join(map(repr, self.choices))
         raise TypeConversionError(f"{value!r} is not one of {choices_str}.")
 
     def convert_str(self, value: str) -> Any:
@@ -153,7 +156,8 @@ class Choice(Type):
         for choice in self.choices:
             if norm(value) == norm(choice):
                 return choice
-        choices_str = ", ".join(f"{choice!r}" for choice in self.choices)
+
+        choices_str = ", ".join(map(repr, self.choices))
         raise TypeConversionError(f"{value!r} is not one of {choices_str}.")
 
     @staticmethod
@@ -166,6 +170,46 @@ class Choice(Type):
 
     def suggest_metavar(self) -> str | None:
         return "[" + "|".join(self.choices) + "]"
+
+
+class DateTime(Type):
+    """The class used to convert command-line arguments to datetime.
+
+    Parameters:
+        formats (Sequence[str] | None, default=None):
+            The datetime formats used when parsing from string.
+
+    See Also:
+        - https://docs.python.org/3/library/datetime.html#strftime-and-strptime-behavior
+    """
+
+    def __init__(self, formats: Sequence[str] | None = None) -> None:
+        if formats is None:
+            self.formats = ["%Y-%m-%dT%H:%M:%S", "%Y-%m-%d"]
+        else:
+            if not formats:
+                raise DefinitionError("No format defined.")
+            self.formats = list(formats)
+
+    def convert(self, value: Any) -> Any:
+        if isinstance(value, datetime.datetime):
+            return value
+        raise TypeConversionError(f"{value!r} is not a valid datetime.")
+
+    def convert_str(self, value: str) -> Any:
+        for format in self.formats:
+            with suppress(ValueError):
+                return datetime.datetime.strptime(value, format)
+
+        formats_str = ", ".join(map(repr, self.formats))
+        if len(self.formats) == 1:
+            hint = f"Valid format is {formats_str}."
+        else:
+            hint = f"Valid formats are {formats_str}."
+        raise TypeConversionError(f"{value!r} is not a valid datetime. {hint}")
+
+    def suggest_metavar(self) -> str | None:
+        return "DATETIME"
 
 
 class File(Type):
@@ -325,43 +369,3 @@ class FilePath(Path):
 
     def suggest_metavar(self) -> str | None:
         return "FILE"
-
-
-class DateTime(Type):
-    """The class used to convert command-line arguments to datetime.
-
-    Parameters:
-        formats (Sequence[str] | None, default=None):
-            The datetime formats used when parsing from string.
-
-    See Also:
-        - https://docs.python.org/3/library/datetime.html#strftime-and-strptime-behavior
-    """
-
-    def __init__(self, formats: Sequence[str] | None = None) -> None:
-        if formats is None:
-            self.formats = ["%Y-%m-%dT%H:%M:%S", "%Y-%m-%d"]
-        else:
-            if not formats:
-                raise DefinitionError("No format defined.")
-            self.formats = list(formats)
-
-    def convert(self, value: Any) -> Any:
-        if isinstance(value, datetime.datetime):
-            return value
-        raise TypeConversionError(f"{value!r} is not a valid datetime.")
-
-    def convert_str(self, value: str) -> Any:
-        for format in self.formats:
-            with suppress(ValueError):
-                return datetime.datetime.strptime(value, format)
-
-        formats_str = ", ".join(f"{format!r}" for format in self.formats)
-        if len(self.formats) == 1:
-            hint = f"Valid format is {formats_str}."
-        else:
-            hint = f"Valid formats are {formats_str}."
-        raise TypeConversionError(f"{value!r} is not a valid datetime. {hint}")
-
-    def suggest_metavar(self) -> str | None:
-        return "DATETIME"
