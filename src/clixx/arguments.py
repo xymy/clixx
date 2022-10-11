@@ -109,6 +109,8 @@ class Argument:
         return dest, decl
 
     def store(self, args: dict[str, Any], value: str) -> None:
+        """Store value to destination."""
+
         with _raise_invalid_value(type="argument", name=self.show()):
             result = self.type.convert_str(value)
         if self.nargs == 1:
@@ -118,6 +120,8 @@ class Argument:
             args[self.dest] = args.get(self.dest, ()) + (result,)
 
     def store_default(self, args: dict[str, Any]) -> None:
+        """Store default value to destination."""
+
         with _raise_invalid_value(type="argument", name=self.show()):
             if self.nargs == 1:
                 result = None if self.default is None else self.type(self.default)
@@ -132,9 +136,13 @@ class Argument:
         args[self.dest] = result
 
     def show(self) -> str:
+        """Show argument."""
+
         return f"{self.argument!r}"
 
     def show_metavar(self) -> str:
+        """Resolve and show metavar."""
+
         if self.metavar is not None:
             return self.metavar
         else:
@@ -219,22 +227,38 @@ class Option:
         return dest, long_options, short_options
 
     def store(self, args: dict[str, Any], value: str, *, key: str) -> None:
+        """Store value to destination.
+
+        Availability: ``nargs == 1``.
+        """
+
         with _raise_invalid_value(type="option", name=f"{key!r}"):
             result = self.type.convert_str(value)
         args[self.dest] = result
 
     def store_const(self, args: dict[str, Any]) -> None:
+        """Store constant value to destination.
+
+        Availability: ``nargs == 0``.
+        """
+
         raise InternalError()
 
     def store_default(self, args: dict[str, Any]) -> None:
+        """Store default value to destination."""
+
         with _raise_invalid_value(type="option", name=self.show()):
             result = None if self.default is None else self.type(self.default)
         args[self.dest] = result
 
     def show(self) -> str:
+        """Show short options and long options."""
+
         return " / ".join(f"{option!r}" for option in self.short_options + self.long_options)
 
     def show_metavar(self) -> str:
+        """Resolve and show metavar."""
+
         if self.metavar is not None:
             return self.metavar
         elif (metavar := self.type.suggest_metavar()) is not None:

@@ -318,7 +318,7 @@ class DateTime(Type):
             with suppress(ValueError):
                 return datetime.datetime.strptime(value, format)
 
-        formats_str = ", ".join(self.formats)
+        formats_str = ", ".join(f"{format!r}" for format in self.formats)
         if len(self.formats) == 1:
             hint = f"Valid format is {formats_str}."
         else:
