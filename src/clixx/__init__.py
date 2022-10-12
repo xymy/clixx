@@ -1,4 +1,5 @@
 from .arguments import Argument, CountOption, FlagOption, Option, SignalOption
+from .commands import Command
 from .groups import ALL, ANY, AT_LEAST_ONE, AT_MOST_ONE, EXACTLY_ONE, NONE, ArgumentGroup, GroupType, OptionGroup
 from .types import Bool, Choice, DateTime, DirPath, File, FilePath, Float, Int, IntChoice, Path, Str, Type
 
@@ -9,6 +10,8 @@ __all__ = [
     "FlagOption",
     "CountOption",
     "SignalOption",
+    # commands
+    "Command",
     # groups
     "GroupType",
     "ANY",
