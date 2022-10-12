@@ -5,7 +5,7 @@ from keyword import iskeyword
 from typing import Any, Generator, Sequence
 
 from .constants import LONG_PREFIX, LONG_PREFIX_LEN, SHORT_PREFIX, SHORT_PREFIX_LEN
-from .exceptions import DefinitionError, InternalError, InvalidValue, TypeConversionError
+from .exceptions import DefinitionError, InvalidValue, TypeConversionError
 from .types import Str, Type
 
 
@@ -242,7 +242,7 @@ class Option:
         Availability: ``nargs == 0``.
         """
 
-        raise InternalError()
+        raise NotImplementedError
 
     def store_default(self, args: dict[str, Any]) -> None:
         """Store default value to destination."""
@@ -320,7 +320,7 @@ class FlagOption(Option):
         self.const = const
 
     def store(self, args: dict[str, Any], value: str, *, key: str) -> None:
-        raise InternalError()
+        raise NotImplementedError
 
     def store_const(self, args: dict[str, Any]) -> None:
         with _raise_invalid_value(type="option", name=self.show()):
@@ -363,7 +363,7 @@ class CountOption(Option):
         super().__init__(*decls, dest=dest, required=False, type=Type(), default=0, hidden=hidden, help=help)
 
     def store(self, args: dict[str, Any], value: str, *, key: str) -> None:
-        raise InternalError()
+        raise NotImplementedError
 
     def store_const(self, args: dict[str, Any]) -> None:
         args[self.dest] = args.get(self.dest, 0) + 1
@@ -394,10 +394,10 @@ class SignalOption(Option):
         return "", *_parse_decls(decls)
 
     def store(self, args: dict[str, Any], value: str, *, key: str) -> None:
-        raise InternalError()
+        raise NotImplementedError
 
     def store_const(self, args: dict[str, Any]) -> None:
-        raise InternalError()
+        raise NotImplementedError
 
     def store_default(self, args: dict[str, Any]) -> None:
         pass

@@ -1,10 +1,6 @@
 from __future__ import annotations
 
 
-class InternalError(Exception):
-    """Invoke internal APIs incorrectly."""
-
-
 class ProgrammingError(Exception):
     """Invoke APIs incorrectly."""
 
