@@ -146,7 +146,7 @@ class Context:
             for option in option_group.children:
                 if not option.occurred:
                     if option.required:
-                        raise MissingOption(f"Missing option {option.option.dest}.")
+                        raise MissingOption(f"Missing option {option.option.show()}.")
                     option.store_default(self.args)
             option_group.check()
 

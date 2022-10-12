@@ -34,6 +34,7 @@ class Parser:
             while (arg := ctx.next_arg) is not None:
                 self._parse_argument(ctx, args, arg)
 
+        ctx.finalize()
         return ctx
 
     @staticmethod
@@ -74,6 +75,7 @@ class Parser:
                 option.store_const(args)
             else:
                 value: str | None
+
                 if index < len(arg):  # -ovalue
                     value = arg[index:]
                 else:  # -o value
