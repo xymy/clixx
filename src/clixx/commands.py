@@ -1,8 +1,10 @@
 from __future__ import annotations
 
 import sys
-from typing import Any
+from contextlib import contextmanager
+from typing import Any, Generator
 
+from .exceptions import CLIXXException
 from .groups import ArgumentGroup, OptionGroup
 from .parser import Parser
 
@@ -28,6 +30,18 @@ class Command:
     def parse_args(self, argv: list[str] | None = None) -> dict[str, Any]:
         args: dict[str, Any] = {}
         argv = sys.argv[1:] if argv is None else argv
-        parser = Parser(self.argument_groups, self.option_groups)
-        parser.parse_args(args, argv)
+        with self._guard():
+            parser = Parser(self.argument_groups, self.option_groups)
+            parser.parse_args(args, argv)
         return args
+
+    @contextmanager
+    def _guard(self) -> Generator[None, None, None]:
+        try:
+            yield None
+        except CLIXXException as e:
+            from ._rich import echo
+
+            message = f"Error: {e.format_message()}"
+            echo(message, fg="red", bold=True, file=sys.stderr)
+            sys.exit(e.exit_code)

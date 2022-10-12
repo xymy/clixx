@@ -12,7 +12,6 @@ class Parser:
     def __init__(self, argument_groups: list[ArgumentGroup], option_groups: list[OptionGroup]) -> None:
         if not argument_groups and not option_groups:
             raise ProgrammingError("No group defined.")
-
         self.argument_groups = argument_groups
         self.option_groups = option_groups
 
