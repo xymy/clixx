@@ -101,7 +101,7 @@ class Argument:
 
     @staticmethod
     def _parse(decl: str, *, dest: str | None) -> tuple[str, str]:
-        # Infer destination argument from declaration if `dest` not given.
+        # Infer destination from declaration if `dest` not given.
         if dest is not None:
             dest = _check_dest(dest)
         else:
@@ -217,7 +217,7 @@ class Option:
     def _parse(decls: Sequence[str], *, dest: str | None = None) -> tuple[str, list[str], list[str]]:
         long_options, short_options = _parse_decls(decls)
 
-        # Infer destination argument from declarations if `dest` not given.
+        # Infer destination from declarations if `dest` not given.
         if dest is not None:
             dest = _check_dest(dest)
         elif long_options:
@@ -390,7 +390,7 @@ class SignalOption(Option):
 
     @staticmethod
     def _parse(decls: Sequence[str], *, dest: str | None = None) -> tuple[str, list[str], list[str]]:
-        # The signal option does not have destination argument.
+        # The signal option does not have destination.
         return "", *_parse_decls(decls)
 
     def store(self, args: dict[str, Any], value: str, *, key: str) -> None:

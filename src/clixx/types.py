@@ -21,6 +21,8 @@ class Type:
     is_safe = True
 
     def __call__(self, value: Any) -> Any:
+        """Convert to expected value."""
+
         if isinstance(value, str):
             return self.convert_str(value)
         return self.convert(value)
