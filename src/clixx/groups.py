@@ -37,6 +37,9 @@ class ArgumentGroup:
     def __iter__(self) -> Iterator[Argument]:
         yield from self.arguments
 
+    def __iadd__(self, other: Argument) -> ArgumentGroup:
+        return self.add(other)
+
     def add(self, argument: Argument) -> ArgumentGroup:
         self.arguments.append(argument)
         return self
@@ -55,6 +58,9 @@ class OptionGroup:
 
     def __iter__(self) -> Iterator[Option]:
         yield from self.options
+
+    def __iadd__(self, other: Option) -> OptionGroup:
+        return self.add(other)
 
     def add(self, option: Option) -> OptionGroup:
         self.options.append(option)
