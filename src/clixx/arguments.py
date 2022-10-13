@@ -6,7 +6,7 @@ from typing import Any, Generator, Sequence
 
 from .constants import LONG_PREFIX, LONG_PREFIX_LEN, SHORT_PREFIX, SHORT_PREFIX_LEN
 from .exceptions import DefinitionError, InvalidValue, TypeConversionError
-from .types import Str, Type
+from .types import Type, _resolve_type_converter
 
 
 def _check_dest(dest: str) -> str:
@@ -84,7 +84,7 @@ class Argument:
         dest: str | None = None,
         nargs: int = 1,
         required: bool = False,
-        type: Type | None = None,
+        type: Type | type | None = None,
         default: Any = None,
         hidden: bool = False,
         metavar: str | None = None,
@@ -93,7 +93,7 @@ class Argument:
         self.dest, self.argument = self._parse(decl, dest=dest)
         self.nargs = nargs
         self.required = required
-        self.type = type or Str()
+        self.type = _resolve_type_converter(type)
         self.default = default
         self.hidden = hidden
         self.metavar = metavar
@@ -199,7 +199,7 @@ class Option:
         *decls: str,
         dest: str | None = None,
         required: bool = False,
-        type: Type | None = None,
+        type: Type | type | None = None,
         default: Any = None,
         hidden: bool = False,
         metavar: str | None = None,
@@ -207,7 +207,7 @@ class Option:
     ) -> None:
         self.dest, self.long_options, self.short_options = self._parse(decls, dest=dest)
         self.required = required
-        self.type = type or Str()
+        self.type = _resolve_type_converter(type)
         self.default = default
         self.hidden = hidden
         self.metavar = metavar
@@ -308,7 +308,7 @@ class FlagOption(Option):
         self,
         *decls: str,
         dest: str | None = None,
-        type: Type | None = None,
+        type: Type | type | None = None,
         const: Any = True,
         default: Any = False,
         hidden: bool = False,

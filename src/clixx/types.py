@@ -403,3 +403,17 @@ class FilePath(Path):
 
     def suggest_metavar(self) -> str | None:
         return "FILE"
+
+
+def _resolve_type_converter(type: Type | type | None) -> Type:
+    if isinstance(type, Type):
+        return type
+    if type is None or type is str:
+        return Str()
+    if type is bool:
+        return Bool()
+    if type is int:
+        return Int()
+    if type is float:
+        return Float()
+    raise DefinitionError(f"{type!r} is not a valid type.")
