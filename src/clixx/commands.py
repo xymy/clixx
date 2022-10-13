@@ -45,3 +45,24 @@ class Command:
             message = f"Error: {e.format_message()}"
             echo(message, fg="red", bold=True, file=sys.stderr)
             sys.exit(e.exit_code)
+
+    def get_prog(self) -> str:
+        return sys.argv[0] if self.name is None else self.name
+
+    def get_usage(self) -> str:
+        prog = self.get_prog()
+        usage = f"Usage: {prog}"
+        if self.option_groups:
+            usage += " [OPTIONS]..."
+        metavars: list[str] = []
+        for argument_group in self.argument_groups:
+            for argument in argument_group:
+                metavar = argument.show_metavar()
+                if not argument.required:
+                    metavar = f"[{metavar}]"
+                if argument.nargs == -1:
+                    metavar += "..."
+                metavars.append(metavar)
+        if metavars:
+            usage += " " + " ".join(metavars)
+        return usage
