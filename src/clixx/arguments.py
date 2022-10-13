@@ -6,7 +6,7 @@ from typing import Any, Generator, Sequence
 
 from .constants import LONG_PREFIX, LONG_PREFIX_LEN, SHORT_PREFIX, SHORT_PREFIX_LEN
 from .exceptions import DefinitionError, InvalidValue, TypeConversionError
-from .types import Type, _resolve_type_converter
+from .types import Str, Type, _resolve_type
 
 
 def _check_dest(dest: str) -> str:
@@ -93,7 +93,7 @@ class Argument:
         self.dest, self.argument = self._parse(decl, dest=dest)
         self.nargs = nargs
         self.required = required
-        self.type = _resolve_type_converter(type)
+        self.type = _resolve_type(type or Str())
         self.default = default
         self.hidden = hidden
         self.metavar = metavar
@@ -207,7 +207,7 @@ class Option:
     ) -> None:
         self.dest, self.long_options, self.short_options = self._parse(decls, dest=dest)
         self.required = required
-        self.type = _resolve_type_converter(type)
+        self.type = _resolve_type(type or Str())
         self.default = default
         self.hidden = hidden
         self.metavar = metavar

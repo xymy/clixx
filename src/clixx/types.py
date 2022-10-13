@@ -405,10 +405,10 @@ class FilePath(Path):
         return "FILE"
 
 
-def _resolve_type_converter(type: Type | type | None) -> Type:
+def _resolve_type(type: Type | type) -> Type:
     if isinstance(type, Type):
         return type
-    if type is None or type is str:
+    if type is str:
         return Str()
     if type is bool:
         return Bool()
