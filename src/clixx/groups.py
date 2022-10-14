@@ -28,7 +28,12 @@ EXACTLY_ONE = GroupType.EXACTLY_ONE
 
 
 class ArgumentGroup:
-    """The group of positional arguments."""
+    """The group of positional arguments.
+
+    Parameters:
+        name (str):
+            The group name.
+    """
 
     def __init__(self, name: str) -> None:
         self.name = name
@@ -52,7 +57,14 @@ class ArgumentGroup:
 
 
 class OptionGroup:
-    """The group of optional arguments."""
+    """The group of optional arguments.
+
+    Parameters:
+        name (str):
+            The group name.
+        type (GroupType, default=ANY):
+            The group constraint type.
+    """
 
     def __init__(self, name: str, *, type: GroupType = ANY) -> None:
         self.name = name
