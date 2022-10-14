@@ -215,7 +215,7 @@ class Option:
             dest = _check_dest(short_options[0][SHORT_PREFIX_LEN:])
         return dest, long_options, short_options
 
-    def store(self, args: dict[str, Any], value: str, *, key: str) -> None:
+    def store(self, args: dict[str, Any], value: str) -> None:
         """Store value to destination.
 
         Availability: ``nargs == 1``.
@@ -306,7 +306,7 @@ class FlagOption(Option):
         super().__init__(*decls, dest=dest, required=False, type=type, default=default, hidden=hidden, help=help)
         self.const = const
 
-    def store(self, args: dict[str, Any], value: str, *, key: str) -> None:
+    def store(self, args: dict[str, Any], value: str) -> None:
         raise NotImplementedError
 
     def store_const(self, args: dict[str, Any]) -> None:
@@ -348,7 +348,7 @@ class CountOption(Option):
     def __init__(self, *decls: str, dest: str | None = None, hidden: bool = False, help: str = "") -> None:
         super().__init__(*decls, dest=dest, required=False, type=Type(), default=0, hidden=hidden, help=help)
 
-    def store(self, args: dict[str, Any], value: str, *, key: str) -> None:
+    def store(self, args: dict[str, Any], value: str) -> None:
         raise NotImplementedError
 
     def store_const(self, args: dict[str, Any]) -> None:
@@ -379,7 +379,7 @@ class SignalOption(Option):
         # The signal option does not have destination.
         return "", *_parse_decls(decls)
 
-    def store(self, args: dict[str, Any], value: str, *, key: str) -> None:
+    def store(self, args: dict[str, Any], value: str) -> None:
         raise NotImplementedError
 
     def store_const(self, args: dict[str, Any]) -> None:

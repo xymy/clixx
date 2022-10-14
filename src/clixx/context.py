@@ -64,7 +64,7 @@ class OptionNode:
 
     def store(self, args: dict[str, Any], value: str, *, key: str) -> None:
         with _raise_invalid_value(type="option", name=repr(key)):
-            self.option.store(args, value, key=key)
+            self.option.store(args, value)
 
         # The same option may occur more than once.
         if not self.occurred:
