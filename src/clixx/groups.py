@@ -34,6 +34,9 @@ class ArgumentGroup:
         self.name = name
         self.arguments: list[Argument] = []
 
+    def __len__(self) -> int:
+        return len(self.arguments)
+
     def __iter__(self) -> Iterator[Argument]:
         yield from self.arguments
 
@@ -55,6 +58,9 @@ class OptionGroup:
         self.name = name
         self.type = type
         self.options: list[Option] = []
+
+    def __len__(self) -> int:
+        return len(self.options)
 
     def __iter__(self) -> Iterator[Option]:
         yield from self.options
