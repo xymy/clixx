@@ -1,12 +1,29 @@
 from __future__ import annotations
 
 import weakref
+from contextlib import contextmanager
 from dataclasses import dataclass
-from typing import Any, cast
+from typing import Any, Generator, cast
 
 from .arguments import Argument, Option
-from .exceptions import MissingOption, ProgrammingError, TooFewArguments, TooManyArguments, UnknownOption
+from .exceptions import (
+    InvalidValue,
+    MissingOption,
+    ProgrammingError,
+    TooFewArguments,
+    TooManyArguments,
+    TypeConversionError,
+    UnknownOption,
+)
 from .groups import ArgumentGroup, OptionGroup
+
+
+@contextmanager
+def _raise_invalid_value(*, type: str, name: str) -> Generator[None, None, None]:
+    try:
+        yield None
+    except TypeConversionError as e:
+        raise InvalidValue(str(e), type=type, name=name)
 
 
 class ArgumentNode:
@@ -16,11 +33,13 @@ class ArgumentNode:
         self.occurred = False
 
     def store(self, args: dict[str, Any], value: str) -> None:
-        self.argument.store(args, value)
+        with _raise_invalid_value(type="argument", name=self.argument.show()):
+            self.argument.store(args, value)
         self.occurred = True
 
     def store_default(self, args: dict[str, Any]) -> None:
-        self.argument.store_default(args)
+        with _raise_invalid_value(type="argument", name=self.argument.show()):
+            self.argument.store_default(args)
 
     @property
     def nargs(self) -> int:
@@ -44,7 +63,8 @@ class OptionNode:
         self.occurred = False
 
     def store(self, args: dict[str, Any], value: str, *, key: str) -> None:
-        self.option.store(args, value, key=key)
+        with _raise_invalid_value(type="option", name=repr(key)):
+            self.option.store(args, value, key=key)
 
         # The same option may occur more than once.
         if not self.occurred:
@@ -52,7 +72,8 @@ class OptionNode:
             self.parent.num_occurred += 1
 
     def store_const(self, args: dict[str, Any]) -> None:
-        self.option.store_const(args)
+        with _raise_invalid_value(type="option", name=self.option.show()):
+            self.option.store_const(args)
 
         # The same option may occur more than once.
         if not self.occurred:
@@ -60,7 +81,8 @@ class OptionNode:
             self.parent.num_occurred += 1
 
     def store_default(self, args: dict[str, Any]) -> None:
-        self.option.store_default(args)
+        with _raise_invalid_value(type="option", name=self.option.show()):
+            self.option.store_default(args)
 
     @property
     def nargs(self) -> int:
