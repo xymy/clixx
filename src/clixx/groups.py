@@ -8,7 +8,7 @@ from .exceptions import GroupError
 
 
 class GroupType(enum.Enum):
-    """The group type."""
+    """The group constraint type."""
 
     ANY = enum.auto()
     ALL = enum.auto()
@@ -28,7 +28,7 @@ EXACTLY_ONE = GroupType.EXACTLY_ONE
 
 
 class ArgumentGroup:
-    """The group of positional arguments.
+    """The argument group.
 
     Parameters:
         name (str):
@@ -57,7 +57,7 @@ class ArgumentGroup:
 
 
 class OptionGroup:
-    """The group of optional arguments.
+    """The option group.
 
     Parameters:
         name (str):
@@ -111,7 +111,7 @@ class OptionGroup:
         pass
 
     def _check_all(self, num_occurred: int) -> None:
-        num_options = len(self.options)
+        num_options = len(self)
         if num_occurred != num_options:
             if num_options == 0:
                 raise GroupError(f"Option group {self.name!r} does not take a option.")
