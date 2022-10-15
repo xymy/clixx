@@ -255,6 +255,8 @@ class Option:
 
     @property
     def nargs(self) -> int:
+        """Return ``1``."""
+
         return 1
 
     @property
@@ -315,6 +317,8 @@ class FlagOption(Option):
 
     @property
     def nargs(self) -> int:
+        """Return ``0``."""
+
         return 0
 
     @property
@@ -356,6 +360,8 @@ class CountOption(Option):
 
     @property
     def nargs(self) -> int:
+        """Return ``0``."""
+
         return 0
 
 
@@ -390,4 +396,6 @@ class SignalOption(Option):
 
     @property
     def nargs(self) -> int:
+        """Return ``0``."""
+
         return 0
