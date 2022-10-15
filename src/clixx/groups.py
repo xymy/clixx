@@ -10,20 +10,25 @@ from .exceptions import GroupError
 class GroupType(enum.Enum):
     """The group constraint type."""
 
-    ANY = enum.auto()
-    ALL = enum.auto()
-    NONE = enum.auto()
-    AT_LEAST_ONE = enum.auto()
-    AT_MOST_ONE = enum.auto()
-    EXACTLY_ONE = enum.auto()
+    ANY = enum.auto()  #: Require any.
+    ALL = enum.auto()  #: Require all.
+    NONE = enum.auto()  #: Require none.
+    AT_LEAST_ONE = enum.auto()  #: Require at least one.
+    AT_MOST_ONE = enum.auto()  #: Require at most one.
+    EXACTLY_ONE = enum.auto()  #: Require exactly one.
 
 
-# Aliases for GroupType.
+#: Alias for :attr:`GroupType.ANY`.
 ANY = GroupType.ANY
+#: Alias for :attr:`GroupType.ALL`.
 ALL = GroupType.ALL
+#: Alias for :attr:`GroupType.NONE`.
 NONE = GroupType.NONE
+#: Alias for :attr:`GroupType.AT_LEAST_ONE`.
 AT_LEAST_ONE = GroupType.AT_LEAST_ONE
+#: Alias for :attr:`GroupType.AT_MOST_ONE`.
 AT_MOST_ONE = GroupType.AT_MOST_ONE
+#: Alias for :attr:`GroupType.EXACTLY_ONE`.
 EXACTLY_ONE = GroupType.EXACTLY_ONE
 
 
