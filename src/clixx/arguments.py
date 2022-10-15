@@ -56,7 +56,7 @@ class Argument:
             ``nargs == -1``.
         required (bool, default=False):
             Whether this argument is required or optional.
-        type (Type | None, default=None):
+        type (Type | type | None, default=None):
             The type converter. If ``None``, use ``Str()``.
         default (Any, default=None):
             The default value used if argument omitted.
@@ -171,7 +171,7 @@ class Option:
             The destination used to store/forward the option value.
         required (bool, default=False):
             Whether this option is required or optional.
-        type (Type | None, default=None):
+        type (Type | type | None, default=None):
             The type converter. If ``None``, use ``Str()``.
         default (Any, default=None):
             The default value used if option omitted.
@@ -279,7 +279,7 @@ class FlagOption(Option):
             The declarations for this option.
         dest (str | None, default=None):
             The destination used to store/forward the option value.
-        type (Type | None, default=None):
+        type (Type | type | None, default=None):
             The type converter. If ``None``, use ``Type()``.
         const (Any, default=None):
             The constant value used if option occurred.
