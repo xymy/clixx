@@ -158,8 +158,9 @@ class Choice(Type):
 
     def _check(self, value: str) -> str:
         norm = _resolve_norm(self.case_sensitive)
+        v = norm(value)
         for choice in self.choices:
-            if norm(value) == norm(choice):
+            if v == norm(choice):
                 return choice
 
         choices_str = ", ".join(map(repr, self.choices))
@@ -222,8 +223,9 @@ class Enum(Type):
 
     def convert_str(self, value: str) -> Any:
         norm = _resolve_norm(self.case_sensitive)
+        v = norm(value)
         for name, member in self.enum_type.__members__.items():
-            if norm(value) == norm(name):
+            if v == norm(name):
                 return member
 
         enum_str = ", ".join(map(repr, self.enum_type.__members__.keys()))
