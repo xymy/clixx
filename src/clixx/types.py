@@ -151,12 +151,10 @@ class Choice(Type):
         self.case_sensitive = case_sensitive
 
     def convert(self, value: Any) -> Any:
-        return self._check(cast(str, Str().convert(value)))
+        choices_str = ", ".join(map(repr, self.choices))
+        raise TypeConversionError(f"{value!r} is not one of {choices_str}.")
 
     def convert_str(self, value: str) -> Any:
-        return self._check(cast(str, Str().convert_str(value)))
-
-    def _check(self, value: str) -> str:
         norm = _resolve_norm(self.case_sensitive)
         v = norm(value)
         for choice in self.choices:
@@ -184,7 +182,10 @@ class IntChoice(Type):
         self.choices = list(choices)
 
     def convert(self, value: Any) -> Any:
-        return self._check(cast(int, Int().convert(value)))
+        if isinstance(value, int):
+            return self._check(value)
+        choices_str = ", ".join(map(repr, self.choices))
+        raise TypeConversionError(f"{value!r} is not one of {choices_str}.")
 
     def convert_str(self, value: str) -> Any:
         return self._check(cast(int, Int().convert_str(value)))
