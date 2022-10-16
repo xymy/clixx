@@ -153,9 +153,6 @@ class Context:
         self.option_tree, self.option_map = _build_option_tree(option_groups)
         self._pos = 0
 
-        if not self.argument_seq and not self.option_map:
-            raise ProgrammingError("No arguments defined.")
-
     def finalize(self) -> None:
         for argument_group in self.argument_tree:
             for argument in argument_group.children:
