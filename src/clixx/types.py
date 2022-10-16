@@ -200,6 +200,15 @@ class IntChoice(Type):
 
 
 class Enum(Type):
+    """The class used to convert command-line arguments to enumeration.
+
+    Parameters:
+        choices (type[enum.Enum]):
+            The enumeration type.
+        case_sensitive (bool, default=True):
+            If ``True``, the enumeration names are case sensitive.
+    """
+
     def __init__(self, enum_type: type[enum.Enum], *, case_sensitive: bool = True) -> None:
         if len(enum_type) == 0:
             raise DefinitionError("No enumeration member defined.")
@@ -225,6 +234,13 @@ class Enum(Type):
 
 
 class IntEnum(Type):
+    """The class used to convert command-line arguments to integer enumeration.
+
+    Parameters:
+        choices (type[enum.IntEnum]):
+            The enumeration type.
+    """
+
     def __init__(self, enum_type: type[enum.IntEnum]) -> None:
         if len(enum_type) == 0:
             raise DefinitionError("No enumeration member defined.")
@@ -257,7 +273,8 @@ class DateTime(Type):
 
     Parameters:
         formats (Sequence[str] | None, default=None):
-            The datetime formats used when parsing from string.
+            The datetime formats used when parsing from string. If ``None``, use
+            ``["%Y-%m-%dT%H:%M:%S", "%Y-%m-%d"]``.
 
     See Also:
         - https://docs.python.org/3/library/datetime.html#strftime-and-strptime-behavior
