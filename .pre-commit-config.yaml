@@ -23,10 +23,6 @@ repos:
     rev: 5.10.1
     hooks:
       - id: isort
-  - repo: https://github.com/PyCQA/docformatter
-    rev: v1.5.0
-    hooks:
-      - id: docformatter
   - repo: https://github.com/PyCQA/flake8
     rev: 5.0.4
     hooks:

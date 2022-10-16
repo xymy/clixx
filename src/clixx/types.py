@@ -1,11 +1,12 @@
 from __future__ import annotations
 
 import datetime
+import enum
 import os
 import pathlib
 import stat
 from contextlib import suppress
-from typing import Any, Sequence, cast
+from typing import Any, Callable, Sequence, cast
 
 from .exceptions import DefinitionError, TypeConversionError
 
@@ -156,21 +157,13 @@ class Choice(Type):
         return self._check(cast(str, Str().convert_str(value)))
 
     def _check(self, value: str) -> str:
-        norm = self._norm if self.case_sensitive else self._norm_case
+        norm = _resolve_norm(self.case_sensitive)
         for choice in self.choices:
             if norm(value) == norm(choice):
                 return choice
 
         choices_str = ", ".join(map(repr, self.choices))
         raise TypeConversionError(f"{value!r} is not one of {choices_str}.")
-
-    @staticmethod
-    def _norm(s: str) -> str:
-        return s
-
-    @staticmethod
-    def _norm_case(s: str) -> str:
-        return s.casefold()
 
     def suggest_metavar(self) -> str | None:
         return "[" + "|".join(self.choices) + "]"
@@ -204,6 +197,59 @@ class IntChoice(Type):
 
     def suggest_metavar(self) -> str | None:
         return "[" + "|".join(map(str, self.choices)) + "]"
+
+
+class Enum(Type):
+    def __init__(self, enum_type: type[enum.Enum], *, case_sensitive: bool = True) -> None:
+        if len(enum_type) == 0:
+            raise DefinitionError("No enumeration member defined.")
+        self.enum_type = enum_type
+        self.case_sensitive = case_sensitive
+
+    def convert(self, value: Any) -> Any:
+        if isinstance(value, self.enum_type):
+            return value
+        raise TypeConversionError(f"{value!r} is not a valid enumeration member of {self.enum_type!r}.")
+
+    def convert_str(self, value: str) -> Any:
+        norm = _resolve_norm(self.case_sensitive)
+        for name, member in self.enum_type.__members__.items():
+            if norm(value) == norm(name):
+                return member
+
+        enum_str = ", ".join(map(repr, self.enum_type.__members__.keys()))
+        raise TypeConversionError(f"{value!r} is not one of {enum_str}.")
+
+    def suggest_metavar(self) -> str | None:
+        return "[" + "|".join(self.enum_type.__members__.keys()) + "]"
+
+
+class IntEnum(Type):
+    def __init__(self, enum_type: type[enum.IntEnum]) -> None:
+        if len(enum_type) == 0:
+            raise DefinitionError("No enumeration member defined.")
+        self.enum_type = enum_type
+
+    def convert(self, value: Any) -> Any:
+        if isinstance(value, self.enum_type):
+            return value
+        if isinstance(value, int):
+            return self._check(value)
+        raise TypeConversionError(f"{value!r} is not a valid enumeration member of {self.enum_type!r}.")
+
+    def convert_str(self, value: str) -> Any:
+        return self._check(cast(int, Int().convert_str(value)))
+
+    def _check(self, value: int) -> enum.IntEnum:
+        for member in self.enum_type:
+            if value == member:
+                return member
+
+        enum_str = ", ".join(repr(m.value) for m in self.enum_type)
+        raise TypeConversionError(f"{value!r} is not one of {enum_str}.")
+
+    def suggest_metavar(self) -> str | None:
+        return "[" + "|".join(str(m.value) for m in self.enum_type) + "]"
 
 
 class DateTime(Type):
@@ -403,6 +449,12 @@ class FilePath(Path):
 
     def suggest_metavar(self) -> str | None:
         return "FILE"
+
+
+def _resolve_norm(case_sensitive: bool) -> Callable[[str], str]:
+    if case_sensitive:
+        return str
+    return str.casefold
 
 
 def _resolve_type(type: Type | type) -> Type:
