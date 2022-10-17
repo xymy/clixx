@@ -115,8 +115,7 @@ class Int(Type):
 
 
 class Float(Type):
-    """The class used to convert command-line arguments to floating point
-    number.
+    """The class used to convert command-line arguments to floating point number.
 
     See Also:
         - https://docs.python.org/3/library/functions.html#float
@@ -191,8 +190,9 @@ class IntChoice(Type):
         return self._check(cast(int, Int().convert_str(value)))
 
     def _check(self, value: int) -> int:
-        if value in self.choices:
-            return value
+        for choice in self.choices:
+            if value == choice:
+                return choice
 
         choices_str = ", ".join(map(repr, self.choices))
         raise TypeConversionError(f"{value!r} is not one of {choices_str}.")
@@ -446,8 +446,7 @@ class Path(Type):
 
 
 class DirPath(Path):
-    """Similar to :class:`Path`, but check whether the path is a directory if it
-    exists."""
+    """Similar to :class:`Path`, but check whether the path is a directory if it exists."""
 
     @staticmethod
     def _check_path_stat(path: pathlib.Path, st: os.stat_result) -> None:
@@ -459,8 +458,7 @@ class DirPath(Path):
 
 
 class FilePath(Path):
-    """Similar to :class:`Path`, but check whether the path is a file if it
-    exists."""
+    """Similar to :class:`Path`, but check whether the path is a file if it exists."""
 
     @staticmethod
     def _check_path_stat(path: pathlib.Path, st: os.stat_result) -> None:
