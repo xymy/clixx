@@ -3,7 +3,7 @@ from __future__ import annotations
 import enum
 from typing import Iterator
 
-from .arguments import Argument, CountOption, FlagOption, Option
+from .arguments import Argument, Option
 from .exceptions import GroupError
 
 
@@ -45,20 +45,25 @@ class ArgumentGroup:
         self.arguments: list[Argument] = []
 
     def __len__(self) -> int:
+        """Return the number of arguments."""
+
         return len(self.arguments)
 
     def __iter__(self) -> Iterator[Argument]:
+        """Iterate arguments."""
+
         yield from self.arguments
 
-    def __iadd__(self, other: Argument) -> ArgumentGroup:
-        return self.add(other)
+    def __iadd__(self, argument: Argument) -> ArgumentGroup:
+        """Add the argument to this group."""
+
+        return self.add(argument)
 
     def add(self, argument: Argument) -> ArgumentGroup:
+        """Add the argument to this group."""
+
         self.arguments.append(argument)
         return self
-
-    def add_argument(self, *args, **kwargs) -> ArgumentGroup:
-        return self.add(Argument(*args, **kwargs))
 
 
 class OptionGroup:
@@ -77,28 +82,29 @@ class OptionGroup:
         self.options: list[Option] = []
 
     def __len__(self) -> int:
+        """Return the number of options."""
+
         return len(self.options)
 
     def __iter__(self) -> Iterator[Option]:
+        """Iterate options."""
+
         yield from self.options
 
-    def __iadd__(self, other: Option) -> OptionGroup:
-        return self.add(other)
+    def __iadd__(self, option: Option) -> OptionGroup:
+        """Add the option to this group."""
+
+        return self.add(option)
 
     def add(self, option: Option) -> OptionGroup:
+        """Add the option to this group."""
+
         self.options.append(option)
         return self
 
-    def add_option(self, *args, **kwargs) -> OptionGroup:
-        return self.add(Option(*args, **kwargs))
-
-    def add_flag_option(self, *args, **kwargs) -> OptionGroup:
-        return self.add(FlagOption(*args, **kwargs))
-
-    def add_count_option(self, *args, **kwargs) -> OptionGroup:
-        return self.add(CountOption(*args, **kwargs))
-
     def check(self, num_occurred: int) -> None:
+        """Check the group constraint."""
+
         if self.type == ANY:
             return self._check_any(num_occurred)
         if self.type == ALL:
