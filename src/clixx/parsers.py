@@ -36,13 +36,16 @@ class ArgumentNode:
         self.occurred = False
 
     def store(self, args: dict[str, Any], value: str) -> None:
-        with _raise_invalid_value(type="argument", name=self.argument.show()):
+        with _raise_invalid_value(type="argument", name=self.show()):
             self.argument.store(args, value)
         self.occurred = True
 
     def store_default(self, args: dict[str, Any]) -> None:
-        with _raise_invalid_value(type="argument", name=self.argument.show()):
+        with _raise_invalid_value(type="argument", name=self.show()):
             self.argument.store_default(args)
+
+    def show(self) -> str:
+        return self.argument.show()
 
     @property
     def nargs(self) -> int:
@@ -75,7 +78,7 @@ class OptionNode:
             self.parent.num_occurred += 1
 
     def store_const(self, args: dict[str, Any]) -> None:
-        with _raise_invalid_value(type="option", name=self.option.show()):
+        with _raise_invalid_value(type="option", name=self.show()):
             self.option.store_const(args)
 
         # The same option may occur more than once.
@@ -84,8 +87,11 @@ class OptionNode:
             self.parent.num_occurred += 1
 
     def store_default(self, args: dict[str, Any]) -> None:
-        with _raise_invalid_value(type="option", name=self.option.show()):
+        with _raise_invalid_value(type="option", name=self.show()):
             self.option.store_default(args)
+
+    def show(self) -> str:
+        return self.option.show()
 
     @property
     def nargs(self) -> int:
@@ -168,7 +174,7 @@ class Context:
             for option in option_group.children:
                 if not option.occurred:
                     if option.required:
-                        raise MissingOption(f"Missing option {option.option.show()}.")
+                        raise MissingOption(f"Missing option {option.show()}.")
                     option.store_default(self.args)
             option_group.check()
 
