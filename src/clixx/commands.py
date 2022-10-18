@@ -6,7 +6,7 @@ from typing import Any, Generator
 
 from .exceptions import CLIXXException
 from .groups import ArgumentGroup, OptionGroup
-from .parser import Parser
+from .parsers import Parser
 
 
 class Command:
