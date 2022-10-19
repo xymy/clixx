@@ -17,10 +17,6 @@ class Type:
     This class also represents any type which does not apply type conversion.
     """
 
-    #: Whether this type conversion is safe (independent of current system status).
-    #: If ``False``, subclass should overwrite ``safe_convert()``.
-    is_safe = True
-
     def __call__(self, value: Any) -> Any:
         """Convert to expected value."""
 
@@ -353,8 +349,6 @@ class File(Type):
         - https://docs.python.org/3/library/functions.html#open
     """
 
-    is_safe = False
-
     def __init__(
         self,
         mode: str = "r",
@@ -373,6 +367,8 @@ class File(Type):
     def convert(self, value: Any) -> Any:
         if hasattr(value, "read") or hasattr(value, "write"):
             return value
+        if isinstance(value, pathlib.Path):
+            return self.convert_str(str(value))
         raise TypeConversionError(f"{value!r} is not a valid file.")
 
     def convert_str(self, value: str) -> Any:
@@ -384,7 +380,7 @@ class File(Type):
             raise TypeConversionError(f"Can not open {value!r}. {e.strerror}.")
 
     def safe_convert(self, value: Any) -> Any:
-        if isinstance(value, str) or hasattr(value, "read") or hasattr(value, "write"):
+        if isinstance(value, (str, pathlib.Path)) or hasattr(value, "read") or hasattr(value, "write"):
             return value
         raise TypeConversionError(f"{value!r} is not a valid file.")
 
@@ -410,8 +406,6 @@ class Path(Type):
         executable (bool, default=False):
             If ``True``, check whether the path is executable.
     """
-
-    is_safe = False
 
     def __init__(
         self,
