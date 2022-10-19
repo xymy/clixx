@@ -1,16 +1,16 @@
 from __future__ import annotations
 
 
-class ProgrammingError(Exception):
-    """Invoke APIs incorrectly."""
+class DefinitionError(Exception):
+    """Define a bad command, group, argument, option, type, etc."""
 
 
-class DefinitionError(ProgrammingError):
-    """Define a bad command, argument, option, type, etc."""
+class ParserContextError(Exception):
+    """Parser context error."""
 
 
-class TypeConversionError(ProgrammingError):
-    """Type conversion failure."""
+class TypeConversionError(Exception):
+    """Type conversion error."""
 
 
 class CLIXXException(Exception):
@@ -35,7 +35,7 @@ class TooManyArguments(CLIXXException):
 
 
 class MissingOption(CLIXXException):
-    """Missing required option."""
+    """Missing option."""
 
 
 class UnknownOption(CLIXXException):

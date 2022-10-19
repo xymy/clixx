@@ -10,7 +10,7 @@ from .constants import LONG_PREFIX, LONG_PREFIX_LEN, SEPARATOR, SHORT_PREFIX, SH
 from .exceptions import (
     InvalidValue,
     MissingOption,
-    ProgrammingError,
+    ParserContextError,
     TooFewArguments,
     TooFewOptionValues,
     TooManyArguments,
@@ -136,11 +136,11 @@ def _build_option_tree(option_groups: list[OptionGroup]) -> tuple[list[OptionGro
             group_node.children.append(node)
             for key in option.long_options:
                 if key in map:
-                    raise ProgrammingError(f"Option {key!r} conflicts.")
+                    raise ParserContextError(f"Option {key!r} conflicts.")
                 map[key] = node
             for key in option.short_options:
                 if key in map:
-                    raise ProgrammingError(f"Option {key!r} conflicts.")
+                    raise ParserContextError(f"Option {key!r} conflicts.")
                 map[key] = node
     return tree, map
 
