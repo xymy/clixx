@@ -1,6 +1,3 @@
-from __future__ import annotations
-
-
 class DefinitionError(Exception):
     """Define a bad command, group, argument, option, type, etc."""
 
@@ -50,16 +47,12 @@ class TooManyOptionValues(CLIXXException):
     """Too many option values given."""
 
 
-class InvalidValue(CLIXXException):
-    """Invalid value given."""
+class InvalidArgumentValue(CLIXXException):
+    """Invalid argument value given."""
 
-    def __init__(self, message: str, *, type: str, name: str) -> None:
-        super().__init__(message)
-        self.type = type
-        self.name = name
 
-    def format_message(self) -> str:
-        return f"Invalid value for {self.type} {self.name}. {self.message}"
+class InvalidOptionValue(CLIXXException):
+    """Invalid option value given."""
 
 
 class GroupError(CLIXXException):
