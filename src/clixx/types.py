@@ -50,7 +50,10 @@ class Type:
 
 
 class Str(Type):
-    """The class used to convert command-line arguments to string."""
+    """The class used to convert command-line arguments to string.
+
+    Target type: :class:`str`.
+    """
 
     def convert(self, value: Any) -> Any:
         raise TypeConversionError(f"{value!r} is not a valid string.")
@@ -60,7 +63,10 @@ class Str(Type):
 
 
 class Bool(Type):
-    """The class used to convert command-line arguments to boolean."""
+    """The class used to convert command-line arguments to boolean.
+
+    Target type: :class:`bool`.
+    """
 
     def convert(self, value: Any) -> Any:
         if isinstance(value, bool):
@@ -78,6 +84,8 @@ class Bool(Type):
 
 class Int(Type):
     """The class used to convert command-line arguments to integer.
+
+    Target type: :class:`int`.
 
     Parameters:
         base (int, default=10):
@@ -117,6 +125,8 @@ class Int(Type):
 class Float(Type):
     """The class used to convert command-line arguments to floating point number.
 
+    Target type: :class:`float`.
+
     See Also:
         - https://docs.python.org/3/library/functions.html#float
     """
@@ -135,6 +145,8 @@ class Float(Type):
 
 class Choice(Type):
     """The class used to convert command-line arguments to string in choices.
+
+    Target type: :class:`str`.
 
     Parameters:
         choices (Sequence[str]):
@@ -170,6 +182,8 @@ class Choice(Type):
 class IntChoice(Type):
     """The class used to convert command-line arguments to integer in choices.
 
+    Target type: :class:`int`.
+
     Parameters:
         choices (Sequence[int]):
             The allowed values.
@@ -203,6 +217,8 @@ class IntChoice(Type):
 
 class Enum(Type):
     """The class used to convert command-line arguments to enumeration.
+
+    Target type: :class:`enum.Enum`.
 
     Parameters:
         choices (type[enum.Enum]):
@@ -239,6 +255,8 @@ class Enum(Type):
 class IntEnum(Type):
     """The class used to convert command-line arguments to integer enumeration.
 
+    Target type: :class:`enum.IntEnum`.
+
     Parameters:
         choices (type[enum.IntEnum]):
             The enumeration type.
@@ -273,6 +291,8 @@ class IntEnum(Type):
 
 class DateTime(Type):
     """The class used to convert command-line arguments to datetime.
+
+    Target type: :class:`datetime.datetime`.
 
     Parameters:
         formats (Sequence[str] | None, default=None):
@@ -314,6 +334,8 @@ class DateTime(Type):
 
 class File(Type):
     """The class used to convert command-line arguments to file.
+
+    Target type: :class:`typing.IO`.
 
     Parameters:
         mode (str, default='r'):
@@ -372,6 +394,8 @@ class File(Type):
 
 class Path(Type):
     """The class used to convert command-line arguments to path.
+
+    Target type: :class:`pathlib.Path`.
 
     Parameters:
         resolve (bool, default=False):
