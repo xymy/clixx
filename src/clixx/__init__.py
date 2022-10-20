@@ -1,4 +1,4 @@
-from .arguments import Argument, CountOption, FlagOption, Option, SignalOption
+from .arguments import Argument, CountOption, FlagOption, HelpOption, Option, SignalOption, VersionOption
 from .commands import Command
 from .groups import ALL, ANY, AT_LEAST_ONE, AT_MOST_ONE, EXACTLY_ONE, NONE, ArgumentGroup, GroupType, OptionGroup
 from .types import (
@@ -25,6 +25,8 @@ __all__ = [
     "FlagOption",
     "CountOption",
     "SignalOption",
+    "HelpOption",
+    "VersionOption",
     # commands
     "Command",
     # groups

@@ -4,7 +4,7 @@ from keyword import iskeyword
 from typing import Any, Sequence
 
 from .constants import LONG_PREFIX, LONG_PREFIX_LEN, SHORT_PREFIX, SHORT_PREFIX_LEN
-from .exceptions import DefinitionError, TypeConversionError
+from .exceptions import DefinitionError, HelpSignal, TypeConversionError, VersionSignal
 from .types import Str, Type, _resolve_type
 
 
@@ -399,3 +399,17 @@ class SignalOption(Option):
         """Return ``0``."""
 
         return 0
+
+
+class HelpOption(SignalOption):
+    """The help option."""
+
+    def store_const(self, args: dict[str, Any]) -> None:
+        raise HelpSignal
+
+
+class VersionOption(SignalOption):
+    """The version option."""
+
+    def store_const(self, args: dict[str, Any]) -> None:
+        raise VersionSignal
