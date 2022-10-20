@@ -62,6 +62,12 @@ class Bool(Type):
     """The class used to convert command-line arguments to boolean.
 
     Target type: :class:`bool`.
+
+    Note:
+        When parsing from string, recognize the following values (case insensitive):
+
+        - ``True``: ``"t"``, ``"true"``, ``"y"``, ``"yes"``, ``"on"``, ``"1"``.
+        - ``False``: ``"f"``, ``"false"``, ``"n"``, ``"no"``, ``"off"``, ``"0"``.
     """
 
     def convert(self, value: Any) -> Any:
