@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from keyword import iskeyword
-from typing import Any, Sequence
+from typing import Any, Sequence, cast
 
 from .constants import LONG_PREFIX, LONG_PREFIX_LEN, SHORT_PREFIX, SHORT_PREFIX_LEN
 from .exceptions import DefinitionError, HelpSignal, TypeConversionError, VersionSignal
@@ -106,8 +106,8 @@ class Argument:
         if self.nargs == 1:
             args[self.dest] = result
         else:
-            # Variadic arguments are stored as tuple.
-            args[self.dest] = args.get(self.dest, ()) + (result,)
+            # Variadic arguments are stored as list.
+            cast(list, args.setdefault(self.dest, [])).append(result)
 
     def store_default(self, args: dict[str, Any]) -> None:
         """Store default value to destination."""
@@ -115,13 +115,13 @@ class Argument:
         if self.nargs == 1:
             result = None if self.default is None else self.type(self.default)
         else:
-            # Variadic arguments are stored as tuple. The default is a empty tuple.
+            # Variadic arguments are stored as list. Defaults to empty list.
             if self.default is None:
-                result = ()
+                result = []
             elif isinstance(self.default, (tuple, list)):
-                result = tuple(self.type(value) for value in self.default)
+                result = [self.type(value) for value in self.default]
             else:
-                result = (self.type(self.default),)
+                result = [self.type(self.default)]
         args[self.dest] = result
 
     def show(self) -> str:
