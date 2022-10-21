@@ -118,7 +118,7 @@ class Argument:
             # Variadic arguments are stored as list. Defaults to empty list.
             if self.default is None:
                 result = []
-            elif isinstance(self.default, (tuple, list)):
+            elif isinstance(self.default, (list, tuple)):
                 result = [self.type(value) for value in self.default]
             else:
                 result = [self.type(self.default)]
@@ -149,16 +149,26 @@ class Argument:
 
     @property
     def default(self) -> Any:
-        return self._default  # type: ignore
+        return self._default
 
     @default.setter
     def default(self, value: Any) -> None:
         if value is not None:
-            try:
-                value = self.type.safe_convert(value)
-            except TypeConversionError as e:
-                raise DefinitionError(f"Invalid default value for argument {self.show()}. {str(e)}")
+            if self.nargs == 1:
+                value = self._verify(value)
+            else:
+                if isinstance(self.default, (list, tuple)):
+                    # Got multiple default values for variadic arguments.
+                    value = [self._verify(v) for v in value]
+                else:
+                    value = self._verify(value)
         self._default = value
+
+    def _verify(self, value: Any) -> Any:
+        try:
+            return self.type.safe_convert(value)
+        except TypeConversionError as e:
+            raise DefinitionError(f"Invalid default value for argument {self.show()}. {str(e)}")
 
 
 class Option:
