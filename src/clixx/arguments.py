@@ -5,7 +5,7 @@ from typing import Any, Sequence, cast
 
 from .constants import LONG_PREFIX, LONG_PREFIX_LEN, SHORT_PREFIX, SHORT_PREFIX_LEN
 from .exceptions import DefinitionError, HelpSignal, TypeConversionError, VersionSignal
-from .types import Str, Type, _resolve_type
+from .types import Int, Str, Type, _resolve_type
 
 
 def _check_dest(dest: str) -> str:
@@ -287,11 +287,9 @@ class FlagOption(Option):
             The declarations for this option.
         dest (str | None, default=None):
             The destination used to store/forward the option value.
-        type (Type | type | None, default=None):
-            The type converter. If ``None``, use ``Type()``.
-        const (Any, default=None):
+        const (Any, default=True):
             The constant value used if option occurred.
-        default (Any, default=None):
+        default (Any, default=False):
             The default value used if option omitted.
         hidden (bool, default=False):
             If ``True``, hide this option from help information.
@@ -303,15 +301,14 @@ class FlagOption(Option):
         self,
         *decls: str,
         dest: str | None = None,
-        type: Type | type | None = None,
         const: Any = True,
         default: Any = False,
         hidden: bool = False,
         help: str = "",
     ) -> None:
-        # The value of a flag option is not parsed from command-line, so type conversion is unnecessary.
-        type = type or Type()
-        super().__init__(*decls, dest=dest, required=False, type=type, default=default, hidden=hidden, help=help)
+        super().__init__(
+            *decls, dest=dest, required=False, type=Type(), default=default, hidden=hidden, metavar="", help=help
+        )
         self.const = const
 
     def store(self, args: dict[str, Any], value: str) -> None:
@@ -349,14 +346,20 @@ class CountOption(Option):
             The declarations for this option.
         dest (str | None, default=None):
             The destination used to store/forward the option value.
+        default (Any, default=0):
+            The default value used if option omitted.
         hidden (bool, default=False):
             If ``True``, hide this option from help information.
         help (str, default=''):
             The help information.
     """
 
-    def __init__(self, *decls: str, dest: str | None = None, hidden: bool = False, help: str = "") -> None:
-        super().__init__(*decls, dest=dest, required=False, type=Type(), default=0, hidden=hidden, help=help)
+    def __init__(
+        self, *decls: str, dest: str | None = None, default: Any = 0, hidden: bool = False, help: str = ""
+    ) -> None:
+        super().__init__(
+            *decls, dest=dest, required=False, type=Int(), default=default, hidden=hidden, metavar="", help=help
+        )
 
     def store(self, args: dict[str, Any], value: str) -> None:
         raise NotImplementedError
