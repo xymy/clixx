@@ -118,10 +118,8 @@ class Argument:
             # Variadic arguments are stored as list. Defaults to empty list.
             if self.default is None:
                 result = []
-            elif isinstance(self.default, (list, tuple)):
-                result = [self.type(value) for value in self.default]
             else:
-                result = [self.type(self.default)]
+                result = [self.type(value) for value in cast(list, self.default)]
         args[self.dest] = result
 
     def show(self) -> str:
@@ -157,11 +155,9 @@ class Argument:
             if self.nargs == 1:
                 value = self._verify(value)
             else:
-                if isinstance(self.default, (list, tuple)):
-                    # Got multiple default values for variadic arguments.
-                    value = [self._verify(v) for v in value]
-                else:
-                    value = self._verify(value)
+                if not isinstance(value, (list, tuple)):
+                    raise DefinitionError("For nargs == -1, the default value must be list, tuple or None.")
+                value = [self._verify(v) for v in value]
         self._default = value
 
     def _verify(self, value: Any) -> Any:
