@@ -52,8 +52,7 @@ class Argument:
         dest (str | None, default=None):
             The destination used to store/forward the argument value.
         nargs (int, default=1):
-            The number of argument values. Valid values are ``nargs == 1`` or
-            ``nargs == -1``.
+            The number of argument values. Valid values are ``nargs == 1`` or ``nargs == -1``.
         required (bool, default=False):
             Whether this argument is required or optional.
         type (Type | type | None, default=None):
@@ -387,7 +386,7 @@ class SignalOption(Option):
     """
 
     def __init__(self, *decls: str, hidden: bool = False, help: str = "") -> None:
-        super().__init__(*decls, required=False, type=Type(), hidden=hidden, help=help)
+        super().__init__(*decls, required=False, type=Type(), hidden=hidden, metavar="", help=help)
 
     @staticmethod
     def _parse(decls: Sequence[str], *, dest: str | None = None) -> tuple[str, list[str], list[str]]:
