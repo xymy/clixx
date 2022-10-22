@@ -2,18 +2,41 @@ from __future__ import annotations
 
 import sys
 from contextlib import contextmanager
-from typing import Any, Generator
+from typing import Any, Callable, Generator, Protocol
 
 from .exceptions import CLIXXException
 from .groups import ArgumentGroup, OptionGroup
 from .parsers import Parser
 
 
+class Printer(Protocol):
+    """The protocol class for printer."""
+
+    def print_error(self, cmd: Command, error: CLIXXException) -> None:
+        ...
+
+    def print_help(self, cmd: Command) -> None:
+        ...
+
+    def print_version(self, cmd: Command) -> None:
+        ...
+
+
+PrinterFactory = Callable[[dict[str, Any]], Printer]
+
+
 class Command:
-    def __init__(self, name: str | None = None, version: str | None = None, *, parent: Command | None = None) -> None:
+    def __init__(
+        self, name: str | None = None, version: str | None = None, *, config: dict[str, Any] | None = None
+    ) -> None:
         self.name = name
         self.version = version
-        self.parent = parent
+
+        config = {} if config is None else config
+        config.setdefault("try_help_option", "--help")
+        self.config = config
+
+        self.parent = None
         self.argument_groups: list[ArgumentGroup] = []
         self.option_groups: list[OptionGroup] = []
 
