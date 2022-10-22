@@ -17,6 +17,12 @@ def _check_dest(dest: str) -> str:
     return dest
 
 
+def _parse_decl(decl: str) -> str:
+    if not decl:
+        raise DefinitionError("Argument can not be empty.")
+    return decl
+
+
 def _parse_decls(decls: Sequence[str]) -> tuple[list[str], list[str]]:
     if not decls:
         raise DefinitionError("No option defined.")
@@ -91,12 +97,14 @@ class Argument:
 
     @staticmethod
     def _parse(decl: str, *, dest: str | None) -> tuple[str, str]:
+        argument = _parse_decl(decl)
+
         # Infer destination from declaration if `dest` not given.
         if dest is not None:
             dest = _check_dest(dest)
         else:
-            dest = _check_dest(decl)
-        return dest, decl
+            dest = _check_dest(argument)
+        return dest, argument
 
     def store(self, args: dict[str, Any], value: str) -> None:
         """Store value to destination."""
