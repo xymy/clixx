@@ -21,3 +21,15 @@ Classes
 .. autoclass:: CountOption
     :members:
     :show-inheritance:
+
+.. autoclass:: SignalOption
+    :members:
+    :show-inheritance:
+
+.. autoclass:: HelpOption
+    :members:
+    :show-inheritance:
+
+.. autoclass:: VersionOption
+    :members:
+    :show-inheritance:

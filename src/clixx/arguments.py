@@ -420,12 +420,18 @@ class SignalOption(Option):
 class HelpOption(SignalOption):
     """The help option."""
 
+    def __init__(self, *decls: str, hidden: bool = False, help: str = "Show help information and exit.") -> None:
+        super().__init__(*decls, hidden=hidden, help=help)
+
     def store_const(self, args: dict[str, Any]) -> None:
         raise HelpSignal
 
 
 class VersionOption(SignalOption):
     """The version option."""
+
+    def __init__(self, *decls: str, hidden: bool = False, help: str = "Show version information and exit.") -> None:
+        super().__init__(*decls, hidden=hidden, help=help)
 
     def store_const(self, args: dict[str, Any]) -> None:
         raise VersionSignal
