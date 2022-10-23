@@ -66,6 +66,8 @@ class SubcommandError(CLIXXException):
 class CLIXXSignal(BaseException):
     """The base class for all CLIXX signals."""
 
+    exit_code = 0
+
 
 class HelpSignal(CLIXXSignal):
     """The signal for showing help information."""

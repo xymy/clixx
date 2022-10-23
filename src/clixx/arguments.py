@@ -19,7 +19,7 @@ def _check_dest(dest: str) -> str:
 
 def _parse_decl(decl: str) -> str:
     if not decl:
-        raise DefinitionError("Argument can not be empty.")
+        raise DefinitionError("Argument must be non-empty.")
     return decl
 
 
@@ -408,7 +408,7 @@ class SignalOption(Option):
         raise NotImplementedError
 
     def store_default(self, args: dict[str, Any]) -> None:
-        pass
+        pass  # do nothing
 
     @property
     def nargs(self) -> int:
