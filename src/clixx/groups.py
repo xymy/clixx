@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import enum
-from typing import Iterator
+from typing import Final, Iterator
 
 from .arguments import Argument, Option
 from .exceptions import GroupError
@@ -19,17 +19,17 @@ class GroupType(enum.Enum):
 
 
 #: Alias for :attr:`GroupType.ANY`.
-ANY = GroupType.ANY
+ANY: Final = GroupType.ANY
 #: Alias for :attr:`GroupType.ALL`.
-ALL = GroupType.ALL
+ALL: Final = GroupType.ALL
 #: Alias for :attr:`GroupType.NONE`.
-NONE = GroupType.NONE
+NONE: Final = GroupType.NONE
 #: Alias for :attr:`GroupType.AT_LEAST_ONE`.
-AT_LEAST_ONE = GroupType.AT_LEAST_ONE
+AT_LEAST_ONE: Final = GroupType.AT_LEAST_ONE
 #: Alias for :attr:`GroupType.AT_MOST_ONE`.
-AT_MOST_ONE = GroupType.AT_MOST_ONE
+AT_MOST_ONE: Final = GroupType.AT_MOST_ONE
 #: Alias for :attr:`GroupType.EXACTLY_ONE`.
-EXACTLY_ONE = GroupType.EXACTLY_ONE
+EXACTLY_ONE: Final = GroupType.EXACTLY_ONE
 
 
 class ArgumentGroup:
