@@ -101,13 +101,16 @@ class Argument:
 
         # Infer destination from declaration if `dest` not given.
         if dest is not None:
-            dest = _check_dest(dest)
+            dest = _check_dest(dest) if dest else ""
         else:
             dest = _check_dest(argument)
         return dest, argument
 
     def store(self, args: dict[str, Any], value: str) -> None:
         """Store value to destination."""
+
+        if not self.dest:
+            return
 
         result = self.type.convert_str(value)
         if self.nargs == 1:
@@ -118,6 +121,9 @@ class Argument:
 
     def store_default(self, args: dict[str, Any]) -> None:
         """Store default value to destination."""
+
+        if not self.dest:
+            return
 
         if self.nargs == 1:
             result = None if self.default is None else self.type(self.default)
@@ -221,7 +227,7 @@ class Option:
 
         # Infer destination from declarations if `dest` not given.
         if dest is not None:
-            dest = _check_dest(dest)
+            dest = _check_dest(dest) if dest else ""
         elif long_options:
             dest = _check_dest(long_options[0][LONG_PREFIX_LEN:])
         else:
@@ -233,6 +239,9 @@ class Option:
 
         Availability: ``nargs == 1``.
         """
+
+        if not self.dest:
+            return
 
         result = self.type.convert_str(value)
         args[self.dest] = result
@@ -247,6 +256,9 @@ class Option:
 
     def store_default(self, args: dict[str, Any]) -> None:
         """Store default value to destination."""
+
+        if not self.dest:
+            return
 
         result = None if self.default is None else self.type(self.default)
         args[self.dest] = result
@@ -322,6 +334,9 @@ class FlagOption(Option):
         raise NotImplementedError
 
     def store_const(self, args: dict[str, Any]) -> None:
+        if not self.dest:
+            return
+
         result = None if self.const is None else self.type(self.const)
         args[self.dest] = result
 
@@ -372,6 +387,9 @@ class CountOption(Option):
         raise NotImplementedError
 
     def store_const(self, args: dict[str, Any]) -> None:
+        if not self.dest:
+            return
+
         args[self.dest] = args.get(self.dest, 0) + 1
 
     @property
@@ -394,12 +412,9 @@ class SignalOption(Option):
     """
 
     def __init__(self, *decls: str, hidden: bool = False, help: str = "") -> None:
-        super().__init__(*decls, required=False, type=Type(), hidden=hidden, metavar="", help=help)
-
-    @staticmethod
-    def _parse(decls: Sequence[str], *, dest: str | None = None) -> tuple[str, list[str], list[str]]:
-        # The signal option does not have destination.
-        return "", *_parse_decls(decls)
+        super().__init__(
+            *decls, dest="", required=False, type=Type(), default=None, hidden=hidden, metavar="", help=help
+        )
 
     def store(self, args: dict[str, Any], value: str) -> None:
         raise NotImplementedError
