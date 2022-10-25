@@ -70,7 +70,8 @@ class Argument:
         hidden (bool, default=False):
             If ``True``, hide this argument from help information.
         metavar (str | None, default=None):
-            The argument value name used in usage.
+            The argument value name used in usage. If ``None``, infer. If empty
+            string, disable metavar.
         help (str, default=''):
             The help information.
     """
@@ -148,7 +149,7 @@ class Argument:
         if self.metavar is not None:
             return self.metavar
         else:
-            return self.dest.upper()
+            return self.argument.upper()
 
     @property
     def nargs(self) -> int:
@@ -200,7 +201,8 @@ class Option:
         hidden (bool, default=False):
             If ``True``, hide this option from help information.
         metavar (str | None, default=None):
-            The option value name used in usage.
+            The option value name used in usage. If ``None``, infer. If empty
+            string, disable metavar.
         help (str, default=''):
             The help information.
     """
@@ -278,8 +280,10 @@ class Option:
             return self.metavar
         elif (metavar := self.type.suggest_metavar()) is not None:
             return metavar
+        elif self.long_options:
+            return self.long_options[0][LONG_PREFIX_LEN:].upper()
         else:
-            return self.dest.upper()
+            return self.short_options[0][SHORT_PREFIX_LEN:].upper()
 
     @property
     def nargs(self) -> int:
