@@ -5,6 +5,7 @@ import enum
 import os
 import pathlib
 import stat
+import sys
 from contextlib import suppress
 from typing import Any, Callable, Sequence, cast
 
@@ -359,6 +360,8 @@ class File(Type):
             The same as :func:`open`.
         newline (str | None, default=None):
             The same as :func:`open`.
+        dash (bool, default=True):
+            If ``True``, recognize dash (-) as stdin/stdout.
 
     See Also:
         - https://docs.python.org/3/library/functions.html#open
@@ -372,12 +375,14 @@ class File(Type):
         encoding: str | None = None,
         errors: str | None = None,
         newline: str | None = None,
+        dash: bool = True,
     ) -> None:
         self.mode = mode
         self.buffering = buffering
         self.encoding = encoding
         self.errors = errors
         self.newline = newline
+        self.dash = dash
 
     def convert(self, value: Any) -> Any:
         if hasattr(value, "read") or hasattr(value, "write"):
@@ -387,6 +392,12 @@ class File(Type):
         raise TypeConversionError(f"{value!r} is not a valid file.")
 
     def convert_str(self, value: str) -> Any:
+        if self.dash and value == "-":
+            if "r" in self.mode:
+                return sys.stdin.buffer if "b" in self.mode else sys.stdin
+            else:
+                return sys.stdout.buffer if "b" in self.mode else sys.stdout
+
         try:
             return open(  # noqa
                 value, self.mode, self.buffering, encoding=self.encoding, errors=self.errors, newline=self.newline
