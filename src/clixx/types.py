@@ -83,6 +83,9 @@ class Bool(Type):
             return False
         raise TypeConversionError(f"{value!r} is not a valid boolean.")
 
+    def suggest_metavar(self) -> str | None:
+        return "BOOLEAN"
+
 
 class Int(Type):
     """The class used to convert command-line arguments to integer.
@@ -123,6 +126,9 @@ class Int(Type):
             else:
                 raise TypeConversionError(f"{value!r} is not a valid integer with base {self.base!r}.")
 
+    def suggest_metavar(self) -> str | None:
+        return "INTEGER"
+
 
 class Float(Type):
     """The class used to convert command-line arguments to floating point number.
@@ -143,6 +149,9 @@ class Float(Type):
             return float(value)
         except ValueError:
             raise TypeConversionError(f"{value!r} is not a valid floating point number.")
+
+    def suggest_metavar(self) -> str | None:
+        return "FLOAT"
 
 
 class Choice(Type):
