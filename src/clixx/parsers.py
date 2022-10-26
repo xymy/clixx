@@ -25,7 +25,7 @@ from .groups import ArgumentGroup, OptionGroup
 @contextmanager
 def _raise_invalid_argument_value(name: str) -> Generator[None, None, None]:
     try:
-        yield None
+        yield
     except TypeConversionError as e:
         raise InvalidArgumentValue(f"Invalid value for argument {name}. {str(e)}")
 
@@ -33,7 +33,7 @@ def _raise_invalid_argument_value(name: str) -> Generator[None, None, None]:
 @contextmanager
 def _raise_invalid_option_value(name: str) -> Generator[None, None, None]:
     try:
-        yield None
+        yield
     except TypeConversionError as e:
         raise InvalidOptionValue(f"Invalid value for option {name}. {str(e)}")
 
