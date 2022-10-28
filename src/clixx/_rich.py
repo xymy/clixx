@@ -3,7 +3,6 @@ from __future__ import annotations
 from typing import Any, TextIO
 
 from rich.console import Console
-from rich.markup import escape
 from rich.style import Style
 
 from .commands import Command
@@ -36,9 +35,11 @@ class RichPrinter:
         }
 
     def _print_error(self, console: Console, message: str) -> None:
-        message = escape(f"Error: {message}")
+        # SECURITY: ``message`` usually contains user input.
+        # To avoid injection, Rich's markup must be disabled.
+        message = f"Error: {message}"
         style = Style(color="red", bold=True)
-        console.print(message, style=style, markup=False, emoji=False, highlight=False, soft_wrap=True)
+        console.out(message, style=style, highlight=False)
 
     def _print_usage(self, console: Console, cmd: Command) -> None:
         prog = cmd.get_prog()
@@ -68,7 +69,7 @@ class RichPrinter:
         console = Console(stderr=True, **self.console_params)
         self._print_usage(console, cmd)
         self._print_try_help(console, cmd)
-        console.print()
+        console.out()
         self._print_error(console, message)
 
     def print_help(self, cmd: Command) -> None:
