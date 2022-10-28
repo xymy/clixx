@@ -8,15 +8,6 @@ from .exceptions import DefinitionError, HelpSignal, TypeConversionError, Versio
 from .types import Int, Str, Type, _resolve_type
 
 
-def _check_dest(dest: str) -> str:
-    dest = dest.replace("-", "_")
-    if not dest.isidentifier():
-        raise DefinitionError(f"{dest!r} is not a valid identifier.")
-    if iskeyword(dest):
-        raise DefinitionError(f"{dest!r} is a keyword.")
-    return dest
-
-
 def _parse_decl(decl: str) -> str:
     if not decl:
         raise DefinitionError("Argument must be non-empty.")
@@ -47,6 +38,19 @@ def _parse_decls(decls: Sequence[str]) -> tuple[list[str], list[str]]:
         else:
             raise DefinitionError(f"Option must start with {LONG_PREFIX!r} or {SHORT_PREFIX!r}, got {decl!r}.")
     return long_options, short_options
+
+
+def _check_dest(dest: str) -> str:
+    dest = dest.replace("-", "_")
+    if not dest.isidentifier():
+        raise DefinitionError(f"{dest!r} is not a valid identifier.")
+    if iskeyword(dest):
+        raise DefinitionError(f"{dest!r} is a keyword.")
+    return dest
+
+
+def _norm_metavar(metavar: str) -> str:
+    return metavar.replace("-", "_").upper()
 
 
 class Argument:
@@ -149,7 +153,7 @@ class Argument:
         if self.metavar is not None:
             return self.metavar
         else:
-            return self.argument.upper()
+            return _norm_metavar(self.argument)
 
     @property
     def nargs(self) -> int:
@@ -281,9 +285,9 @@ class Option:
         elif (metavar := self.type.suggest_metavar()) is not None:
             return metavar
         elif self.long_options:
-            return self.long_options[0][LONG_PREFIX_LEN:].upper()
+            return _norm_metavar(self.long_options[0][LONG_PREFIX_LEN:])
         else:
-            return self.short_options[0][SHORT_PREFIX_LEN:].upper()
+            return _norm_metavar(self.short_options[0][SHORT_PREFIX_LEN:])
 
     @property
     def nargs(self) -> int:
