@@ -1,28 +1,12 @@
 from __future__ import annotations
 
-from typing import Any, TextIO
+from typing import Any
 
 from rich.console import Console
 from rich.style import Style
+from rich.table import Table
 
 from .commands import Command
-
-
-def echo(
-    message: str,
-    *,
-    fg: str | None = None,
-    bg: str | None = None,
-    bold: bool | None = None,
-    dim: bool | None = None,
-    italic: bool | None = None,
-    underline: bool | None = None,
-    strike: bool | None = None,
-    file: TextIO,
-) -> None:
-    console = Console(file=file)
-    style = Style(color=fg, bgcolor=bg, bold=bold, dim=dim, italic=italic, underline=underline, strike=strike)
-    console.out(message, style=style, highlight=False)
 
 
 class RichPrinter:
@@ -77,7 +61,29 @@ class RichPrinter:
         self._print_error(console, message)
 
     def print_help(self, cmd: Command) -> None:
-        ...
+        console = Console(**self.console_params)
+        self._print_usage(console, cmd)
+
+        for argument_group in cmd.argument_groups:
+            console.print(f"\n{argument_group.name}:")
+            table = Table(box=None, padding=(0, 0, 0, 2), show_header=False, show_edge=False)
+            table.add_column("Arguments")
+            table.add_column("Descriptions")
+            for argument in argument_group:
+                table.add_row(argument.argument, argument.help)
+            console.print(table)
+
+        for option_group in cmd.option_groups:
+            console.print(f"\n{option_group.name}:")
+            table = Table(box=None, padding=(0, 0, 0, 2), show_header=False, show_edge=False)
+            table.add_column("Options")
+            table.add_column("Descriptions")
+            for option in option_group:
+                field = ", ".join(option.short_options + option.long_options)
+                if metavar := option.show_metavar():
+                    field += " " + metavar
+                table.add_row(field, option.help)
+            console.print(table)
 
     def print_version(self, cmd: Command) -> None:
         console = Console(**self.console_params)
