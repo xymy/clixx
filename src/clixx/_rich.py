@@ -44,8 +44,10 @@ class RichPrinter:
     def _print_usage(self, console: Console, cmd: Command) -> None:
         prog = cmd.get_prog()
         usage = f"Usage: {prog}"
+
         if cmd.option_groups:
             usage += " [OPTIONS]..."
+
         metavars: list[str] = []
         for argument_group in cmd.argument_groups:
             for argument in argument_group:
@@ -55,15 +57,17 @@ class RichPrinter:
                     if argument.nargs == -1:
                         metavar += "..."
                     metavars.append(metavar)
+
         if metavars:
             usage += " " + " ".join(metavars)
-        console.print(usage, markup=False, emoji=False, highlight=False, soft_wrap=True)
+
+        console.out(usage, highlight=False)
 
     def _print_try_help(self, console: Console, cmd: Command) -> None:
         prog = cmd.get_prog()
         option = self.config.get("try_help_option", "--help")
         try_help = f"Try '{prog} {option}' for help."
-        console.print(try_help, markup=False, emoji=False, highlight=False, soft_wrap=True)
+        console.out(try_help, highlight=False)
 
     def print_error(self, cmd: Command, message: str) -> None:
         console = Console(stderr=True, **self.console_params)
@@ -77,6 +81,5 @@ class RichPrinter:
 
     def print_version(self, cmd: Command) -> None:
         console = Console(**self.console_params)
-        prog = cmd.get_prog()
-        version_info = f"{prog} {cmd.version}"
-        console.print(version_info, markup=False, emoji=False, highlight=False, soft_wrap=True)
+        version_info = f"{cmd.name} {cmd.version}"
+        console.out(version_info, highlight=False)
