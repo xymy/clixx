@@ -64,15 +64,15 @@ class Command:
     def parse_args(self, argv: list[str] | None = None) -> dict[str, Any]:
         args: dict[str, Any] = {}
         argv = sys.argv[1:] if argv is None else argv
-        with self._guard():
+        with self._attach_handlers():
             parser = Parser(self.argument_groups, self.option_groups)
             parser.parse_args(args, argv)
         return args
 
     @contextmanager
-    def _guard(self) -> Generator[None, None, None]:
+    def _attach_handlers(self) -> Generator[None, None, None]:
         try:
-            yield None
+            yield
         except CLIXXException as e:
             self.print_error(e.format_message())
             sys.exit(e.exit_code)
@@ -104,21 +104,3 @@ class Command:
 
     def get_prog(self) -> str:
         return sys.argv[0] if self.name is None else self.name
-
-    def get_usage(self) -> str:
-        prog = self.get_prog()
-        usage = f"Usage: {prog}"
-        if self.option_groups:
-            usage += " [OPTIONS]..."
-        metavars: list[str] = []
-        for argument_group in self.argument_groups:
-            for argument in argument_group:
-                metavar = argument.show_metavar()
-                if not argument.required:
-                    metavar = f"[{metavar}]"
-                if argument.nargs == -1:
-                    metavar += "..."
-                metavars.append(metavar)
-        if metavars:
-            usage += " " + " ".join(metavars)
-        return usage
