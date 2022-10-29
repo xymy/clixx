@@ -70,6 +70,8 @@ class RichPrinter:
             table.add_column("Arguments")
             table.add_column("Descriptions")
             for argument in argument_group:
+                if argument.hidden:
+                    continue
                 table.add_row(argument.argument, argument.help)
             console.print(table)
 
@@ -79,6 +81,8 @@ class RichPrinter:
             table.add_column("Options")
             table.add_column("Descriptions")
             for option in option_group:
+                if option.hidden:
+                    continue
                 field = ", ".join(option.short_options + option.long_options)
                 if metavar := option.show_metavar():
                     field += " " + metavar
