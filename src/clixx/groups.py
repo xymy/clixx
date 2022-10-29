@@ -36,12 +36,15 @@ class ArgumentGroup:
     """The argument group.
 
     Parameters:
-        name (str):
-            The group name.
+        title (str):
+            The group title.
+        hidden (bool, default=False):
+            If ``True``, hide this argument group from help information.
     """
 
-    def __init__(self, name: str) -> None:
-        self.name = name
+    def __init__(self, title: str, *, hidden: bool = False) -> None:
+        self.title = title
+        self.hidden = hidden
         self.arguments: list[Argument] = []
 
     def __len__(self) -> int:
@@ -70,15 +73,18 @@ class OptionGroup:
     """The option group.
 
     Parameters:
-        name (str):
-            The group name.
+        title (str):
+            The group title.
         type (GroupType, default=ANY):
             The group constraint type.
+        hidden (bool, default=False):
+            If ``True``, hide this option group from help information.
     """
 
-    def __init__(self, name: str, *, type: GroupType = ANY) -> None:
-        self.name = name
+    def __init__(self, title: str, *, type: GroupType = ANY, hidden: bool = False) -> None:
+        self.title = title
         self.type = type
+        self.hidden = hidden
         self.options: list[Option] = []
 
     def __len__(self) -> int:
@@ -125,24 +131,24 @@ class OptionGroup:
         num_options = len(self)
         if num_occurred != num_options:
             if num_options == 0:
-                raise GroupError(f"Option group {self.name!r} does not take a option.")
+                raise GroupError(f"Option group {self.title!r} does not take a option.")
             elif num_options == 1:
-                raise GroupError(f"Option group {self.name!r} requires exactly one option.")
+                raise GroupError(f"Option group {self.title!r} requires exactly one option.")
             else:
-                raise GroupError(f"Option group {self.name!r} requires all {num_options!r} options.")
+                raise GroupError(f"Option group {self.title!r} requires all {num_options!r} options.")
 
     def _check_none(self, num_occurred: int) -> None:
         if num_occurred != 0:
-            raise GroupError(f"Option group {self.name!r} does not take a option.")
+            raise GroupError(f"Option group {self.title!r} does not take a option.")
 
     def _check_at_least_one(self, num_occurred: int) -> None:
         if num_occurred < 1:
-            raise GroupError(f"Option group {self.name!r} requires at least one option.")
+            raise GroupError(f"Option group {self.title!r} requires at least one option.")
 
     def _check_at_most_one(self, num_occurred: int) -> None:
         if num_occurred > 1:
-            raise GroupError(f"Option group {self.name!r} requires at most one option.")
+            raise GroupError(f"Option group {self.title!r} requires at most one option.")
 
     def _check_exactly_one(self, num_occurred: int) -> None:
         if num_occurred != 1:
-            raise GroupError(f"Option group {self.name!r} requires exactly one option.")
+            raise GroupError(f"Option group {self.title!r} requires exactly one option.")

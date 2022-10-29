@@ -65,7 +65,9 @@ class RichPrinter:
         self._print_usage(console, cmd)
 
         for argument_group in cmd.argument_groups:
-            console.print(f"\n{argument_group.name}:")
+            if argument_group.hidden:
+                continue
+            console.print(f"\n{argument_group.title}:")
             table = Table(box=None, padding=(0, 0, 0, 2), show_header=False, show_edge=False)
             table.add_column("Arguments")
             table.add_column("Descriptions")
@@ -76,7 +78,9 @@ class RichPrinter:
             console.print(table)
 
         for option_group in cmd.option_groups:
-            console.print(f"\n{option_group.name}:")
+            if option_group.hidden:
+                continue
+            console.print(f"\n{option_group.title}:")
             table = Table(box=None, padding=(0, 0, 0, 2), show_header=False, show_edge=False)
             table.add_column("Options")
             table.add_column("Descriptions")
