@@ -142,8 +142,8 @@ class Argument:
                 result = [self.type(value) for value in cast(list, self.default)]
         args[self.dest] = result
 
-    def show(self) -> str:
-        """Show argument."""
+    def format_decl(self) -> str:
+        """Format declaration."""
 
         return repr(self.argument)
 
@@ -184,7 +184,7 @@ class Argument:
         try:
             return self.type.safe_convert(value)
         except TypeConversionError as e:
-            raise DefinitionError(f"Invalid default value for argument {self.show()}. {str(e)}")
+            raise DefinitionError(f"Invalid default value for argument {self.format_decl()}. {str(e)}")
 
 
 class Option:
@@ -272,8 +272,8 @@ class Option:
         result = None if self.default is None else self.type(self.default)
         args[self.dest] = result
 
-    def show(self) -> str:
-        """Show short options and long options."""
+    def format_decls(self) -> str:
+        """Format declarations."""
 
         return " / ".join(map(repr, self.short_options + self.long_options))
 
@@ -305,7 +305,7 @@ class Option:
             try:
                 value = self.type.safe_convert(value)
             except TypeConversionError as e:
-                raise DefinitionError(f"Invalid default value for option {self.show()}. {str(e)}")
+                raise DefinitionError(f"Invalid default value for option {self.format_decls()}. {str(e)}")
         self._default = value
 
 
@@ -368,7 +368,7 @@ class FlagOption(Option):
             try:
                 value = self.type.safe_convert(value)
             except TypeConversionError as e:
-                raise DefinitionError(f"Invalid constant value for option {self.show()}. {str(e)}")
+                raise DefinitionError(f"Invalid constant value for option {self.format_decls()}. {str(e)}")
         self._const = value
 
 
