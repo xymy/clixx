@@ -446,7 +446,16 @@ class SignalOption(Option):
 
 
 class HelpOption(SignalOption):
-    """The help option."""
+    """The help option.
+
+    Parameters:
+        decls (tuple[str, ...]):
+            The declarations for this option.
+        hidden (bool, default=False):
+            If ``True``, hide this option from help information.
+        help (str, default='Show help information and exit.'):
+            The help information.
+    """
 
     def __init__(self, *decls: str, hidden: bool = False, help: str = "Show help information and exit.") -> None:
         super().__init__(*decls, hidden=hidden, help=help)
@@ -456,7 +465,16 @@ class HelpOption(SignalOption):
 
 
 class VersionOption(SignalOption):
-    """The version option."""
+    """The version option.
+
+    Parameters:
+        decls (tuple[str, ...]):
+            The declarations for this option.
+        hidden (bool, default=False):
+            If ``True``, hide this option from help information.
+        help (str, default='Show version information and exit.'):
+            The help information.
+    """
 
     def __init__(self, *decls: str, hidden: bool = False, help: str = "Show version information and exit.") -> None:
         super().__init__(*decls, hidden=hidden, help=help)
