@@ -87,13 +87,13 @@ class RichPrinter:
             for option in option_group:
                 if option.hidden:
                     continue
-                field = ", ".join(option.short_options + option.long_options)
+                opts = ", ".join(option.short_options + option.long_options)
                 if metavar := option.show_metavar():
-                    field += " " + metavar
-                table.add_row(field, option.help)
+                    opts += " " + metavar
+                table.add_row(opts, option.help)
             console.print(table)
 
     def print_version(self, cmd: Command) -> None:
         console = Console(**self.console_params)
         version_info = f"{cmd.name} {cmd.version}"
-        console.out(version_info, highlight=False)
+        console.print(version_info, highlight=False)
