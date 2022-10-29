@@ -35,7 +35,7 @@ class RichPrinter:
         metavars: list[str] = []
         for argument_group in cmd.argument_groups:
             for argument in argument_group:
-                if metavar := argument.show_metavar():
+                if metavar := argument.resolve_metavar():
                     if not argument.required:
                         metavar = f"[{metavar}]"
                     if argument.nargs == -1:
@@ -88,7 +88,7 @@ class RichPrinter:
                 if option.hidden:
                     continue
                 opts = ", ".join(option.short_options + option.long_options)
-                if metavar := option.show_metavar():
+                if metavar := option.resolve_metavar():
                     opts += " " + metavar
                 table.add_row(opts, option.help)
             console.print(table)

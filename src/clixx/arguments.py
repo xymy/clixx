@@ -147,8 +147,8 @@ class Argument:
 
         return repr(self.argument)
 
-    def show_metavar(self) -> str:
-        """Resolve and show metavar."""
+    def resolve_metavar(self) -> str:
+        """Resolve metavar."""
 
         if self.metavar is not None:
             return self.metavar
@@ -277,8 +277,8 @@ class Option:
 
         return " / ".join(map(repr, self.short_options + self.long_options))
 
-    def show_metavar(self) -> str:
-        """Resolve and show metavar."""
+    def resolve_metavar(self) -> str:
+        """Resolve metavar."""
 
         if self.metavar is not None:
             return self.metavar
