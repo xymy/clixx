@@ -62,3 +62,8 @@ Classes
 .. autoclass:: FilePath
     :members:
     :show-inheritance:
+
+Functions
+---------
+
+.. autofunction:: _resolve_type

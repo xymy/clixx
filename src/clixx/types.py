@@ -520,6 +520,22 @@ def _resolve_norm(case_sensitive: bool) -> Callable[[str], str]:
 
 
 def _resolve_type(type: Type | type) -> Type:
+    """Convert Python's builtin type to CLIXX's type. Return as is if ``type``
+    is already an instance of :class:`Type`.
+
+    +----------------+------------------+
+    | Source         | Target           |
+    +================+==================+
+    | :class:`str`   | :class:`Str()`   |
+    +----------------+------------------+
+    | :class:`bool`  | :class:`Bool()`  |
+    +----------------+------------------+
+    | :class:`int`   | :class:`Int()`   |
+    +----------------+------------------+
+    | :class:`float` | :class:`Float()` |
+    +----------------+------------------+
+    """
+
     if isinstance(type, Type):
         return type
     if type is str:
