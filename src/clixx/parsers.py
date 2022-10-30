@@ -77,23 +77,21 @@ class OptionNode:
         self.parent = cast(OptionGroupNode, weakref.proxy(parent))
         self.occurred = False
 
-    def store(self, args: dict[str, Any], value: str, *, key: str) -> None:
-        with _raise_invalid_option_value(repr(key)):
-            self.option.store(args, value)
-
+    def _inc_occurred(self) -> None:
         # The same option may occur more than once.
         if not self.occurred:
             self.occurred = True
             self.parent.num_occurred += 1
+
+    def store(self, args: dict[str, Any], value: str, *, key: str) -> None:
+        with _raise_invalid_option_value(repr(key)):
+            self.option.store(args, value)
+        self._inc_occurred()
 
     def store_const(self, args: dict[str, Any]) -> None:
         with _raise_invalid_option_value(self.format_decls()):
             self.option.store_const(args)
-
-        # The same option may occur more than once.
-        if not self.occurred:
-            self.occurred = True
-            self.parent.num_occurred += 1
+        self._inc_occurred()
 
     def store_default(self, args: dict[str, Any]) -> None:
         with _raise_invalid_option_value(self.format_decls()):
