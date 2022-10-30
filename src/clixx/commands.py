@@ -51,12 +51,12 @@ class Command:
         self.printer_factory = printer_factory
         self.printer_config = printer_config
 
-    def add_argument_group(self, *args, **kwargs) -> ArgumentGroup:
+    def add_argument_group(self, *args: Any, **kwargs: Any) -> ArgumentGroup:
         group = ArgumentGroup(*args, **kwargs)
         self.argument_groups.append(group)
         return group
 
-    def add_option_group(self, *args, **kwargs) -> OptionGroup:
+    def add_option_group(self, *args: Any, **kwargs: Any) -> OptionGroup:
         group = OptionGroup(*args, **kwargs)
         self.option_groups.append(group)
         return group
