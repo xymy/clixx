@@ -44,10 +44,15 @@ class ArgumentNode:
         self.parent = cast(ArgumentGroupNode, weakref.proxy(parent))
         self.occurred = False
 
+    def _inc_occurred(self) -> None:
+        if not self.occurred:
+            self.occurred = True
+            self.parent.num_occurred += 1
+
     def store(self, args: dict[str, Any], value: str) -> None:
         with _raise_invalid_argument_value(self.format_decl()):
             self.argument.store(args, value)
-        self.occurred = True
+        self._inc_occurred()
 
     def store_default(self, args: dict[str, Any]) -> None:
         with _raise_invalid_argument_value(self.format_decl()):
@@ -69,6 +74,10 @@ class ArgumentNode:
 class ArgumentGroupNode:
     group: ArgumentGroup
     children: list[ArgumentNode]
+    num_occurred: int = 0
+
+    def check(self) -> None:
+        self.group.check(self.num_occurred)
 
 
 class OptionNode:
@@ -78,7 +87,6 @@ class OptionNode:
         self.occurred = False
 
     def _inc_occurred(self) -> None:
-        # The same option may occur more than once.
         if not self.occurred:
             self.occurred = True
             self.parent.num_occurred += 1
@@ -176,6 +184,7 @@ class Context:
                     if argument.required:
                         raise TooFewArguments("Got too few arguments.")
                     argument.store_default(self.args)
+            argument_group.check()
 
         for option_group in self.option_tree:
             for option in option_group.children:
