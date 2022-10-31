@@ -74,8 +74,8 @@ class Argument:
         hidden (bool, default=False):
             If ``True``, hide this argument from help information.
         metavar (str | None, default=None):
-            The argument value name used in usage. If ``None``, infer. If empty
-            string, disable metavar.
+            The argument value name used in usage. If ``None``, infer from
+            declaration. If empty string, disable metavar.
         help (str, default=''):
             The help information.
     """
@@ -205,8 +205,8 @@ class Option:
         hidden (bool, default=False):
             If ``True``, hide this option from help information.
         metavar (str | None, default=None):
-            The option value name used in usage. If ``None``, infer. If empty
-            string, disable metavar.
+            The option value name used in usage. If ``None``, infer from
+            declarations. If empty string, disable metavar.
         help (str, default=''):
             The help information.
     """
