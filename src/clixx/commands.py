@@ -51,15 +51,13 @@ class Command:
         self.printer_factory = printer_factory
         self.printer_config = printer_config
 
-    def add_argument_group(self, *args: Any, **kwargs: Any) -> ArgumentGroup:
-        group = ArgumentGroup(*args, **kwargs)
+    def add_argument_group(self, group: ArgumentGroup) -> Command:
         self.argument_groups.append(group)
-        return group
+        return self
 
-    def add_option_group(self, *args: Any, **kwargs: Any) -> OptionGroup:
-        group = OptionGroup(*args, **kwargs)
+    def add_option_group(self, group: OptionGroup) -> Command:
         self.option_groups.append(group)
-        return group
+        return self
 
     def parse_args(self, argv: list[str] | None = None) -> dict[str, Any]:
         args: dict[str, Any] = {}
