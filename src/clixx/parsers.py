@@ -40,7 +40,7 @@ def _raise_invalid_option_value(name: str) -> Generator[None, None, None]:
 
 class ArgumentNode:
     def __init__(self, argument: Argument, parent: ArgumentGroupNode) -> None:
-        self.argument = argument
+        self._argument = argument
         self.parent = cast(ArgumentGroupNode, weakref.proxy(parent))
         self.occurred = False
 
@@ -51,38 +51,38 @@ class ArgumentNode:
 
     def store(self, args: dict[str, Any], value: str) -> None:
         with _raise_invalid_argument_value(self.format_decl()):
-            self.argument.store(args, value)
+            self._argument.store(args, value)
         self._inc_occurred()
 
     def store_default(self, args: dict[str, Any]) -> None:
         with _raise_invalid_argument_value(self.format_decl()):
-            self.argument.store_default(args)
+            self._argument.store_default(args)
 
     def format_decl(self) -> str:
-        return self.argument.format_decl()
+        return self._argument.format_decl()
 
     @property
     def nargs(self) -> int:
-        return self.argument.nargs
+        return self._argument.nargs
 
     @property
     def required(self) -> bool:
-        return self.argument.required
+        return self._argument.required
 
 
 @dataclass
 class ArgumentGroupNode:
-    group: ArgumentGroup
+    _group: ArgumentGroup
     children: list[ArgumentNode]
     num_occurred: int = 0
 
     def check(self) -> None:
-        self.group.check(self.num_occurred)
+        self._group.check(self.num_occurred)
 
 
 class OptionNode:
     def __init__(self, option: Option, parent: OptionGroupNode) -> None:
-        self.option = option
+        self._option = option
         self.parent = cast(OptionGroupNode, weakref.proxy(parent))
         self.occurred = False
 
@@ -93,38 +93,38 @@ class OptionNode:
 
     def store(self, args: dict[str, Any], value: str, *, key: str) -> None:
         with _raise_invalid_option_value(repr(key)):
-            self.option.store(args, value)
+            self._option.store(args, value)
         self._inc_occurred()
 
     def store_const(self, args: dict[str, Any]) -> None:
         with _raise_invalid_option_value(self.format_decls()):
-            self.option.store_const(args)
+            self._option.store_const(args)
         self._inc_occurred()
 
     def store_default(self, args: dict[str, Any]) -> None:
         with _raise_invalid_option_value(self.format_decls()):
-            self.option.store_default(args)
+            self._option.store_default(args)
 
     def format_decls(self) -> str:
-        return self.option.format_decls()
+        return self._option.format_decls()
 
     @property
     def nargs(self) -> int:
-        return self.option.nargs
+        return self._option.nargs
 
     @property
     def required(self) -> bool:
-        return self.option.required
+        return self._option.required
 
 
 @dataclass
 class OptionGroupNode:
-    group: OptionGroup
+    _group: OptionGroup
     children: list[OptionNode]
     num_occurred: int = 0
 
     def check(self) -> None:
-        self.group.check(self.num_occurred)
+        self._group.check(self.num_occurred)
 
 
 def _build_argument_tree(argument_groups: list[ArgumentGroup]) -> tuple[list[ArgumentGroupNode], list[ArgumentNode]]:
