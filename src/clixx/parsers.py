@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import weakref
 from contextlib import contextmanager
-from dataclasses import dataclass
 from typing import Any, Generator, cast
 
 from .arguments import Argument, Option
@@ -70,11 +69,11 @@ class ArgumentNode:
         return self._argument.required
 
 
-@dataclass
 class ArgumentGroupNode:
-    _group: ArgumentGroup
-    children: list[ArgumentNode]
-    num_occurred: int = 0
+    def __init__(self, group: ArgumentGroup, children: list[ArgumentNode]) -> None:
+        self._group = group
+        self.children = children
+        self.num_occurred = 0
 
     def check(self) -> None:
         self._group.check(self.num_occurred)
@@ -117,11 +116,11 @@ class OptionNode:
         return self._option.required
 
 
-@dataclass
 class OptionGroupNode:
-    _group: OptionGroup
-    children: list[OptionNode]
-    num_occurred: int = 0
+    def __init__(self, group: OptionGroup, children: list[OptionNode]) -> None:
+        self._group = group
+        self.children = children
+        self.num_occurred = 0
 
     def check(self) -> None:
         self._group.check(self.num_occurred)
