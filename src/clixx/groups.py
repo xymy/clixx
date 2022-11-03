@@ -194,3 +194,17 @@ class OptionGroup(Group[Option]):
     def _check_exactly_one(self, num_occurred: int) -> None:
         if num_occurred != 1:
             raise GroupError(f"Option group {self.title!r} requires exactly one option.")
+
+
+class CommandGroup(Group[str]):
+    """The command group.
+
+    Parameters:
+        title (str):
+            The group title.
+        hidden (bool, default=False):
+            If ``True``, hide this command group from help information.
+    """
+
+    def __init__(self, title: str, *, hidden: bool = False) -> None:
+        super().__init__(title, hidden=hidden)
