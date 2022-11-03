@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import enum
-from typing import Final, Iterator
+from typing import Final, Generic, Iterator, TypeVar
 
 from .arguments import Argument, Option
 from .exceptions import GroupError
@@ -31,8 +31,48 @@ AT_MOST_ONE: Final = GroupType.AT_MOST_ONE
 #: Alias for :attr:`GroupType.EXACTLY_ONE`.
 EXACTLY_ONE: Final = GroupType.EXACTLY_ONE
 
+T = TypeVar("T")
+Self = TypeVar("Self", bound="Group")
 
-class ArgumentGroup:
+
+class Group(Generic[T]):
+    """The group.
+
+    Parameters:
+        title (str):
+            The group title.
+        hidden (bool, default=False):
+            If ``True``, hide this group from help information.
+    """
+
+    def __init__(self, title: str, *, hidden: bool = False) -> None:
+        self.title = title
+        self.hidden = hidden
+        self.members: list[T] = []
+
+    def __len__(self) -> int:
+        """Return the number of members."""
+
+        return len(self.members)
+
+    def __iter__(self) -> Iterator[T]:
+        """Iterate members."""
+
+        yield from self.members
+
+    def __iadd__(self: Self, member: T) -> Self:
+        """Add the member to this group."""
+
+        return self.add(member)
+
+    def add(self: Self, member: T) -> Self:
+        """Add the member to this group."""
+
+        self.members.append(member)
+        return self
+
+
+class ArgumentGroup(Group[Argument]):
     """The argument group.
 
     Parameters:
@@ -45,31 +85,8 @@ class ArgumentGroup:
     """
 
     def __init__(self, title: str, *, type: GroupType = ANY, hidden: bool = False) -> None:
-        self.title = title
+        super().__init__(title, hidden=hidden)
         self.type = type
-        self.hidden = hidden
-        self.arguments: list[Argument] = []
-
-    def __len__(self) -> int:
-        """Return the number of arguments."""
-
-        return len(self.arguments)
-
-    def __iter__(self) -> Iterator[Argument]:
-        """Iterate arguments."""
-
-        yield from self.arguments
-
-    def __iadd__(self, argument: Argument) -> ArgumentGroup:
-        """Add the argument to this group."""
-
-        return self.add(argument)
-
-    def add(self, argument: Argument) -> ArgumentGroup:
-        """Add the argument to this group."""
-
-        self.arguments.append(argument)
-        return self
 
     def check(self, num_occurred: int) -> None:
         """Check the group constraint."""
@@ -117,7 +134,7 @@ class ArgumentGroup:
             raise GroupError(f"Argument group {self.title!r} requires exactly one argument.")
 
 
-class OptionGroup:
+class OptionGroup(Group[Option]):
     """The option group.
 
     Parameters:
@@ -130,31 +147,8 @@ class OptionGroup:
     """
 
     def __init__(self, title: str, *, type: GroupType = ANY, hidden: bool = False) -> None:
-        self.title = title
+        super().__init__(title, hidden=hidden)
         self.type = type
-        self.hidden = hidden
-        self.options: list[Option] = []
-
-    def __len__(self) -> int:
-        """Return the number of options."""
-
-        return len(self.options)
-
-    def __iter__(self) -> Iterator[Option]:
-        """Iterate options."""
-
-        yield from self.options
-
-    def __iadd__(self, option: Option) -> OptionGroup:
-        """Add the option to this group."""
-
-        return self.add(option)
-
-    def add(self, option: Option) -> OptionGroup:
-        """Add the option to this group."""
-
-        self.options.append(option)
-        return self
 
     def check(self, num_occurred: int) -> None:
         """Check the group constraint."""
