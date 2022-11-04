@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import weakref
 from contextlib import contextmanager
+from itertools import chain
 from typing import Any, Generator, cast
 
 from .arguments import Argument, Option
@@ -282,12 +283,11 @@ class CommandParser:
         self.command_groups = command_groups
 
     def parse_command(self, ctx: Context, args: dict[str, Any], arg: str) -> None:
-        for group in self.command_groups:
-            for command in group:
-                if command == arg:
-                    # Store command to a special destination.
-                    args["<command>"] = command
-                    break
+        for command in chain.from_iterable(self.command_groups):
+            if command == arg:
+                # Store command to a special destination.
+                args["<command>"] = command
+                break
         raise SubcommandError(f"Unknown command {arg}.")
 
     def finalize(self, ctx: Context, args: dict[str, Any]) -> None:
