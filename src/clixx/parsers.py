@@ -127,13 +127,7 @@ class OptionGroupNode:
 
 
 class Context:
-    def __init__(
-        self,
-        argument_groups: list[ArgumentGroup],
-        option_groups: list[OptionGroup],
-        args: dict[str, Any],
-        argv: list[str],
-    ) -> None:
+    def __init__(self, args: dict[str, Any], argv: list[str]) -> None:
         self.args = args
         self.argv = argv
         self._index = 0
@@ -185,13 +179,13 @@ class ArgumentParser:
         argument.store(args, arg)
 
     def finalize(self, ctx: Context, args: dict[str, Any]) -> None:
-        for argument_group in self.argument_tree:
-            for argument in argument_group.children:
+        for group in self.argument_tree:
+            for argument in group.children:
                 if not argument.occurred:
                     if argument.required:
                         raise TooFewArguments("Got too few arguments.")
                     argument.store_default(args)
-            argument_group.check()
+            group.check()
 
 
 class OptionParser:
@@ -265,13 +259,13 @@ class OptionParser:
                 break  # end of parsing
 
     def finalize(self, ctx: Context, args: dict[str, Any]) -> None:
-        for option_group in self.option_tree:
-            for option in option_group.children:
+        for group in self.option_tree:
+            for option in group.children:
                 if not option.occurred:
                     if option.required:
                         raise MissingOption(f"Missing option {option.format_decls()}.")
                     option.store_default(args)
-            option_group.check()
+            group.check()
 
 
 class Parser:
@@ -280,7 +274,7 @@ class Parser:
         self.option_groups = option_groups
 
     def parse_args(self, args: dict[str, Any], argv: list[str]) -> Context:
-        ctx = Context(self.argument_groups, self.option_groups, args, argv)
+        ctx = Context(args, argv)
         argument_parser = ArgumentParser(self.argument_groups)
         option_parser = OptionParser(self.option_groups)
 
@@ -300,6 +294,6 @@ class Parser:
             while (arg := ctx.next_arg) is not None:
                 argument_parser.parse_argument(ctx, args, arg)
 
-        argument_parser.finalize(ctx, args)
         option_parser.finalize(ctx, args)
+        argument_parser.finalize(ctx, args)
         return ctx
