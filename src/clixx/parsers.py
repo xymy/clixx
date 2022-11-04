@@ -147,6 +147,14 @@ class Context:
         self._curr_arg = arg
         return arg
 
+    @property
+    def argc_consumed(self) -> int:
+        return self._index
+
+    @property
+    def argv_remained(self) -> list[str]:
+        return self.argv[self._index :]
+
 
 class ArgumentParser:
     def __init__(self, argument_groups: list[ArgumentGroup]) -> None:
