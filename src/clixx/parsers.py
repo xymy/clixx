@@ -126,39 +126,6 @@ class OptionGroupNode:
         self._group.check(self.num_occurred)
 
 
-def _build_argument_tree(argument_groups: list[ArgumentGroup]) -> tuple[list[ArgumentGroupNode], list[ArgumentNode]]:
-    tree: list[ArgumentGroupNode] = []
-    seq: list[ArgumentNode] = []
-    for group in argument_groups:
-        group_node = ArgumentGroupNode(group, [])
-        tree.append(group_node)
-        for argument in group:
-            node = ArgumentNode(argument, group_node)
-            group_node.children.append(node)
-            seq.append(node)
-    return tree, seq
-
-
-def _build_option_tree(option_groups: list[OptionGroup]) -> tuple[list[OptionGroupNode], dict[str, OptionNode]]:
-    tree: list[OptionGroupNode] = []
-    map: dict[str, OptionNode] = {}
-    for group in option_groups:
-        group_node = OptionGroupNode(group, [])
-        tree.append(group_node)
-        for option in group:
-            node = OptionNode(option, group_node)
-            group_node.children.append(node)
-            for key in option.long_options:
-                if key in map:
-                    raise ParserContextError(f"Option {key!r} conflicts.")
-                map[key] = node
-            for key in option.short_options:
-                if key in map:
-                    raise ParserContextError(f"Option {key!r} conflicts.")
-                map[key] = node
-    return tree, map
-
-
 class Context:
     def __init__(
         self,
@@ -189,8 +156,21 @@ class Context:
 
 class ArgumentParser:
     def __init__(self, argument_groups: list[ArgumentGroup]) -> None:
-        self.argument_tree, self.argument_seq = _build_argument_tree(argument_groups)
+        self.argument_tree, self.argument_seq = self._build(argument_groups)
         self._pos = 0
+
+    @staticmethod
+    def _build(argument_groups: list[ArgumentGroup]) -> tuple[list[ArgumentGroupNode], list[ArgumentNode]]:
+        tree: list[ArgumentGroupNode] = []
+        seq: list[ArgumentNode] = []
+        for group in argument_groups:
+            group_node = ArgumentGroupNode(group, [])
+            tree.append(group_node)
+            for argument in group:
+                node = ArgumentNode(argument, group_node)
+                group_node.children.append(node)
+                seq.append(node)
+        return tree, seq
 
     def get_argument(self) -> ArgumentNode:
         if self._pos >= len(self.argument_seq):
@@ -216,7 +196,27 @@ class ArgumentParser:
 
 class OptionParser:
     def __init__(self, option_groups: list[OptionGroup]) -> None:
-        self.option_tree, self.option_map = _build_option_tree(option_groups)
+        self.option_tree, self.option_map = self._build(option_groups)
+
+    @staticmethod
+    def _build(option_groups: list[OptionGroup]) -> tuple[list[OptionGroupNode], dict[str, OptionNode]]:
+        tree: list[OptionGroupNode] = []
+        map: dict[str, OptionNode] = {}
+        for group in option_groups:
+            group_node = OptionGroupNode(group, [])
+            tree.append(group_node)
+            for option in group:
+                node = OptionNode(option, group_node)
+                group_node.children.append(node)
+                for key in option.long_options:
+                    if key in map:
+                        raise ParserContextError(f"Option {key!r} conflicts.")
+                    map[key] = node
+                for key in option.short_options:
+                    if key in map:
+                        raise ParserContextError(f"Option {key!r} conflicts.")
+                    map[key] = node
+        return tree, map
 
     def get_option(self, key: str) -> OptionNode:
         option = self.option_map.get(key, None)
