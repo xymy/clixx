@@ -172,27 +172,6 @@ class Context:
         self._index = 0
         self._curr_arg: str | None = None
 
-        self.argument_tree, self.argument_seq = _build_argument_tree(argument_groups)
-        self.option_tree, self.option_map = _build_option_tree(option_groups)
-        self._pos = 0
-
-    def finalize(self) -> None:
-        for argument_group in self.argument_tree:
-            for argument in argument_group.children:
-                if not argument.occurred:
-                    if argument.required:
-                        raise TooFewArguments("Got too few arguments.")
-                    argument.store_default(self.args)
-            argument_group.check()
-
-        for option_group in self.option_tree:
-            for option in option_group.children:
-                if not option.occurred:
-                    if option.required:
-                        raise MissingOption(f"Missing option {option.format_decls()}.")
-                    option.store_default(self.args)
-            option_group.check()
-
     @property
     def curr_arg(self) -> str | None:
         return self._curr_arg
@@ -207,6 +186,12 @@ class Context:
         self._curr_arg = arg
         return arg
 
+
+class ArgumentParser:
+    def __init__(self, argument_groups: list[ArgumentGroup]) -> None:
+        self.argument_tree, self.argument_seq = _build_argument_tree(argument_groups)
+        self._pos = 0
+
     def get_argument(self) -> ArgumentNode:
         if self._pos >= len(self.argument_seq):
             raise TooManyArguments("Got too many arguments.")
@@ -215,59 +200,43 @@ class Context:
             self._pos += 1
         return argument
 
+    def parse_argument(self, ctx: Context, args: dict[str, Any], arg: str) -> None:
+        argument = self.get_argument()
+        argument.store(args, arg)
+
+    def finalize(self, ctx: Context, args: dict[str, Any]) -> None:
+        for argument_group in self.argument_tree:
+            for argument in argument_group.children:
+                if not argument.occurred:
+                    if argument.required:
+                        raise TooFewArguments("Got too few arguments.")
+                    argument.store_default(args)
+            argument_group.check()
+
+
+class OptionParser:
+    def __init__(self, option_groups: list[OptionGroup]) -> None:
+        self.option_tree, self.option_map = _build_option_tree(option_groups)
+
     def get_option(self, key: str) -> OptionNode:
         option = self.option_map.get(key, None)
         if option is None:
             raise UnknownOption(f"Unknown option {key!r}.")
         return option
 
-
-class Parser:
-    def __init__(self, argument_groups: list[ArgumentGroup], option_groups: list[OptionGroup]) -> None:
-        self.argument_groups = argument_groups
-        self.option_groups = option_groups
-
-    def parse_args(self, args: dict[str, Any], argv: list[str]) -> Context:
-        ctx = Context(self.argument_groups, self.option_groups, args, argv)
-
-        switch_to_positional_only = False
-        while (arg := ctx.next_arg) is not None:
-            if arg == SEPARATOR:
-                switch_to_positional_only = True
-                break
-            elif arg.startswith(LONG_PREFIX) and len(arg) > LONG_PREFIX_LEN:
-                self._parse_long_option(ctx, args, arg)
-            elif arg.startswith(SHORT_PREFIX) and len(arg) > SHORT_PREFIX_LEN:
-                self._parse_short_option(ctx, args, arg)
-            else:
-                self._parse_argument(ctx, args, arg)
-
-        if switch_to_positional_only:
-            while (arg := ctx.next_arg) is not None:
-                self._parse_argument(ctx, args, arg)
-
-        ctx.finalize()
-        return ctx
-
-    @staticmethod
-    def _parse_argument(ctx: Context, args: dict[str, Any], arg: str) -> None:
-        argument = ctx.get_argument()
-        argument.store(args, arg)
-
-    @staticmethod
-    def _parse_long_option(ctx: Context, args: dict[str, Any], arg: str) -> None:
+    def parse_long_option(self, ctx: Context, args: dict[str, Any], arg: str) -> None:
         value: str | None
 
         if "=" in arg:  # --option=value
             key, value = arg.split("=", 1)
-            option = ctx.get_option(key)
+            option = self.get_option(key)
             if option.nargs == 0:
                 raise TooManyOptionValues(f"Option {key!r} does not take a value.")
             option.store(args, value, key=key)
 
         else:  # --option [value]
             key = arg
-            option = ctx.get_option(key)
+            option = self.get_option(key)
             if option.nargs == 0:
                 option.store_const(args)
             else:
@@ -275,13 +244,12 @@ class Parser:
                     raise TooFewOptionValues(f"Option {key!r} requires a value.")
                 option.store(args, value, key=key)
 
-    @staticmethod
-    def _parse_short_option(ctx: Context, args: dict[str, Any], arg: str) -> None:
+    def parse_short_option(self, ctx: Context, args: dict[str, Any], arg: str) -> None:
         index = len(SHORT_PREFIX)
         while index < len(arg):
             key = "-" + arg[index]
             index += 1
-            option = ctx.get_option(key)
+            option = self.get_option(key)
 
             if option.nargs == 0:
                 option.store_const(args)
@@ -295,3 +263,43 @@ class Parser:
                         raise TooFewOptionValues(f"Option {key!r} requires a value.")
                 option.store(args, value, key=key)
                 break  # end of parsing
+
+    def finalize(self, ctx: Context, args: dict[str, Any]) -> None:
+        for option_group in self.option_tree:
+            for option in option_group.children:
+                if not option.occurred:
+                    if option.required:
+                        raise MissingOption(f"Missing option {option.format_decls()}.")
+                    option.store_default(args)
+            option_group.check()
+
+
+class Parser:
+    def __init__(self, argument_groups: list[ArgumentGroup], option_groups: list[OptionGroup]) -> None:
+        self.argument_groups = argument_groups
+        self.option_groups = option_groups
+
+    def parse_args(self, args: dict[str, Any], argv: list[str]) -> Context:
+        ctx = Context(self.argument_groups, self.option_groups, args, argv)
+        argument_parser = ArgumentParser(self.argument_groups)
+        option_parser = OptionParser(self.option_groups)
+
+        switch_to_positional_only = False
+        while (arg := ctx.next_arg) is not None:
+            if arg == SEPARATOR:
+                switch_to_positional_only = True
+                break
+            elif arg.startswith(LONG_PREFIX) and len(arg) > LONG_PREFIX_LEN:
+                option_parser.parse_long_option(ctx, args, arg)
+            elif arg.startswith(SHORT_PREFIX) and len(arg) > SHORT_PREFIX_LEN:
+                option_parser.parse_short_option(ctx, args, arg)
+            else:
+                argument_parser.parse_argument(ctx, args, arg)
+
+        if switch_to_positional_only:
+            while (arg := ctx.next_arg) is not None:
+                argument_parser.parse_argument(ctx, args, arg)
+
+        argument_parser.finalize(ctx, args)
+        option_parser.finalize(ctx, args)
+        return ctx
