@@ -11,6 +11,7 @@ from .exceptions import (
     InvalidOptionValue,
     MissingOption,
     ParserContextError,
+    SubcommandError,
     TooFewArguments,
     TooFewOptionValues,
     TooManyArguments,
@@ -18,7 +19,7 @@ from .exceptions import (
     TypeConversionError,
     UnknownOption,
 )
-from .groups import ArgumentGroup, OptionGroup
+from .groups import ArgumentGroup, CommandGroup, OptionGroup
 
 
 @contextmanager
@@ -276,6 +277,23 @@ class OptionParser:
             group.check()
 
 
+class CommandParser:
+    def __init__(self, command_groups: list[CommandGroup]) -> None:
+        self.command_groups = command_groups
+
+    def parse_command(self, ctx: Context, args: dict[str, Any], arg: str) -> None:
+        for group in self.command_groups:
+            for command in group:
+                if command == arg:
+                    # Store command to a special destination.
+                    args["<command>"] = command
+                    break
+        raise SubcommandError(f"Unknown command {arg}.")
+
+    def finalize(self, ctx: Context, args: dict[str, Any]) -> None:
+        pass
+
+
 class Parser:
     def __init__(self, argument_groups: list[ArgumentGroup], option_groups: list[OptionGroup]) -> None:
         self.argument_groups = argument_groups
@@ -304,4 +322,37 @@ class Parser:
 
         option_parser.finalize(ctx, args)
         argument_parser.finalize(ctx, args)
+        return ctx
+
+
+class SuperParser:
+    def __init__(self, command_groups: list[CommandGroup], option_groups: list[OptionGroup]) -> None:
+        self.command_groups = command_groups
+        self.option_groups = option_groups
+
+    def parse_args(self, args: dict[str, Any], argv: list[str]) -> Context:
+        ctx = Context(args, argv)
+        command_parser = CommandParser(self.command_groups)
+        option_parser = OptionParser(self.option_groups)
+
+        switch_to_positional_only = False
+        while (arg := ctx.next_arg) is not None:
+            if arg == SEPARATOR:
+                switch_to_positional_only = True
+                break
+            elif arg.startswith(LONG_PREFIX) and len(arg) > LONG_PREFIX_LEN:
+                option_parser.parse_long_option(ctx, args, arg)
+            elif arg.startswith(SHORT_PREFIX) and len(arg) > SHORT_PREFIX_LEN:
+                option_parser.parse_short_option(ctx, args, arg)
+            else:
+                command_parser.parse_command(ctx, args, arg)
+                break
+
+        if switch_to_positional_only:
+            while (arg := ctx.next_arg) is not None:
+                command_parser.parse_command(ctx, args, arg)
+                break
+
+        option_parser.finalize(ctx, args)
+        command_parser.finalize(ctx, args)
         return ctx
