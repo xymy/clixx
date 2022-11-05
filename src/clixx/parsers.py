@@ -2,8 +2,7 @@ from __future__ import annotations
 
 import weakref
 from contextlib import contextmanager
-from itertools import chain
-from typing import Any, Generator, cast
+from typing import TYPE_CHECKING, Any, Callable, Generator, cast
 
 from .arguments import Argument, Option
 from .constants import LONG_PREFIX, LONG_PREFIX_LEN, SEPARATOR, SHORT_PREFIX, SHORT_PREFIX_LEN
@@ -20,7 +19,10 @@ from .exceptions import (
     TypeConversionError,
     UnknownOption,
 )
-from .groups import ArgumentGroup, CommandGroup, OptionGroup
+from .groups import ArgumentGroup, OptionGroup
+
+if TYPE_CHECKING:
+    from .commands import Command
 
 
 @contextmanager
@@ -278,22 +280,6 @@ class OptionParser:
             group.check()
 
 
-class CommandParser:
-    def __init__(self, command_groups: list[CommandGroup]) -> None:
-        self.command_groups = command_groups
-
-    def parse_command(self, ctx: Context, args: dict[str, Any], arg: str) -> None:
-        for command in chain.from_iterable(self.command_groups):
-            if command == arg:
-                # Store command to a special destination.
-                args["<command>"] = command
-                break
-        raise SubcommandError(f"Unknown command {arg}.")
-
-    def finalize(self, ctx: Context, args: dict[str, Any]) -> None:
-        pass
-
-
 class Parser:
     def __init__(self, argument_groups: list[ArgumentGroup], option_groups: list[OptionGroup]) -> None:
         self.argument_groups = argument_groups
@@ -326,13 +312,12 @@ class Parser:
 
 
 class SuperParser:
-    def __init__(self, command_groups: list[CommandGroup], option_groups: list[OptionGroup]) -> None:
-        self.command_groups = command_groups
+    def __init__(self, command_loader: Callable[[str], Command], option_groups: list[OptionGroup]) -> None:
+        self.command_loader = command_loader
         self.option_groups = option_groups
 
     def parse_args(self, args: dict[str, Any], argv: list[str]) -> Context:
         ctx = Context(args, argv)
-        command_parser = CommandParser(self.command_groups)
         option_parser = OptionParser(self.option_groups)
 
         switch_to_positional_only = False
@@ -345,14 +330,20 @@ class SuperParser:
             elif arg.startswith(SHORT_PREFIX) and len(arg) > SHORT_PREFIX_LEN:
                 option_parser.parse_short_option(ctx, args, arg)
             else:
-                command_parser.parse_command(ctx, args, arg)
+                self._load_command(ctx, args, arg)
                 break
 
         if switch_to_positional_only:
             while (arg := ctx.next_arg) is not None:
-                command_parser.parse_command(ctx, args, arg)
+                self._load_command(ctx, args, arg)
                 break
 
         option_parser.finalize(ctx, args)
-        command_parser.finalize(ctx, args)
         return ctx
+
+    def _load_command(self, ctx: Context, args: dict[str, Any], arg: str) -> None:
+        command = self.command_loader(arg)
+        if command is None:
+            raise SubcommandError(f"Unknown command {arg}.")
+        # Store command to a special destination.
+        args["<command>"] = command
