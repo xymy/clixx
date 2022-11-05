@@ -37,6 +37,10 @@ def _parse_decls(decls: Sequence[str]) -> tuple[list[str], list[str]]:
             short_options.append(decl)
         else:
             raise DefinitionError(f"Option must start with {LONG_PREFIX!r} or {SHORT_PREFIX!r}, got {decl!r}.")
+
+        for sc in "<>'\"":
+            if sc in decl:
+                raise DefinitionError(f"Option {decl!r} contains special character {sc!r}.")
     return long_options, short_options
 
 
