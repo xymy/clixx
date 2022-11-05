@@ -224,6 +224,14 @@ class OptionParser:
                     map[key] = node
         return tree, map
 
+    @staticmethod
+    def is_long_option(arg: str) -> bool:
+        return arg.startswith(LONG_PREFIX) and len(arg) > LONG_PREFIX_LEN
+
+    @staticmethod
+    def is_short_option(arg: str) -> bool:
+        return arg.startswith(SHORT_PREFIX) and len(arg) > SHORT_PREFIX_LEN
+
     def get_option(self, key: str) -> OptionNode:
         option = self.option_map.get(key, None)
         if option is None:
@@ -295,9 +303,9 @@ class Parser:
             if arg == SEPARATOR:
                 switch_to_positional_only = True
                 break
-            elif arg.startswith(LONG_PREFIX) and len(arg) > LONG_PREFIX_LEN:
+            elif option_parser.is_long_option(arg):
                 option_parser.parse_long_option(ctx, args, arg)
-            elif arg.startswith(SHORT_PREFIX) and len(arg) > SHORT_PREFIX_LEN:
+            elif option_parser.is_short_option(arg):
                 option_parser.parse_short_option(ctx, args, arg)
             else:
                 argument_parser.parse_argument(ctx, args, arg)
@@ -325,9 +333,9 @@ class SuperParser:
             if arg == SEPARATOR:
                 switch_to_positional_only = True
                 break
-            elif arg.startswith(LONG_PREFIX) and len(arg) > LONG_PREFIX_LEN:
+            elif option_parser.is_long_option(arg):
                 option_parser.parse_long_option(ctx, args, arg)
-            elif arg.startswith(SHORT_PREFIX) and len(arg) > SHORT_PREFIX_LEN:
+            elif option_parser.is_short_option(arg):
                 option_parser.parse_short_option(ctx, args, arg)
             else:
                 self._load_command(ctx, args, arg)
