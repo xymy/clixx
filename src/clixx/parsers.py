@@ -79,9 +79,6 @@ class ArgumentGroupNode:
         self.children = children
         self.num_occurred = 0
 
-    def check(self) -> None:
-        self._group.check(self.num_occurred)
-
 
 class OptionNode:
     def __init__(self, option: Option, parent: OptionGroupNode) -> None:
@@ -197,7 +194,6 @@ class ArgumentParser:
                     if argument.required:
                         raise TooFewArguments("Got too few arguments.")
                     argument.store_default(args)
-            group.check()
 
 
 class OptionParser:
