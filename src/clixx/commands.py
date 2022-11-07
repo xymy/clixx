@@ -6,7 +6,7 @@ from typing import Any, Callable, Generator, Protocol
 
 from .exceptions import CLIXXException, HelpSignal, VersionSignal
 from .groups import ArgumentGroup, OptionGroup
-from .parsers import Parser
+from .parsers import Parser, SuperParser
 
 
 class Printer(Protocol):
@@ -102,3 +102,22 @@ class Command:
 
     def get_prog(self) -> str:
         return sys.argv[0] if self.name is None else self.name
+
+
+class SuperCommand:
+    def __init__(self) -> None:
+        self.option_groups: list[OptionGroup] = []
+
+    def add_option_group(self, group: OptionGroup) -> SuperCommand:
+        self.option_groups.append(group)
+        return self
+
+    def parse_args(self, argv: list[str] | None = None) -> dict[str, Any]:
+        args: dict[str, Any] = {}
+        argv = sys.argv[1:] if argv is None else argv
+        parser = SuperParser(self.load_command, self.option_groups)
+        parser.parse_args(args, argv)
+        return args
+
+    def load_command(self, name: str) -> Command:
+        raise NotImplementedError
