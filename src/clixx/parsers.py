@@ -7,11 +7,11 @@ from typing import TYPE_CHECKING, Any, Callable, Generator, cast
 from .arguments import Argument, Option
 from .constants import LONG_PREFIX, LONG_PREFIX_LEN, SEPARATOR, SHORT_PREFIX, SHORT_PREFIX_LEN
 from .exceptions import (
+    CommandError,
     InvalidArgumentValue,
     InvalidOptionValue,
     MissingOption,
     ParserContextError,
-    SubcommandError,
     TooFewArguments,
     TooFewOptionValues,
     TooManyArguments,
@@ -352,6 +352,6 @@ class SuperParser:
     def _load_command(self, ctx: Context, args: dict[str, Any], arg: str) -> None:
         command = self.command_loader(arg)
         if command is None:
-            raise SubcommandError(f"Unknown command {arg}.")
+            raise CommandError(f"Unknown command {arg!r}.")
         # Store command to a special destination.
         args["<command>"] = command

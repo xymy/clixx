@@ -55,12 +55,12 @@ class InvalidOptionValue(CLIXXException):
     """Invalid option value given."""
 
 
+class CommandError(CLIXXException):
+    """Command error."""
+
+
 class GroupError(CLIXXException):
     """Group error."""
-
-
-class SubcommandError(CLIXXException):
-    """Subcommand error."""
 
 
 class CLIXXSignal(BaseException):
