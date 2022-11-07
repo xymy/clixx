@@ -32,6 +32,18 @@ def _rich_printer_factory(config: dict[str, Any]) -> Printer:
     return RichPrinter(config)
 
 
+_default_printer_factory: PrinterFactory = _rich_printer_factory
+
+
+def get_default_printer_factory() -> PrinterFactory:
+    return _default_printer_factory
+
+
+def set_default_printer_factory(printer_factory: PrinterFactory) -> None:
+    global _default_printer_factory
+    _default_printer_factory = printer_factory
+
+
 class Command:
     def __init__(
         self,
@@ -83,7 +95,7 @@ class Command:
 
     def make_printer(self) -> Printer:
         if (factory := self.printer_factory) is None:
-            factory = _rich_printer_factory
+            factory = get_default_printer_factory()
         if (config := self.printer_config) is None:
             config = {}
         return factory(config)

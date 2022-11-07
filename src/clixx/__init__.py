@@ -1,5 +1,5 @@
 from .arguments import Argument, CountOption, FlagOption, HelpOption, Option, SignalOption, VersionOption
-from .commands import Command
+from .commands import Command, get_default_printer_factory, set_default_printer_factory
 from .groups import ALL, ANY, AT_LEAST_ONE, AT_MOST_ONE, EXACTLY_ONE, NONE, ArgumentGroup, GroupType, OptionGroup
 from .types import (
     Bool,
@@ -29,6 +29,8 @@ __all__ = [
     "VersionOption",
     # commands
     "Command",
+    "get_default_printer_factory",
+    "set_default_printer_factory",
     # groups
     "GroupType",
     "ANY",
