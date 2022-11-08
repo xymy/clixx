@@ -22,6 +22,9 @@ class CLIXXException(Exception):
     def format_message(self) -> str:
         return self.message
 
+    def __str__(self) -> str:
+        return self.format_message()
+
 
 class TooFewArguments(CLIXXException):
     """Too few arguments given."""
