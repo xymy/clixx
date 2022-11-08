@@ -175,16 +175,16 @@ class ArgumentParser:
                 seq.append(node)
         return tree, seq
 
-    def get_argument(self) -> ArgumentNode:
+    def get_argument(self, arg: str) -> ArgumentNode:
         if self._pos >= len(self.argument_seq):
-            raise TooManyArguments("Got too many arguments.")
+            raise TooManyArguments(f"Got too many arguments. Found extra argument {arg!r}.")
         argument = self.argument_seq[self._pos]
         if argument.nargs == 1:
             self._pos += 1
         return argument
 
     def parse_argument(self, ctx: Context, args: dict[str, Any], arg: str) -> None:
-        argument = self.get_argument()
+        argument = self.get_argument(arg)
         argument.store(args, arg)
 
     def finalize(self, ctx: Context, args: dict[str, Any]) -> None:
@@ -192,7 +192,9 @@ class ArgumentParser:
             for argument in group.children:
                 if not argument.occurred:
                     if argument.required:
-                        raise TooFewArguments("Got too few arguments.")
+                        raise TooFewArguments(
+                            f"Got too few arguments. {argument.format_decl()} is required but not given."
+                        )
                     argument.store_default(args)
 
 
