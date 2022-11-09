@@ -25,7 +25,7 @@ class RichPrinter:
         # To avoid injection, construct :class:`rich.text.Text`.
         style = Style(color="red", bold=True)
         text = Text(f"Error: {exc.format_message()}", style=style)
-        console.print(text, highlight=False)
+        console.print(text)
 
     def _print_usage(self, console: Console, cmd: Command) -> None:
         prog = cmd.get_prog()
@@ -55,12 +55,12 @@ class RichPrinter:
         try_help = f"Try '{prog} {option}' for help."
         console.out(try_help, highlight=False)
 
-    def print_error(self, cmd: Command, message: str) -> None:
+    def print_error(self, cmd: Command, exc: CLIXXException) -> None:
         console = Console(stderr=True, **self.console_params)
         self._print_usage(console, cmd)
         self._print_try_help(console, cmd)
-        console.out()
-        self._print_error(console, message)
+        console.print()
+        self._print_error(console, exc)
 
     def print_help(self, cmd: Command) -> None:
         console = Console(**self.console_params)

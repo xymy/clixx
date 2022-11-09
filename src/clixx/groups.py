@@ -62,12 +62,12 @@ class Group(Generic[T]):
 
         yield from self.members
 
-    def __iadd__(self, member: T) -> Self:
+    def __iadd__(self, member: T) -> Self:  # type: ignore [valid-type]
         """Add the member to this group."""
 
         return self.add(member)
 
-    def add(self, member: T) -> Self:
+    def add(self, member: T) -> Self:  # type: ignore [valid-type]
         """Add the member to this group."""
 
         self.members.append(member)
