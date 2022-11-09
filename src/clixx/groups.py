@@ -1,10 +1,13 @@
 from __future__ import annotations
 
 import enum
-from typing import Final, Generic, Iterator, TypeVar
+from typing import TYPE_CHECKING, Final, Generic, Iterator, TypeVar
 
 from .arguments import Argument, Option
 from .exceptions import GroupError
+
+if TYPE_CHECKING:
+    from typing_extensions import Self
 
 
 class GroupType(enum.Enum):
@@ -32,7 +35,6 @@ AT_MOST_ONE: Final = GroupType.AT_MOST_ONE
 EXACTLY_ONE: Final = GroupType.EXACTLY_ONE
 
 T = TypeVar("T")
-Self = TypeVar("Self", bound="Group")
 
 
 class Group(Generic[T]):
@@ -60,12 +62,12 @@ class Group(Generic[T]):
 
         yield from self.members
 
-    def __iadd__(self: Self, member: T) -> Self:
+    def __iadd__(self, member: T) -> Self:
         """Add the member to this group."""
 
         return self.add(member)
 
-    def add(self: Self, member: T) -> Self:
+    def add(self, member: T) -> Self:
         """Add the member to this group."""
 
         self.members.append(member)
@@ -103,7 +105,12 @@ class OptionGroup(Group[Option]):
         self.type = type
 
     def check(self, num_occurred: int) -> None:
-        """Check the group constraint."""
+        """Check the group constraint.
+
+        Parameters:
+            num_occurred (int):
+                The number of occurred options.
+        """
 
         if self.type == ANY:
             return self._check_any(num_occurred)
