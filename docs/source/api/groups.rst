@@ -6,14 +6,21 @@ clixx.groups
 Classes
 -------
 
-.. autoclass:: ArgumentGroup
+.. autoclass:: Group
     :members:
     :special-members: __len__, __iter__, __iadd__
     :show-inheritance:
 
+.. autoclass:: ArgumentGroup
+    :members:
+    :show-inheritance:
+
 .. autoclass:: OptionGroup
     :members:
-    :special-members: __len__, __iter__, __iadd__
+    :show-inheritance:
+
+.. autoclass:: CommandGroup
+    :members:
     :show-inheritance:
 
 Enumerations
