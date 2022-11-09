@@ -5,8 +5,10 @@ from typing import Any
 from rich.console import Console
 from rich.style import Style
 from rich.table import Table
+from rich.text import Text
 
 from .commands import Command
+from .exceptions import CLIXXException
 
 
 class RichPrinter:
@@ -18,12 +20,12 @@ class RichPrinter:
             "highlight": config.pop("highlight", False),
         }
 
-    def _print_error(self, console: Console, message: str) -> None:
+    def _print_error(self, console: Console, exc: CLIXXException) -> None:
         # SECURITY: ``message`` usually contains user input.
-        # To avoid injection, Rich's markup must be disabled.
-        message = f"Error: {message}"
+        # To avoid injection, construct :class:`rich.text.Text`.
         style = Style(color="red", bold=True)
-        console.out(message, style=style, highlight=False)
+        text = Text(f"Error: {exc.format_message()}", style=style)
+        console.print(text, highlight=False)
 
     def _print_usage(self, console: Console, cmd: Command) -> None:
         prog = cmd.get_prog()
