@@ -131,5 +131,5 @@ class SuperCommand:
         parser.parse_args(args, argv)
         return args
 
-    def load_command(self, name: str) -> Command:
+    def load_command(self, name: str) -> Command | None:
         raise NotImplementedError

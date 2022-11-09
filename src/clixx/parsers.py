@@ -318,7 +318,7 @@ class Parser:
 
 
 class SuperParser:
-    def __init__(self, command_loader: Callable[[str], Command], option_groups: list[OptionGroup]) -> None:
+    def __init__(self, command_loader: Callable[[str], Command | None], option_groups: list[OptionGroup]) -> None:
         self.command_loader = command_loader
         self.option_groups = option_groups
 
