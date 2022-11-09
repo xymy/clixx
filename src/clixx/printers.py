@@ -1,13 +1,15 @@
 from typing import TYPE_CHECKING, Any, Callable, Protocol
 
+from .exceptions import CLIXXException
+
 if TYPE_CHECKING:
-    from .commands import Command
+    from .commands import Command, SuperCommand
 
 
 class Printer(Protocol):
     """The protocol class for printer."""
 
-    def print_error(self, cmd: Command, message: str) -> None:
+    def print_error(self, cmd: Command, exc: CLIXXException) -> None:
         ...
 
     def print_help(self, cmd: Command) -> None:
@@ -17,8 +19,24 @@ class Printer(Protocol):
         ...
 
 
+class SuperPrinter(Protocol):
+    """The protocol class for super printer."""
+
+    def print_error(self, cmd: SuperCommand, exc: CLIXXException) -> None:
+        ...
+
+    def print_help(self, cmd: SuperCommand) -> None:
+        ...
+
+    def print_version(self, cmd: SuperCommand) -> None:
+        ...
+
+
 #: The type of printer factory.
 PrinterFactory = Callable[[dict[str, Any]], Printer]
+
+#: The type of super printer factory.
+SuperPrinterFactory = Callable[[dict[str, Any]], SuperPrinter]
 
 
 def _rich_printer_factory(config: dict[str, Any]) -> Printer:
