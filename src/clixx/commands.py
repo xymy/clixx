@@ -50,7 +50,7 @@ class Command:
         try:
             yield
         except CLIXXException as e:
-            self.print_error(e.format_message())
+            self.print_error(e)
             sys.exit(e.exit_code)
         except HelpSignal as e:
             self.print_help()
@@ -66,9 +66,9 @@ class Command:
             config = {}
         return factory(config)
 
-    def print_error(self, message: str) -> None:
+    def print_error(self, exc: CLIXXException) -> None:
         printer = self.make_printer()
-        printer.print_error(self, message)
+        printer.print_error(self, exc)
 
     def print_help(self) -> None:
         printer = self.make_printer()
