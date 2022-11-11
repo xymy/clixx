@@ -7,25 +7,30 @@ from rich.style import Style
 from rich.table import Table
 from rich.text import Text
 
-from .commands import Command
+from .commands import Command, SuperCommand
 from .exceptions import CLIXXException
+
+
+def _get_console_params(config: dict[str, Any]) -> dict[str, Any]:
+    params = {}
+    for param in ["markup", "emoji", "highlight", "highlighter"]:
+        if param in config:
+            params[param] = config.pop(param)
+    return params
+
+
+def _print_error(console: Console, exc: CLIXXException) -> None:
+    # SECURITY: ``message`` usually contains user input.
+    # To avoid injection, construct :class:`rich.text.Text`.
+    style = Style(color="red", bold=True)
+    text = Text("Error: " + exc.format_message(), style=style)
+    console.print(text, soft_wrap=True)
 
 
 class RichPrinter:
     def __init__(self, config: dict[str, Any]) -> None:
         self.config = config
-        self.console_params: dict[str, Any] = {
-            "markup": config.pop("markup", False),
-            "emoji": config.pop("emoji", False),
-            "highlight": config.pop("highlight", False),
-        }
-
-    def _print_error(self, console: Console, exc: CLIXXException) -> None:
-        # SECURITY: ``message`` usually contains user input.
-        # To avoid injection, construct :class:`rich.text.Text`.
-        style = Style(color="red", bold=True)
-        text = Text(f"Error: {exc.format_message()}", style=style)
-        console.print(text, soft_wrap=True)
+        self.console_params = _get_console_params(config)
 
     def _print_usage(self, console: Console, cmd: Command) -> None:
         parts = ["Usage: ", cmd.get_prog()]
@@ -62,7 +67,7 @@ class RichPrinter:
         self._print_usage(console, cmd)
         self._print_try_help(console, cmd)
         console.print()
-        self._print_error(console, exc)
+        _print_error(console, exc)
 
     def print_help(self, cmd: Command) -> None:
         console = Console(**self.console_params)
@@ -101,3 +106,18 @@ class RichPrinter:
         console = Console(**self.console_params)
         version_info = f"{cmd.name} {cmd.version}"
         console.print(version_info, highlight=False)
+
+
+class RichSuperPrinter:
+    def __init__(self, config: dict[str, Any]) -> None:
+        self.config = config
+        self.console_params = _get_console_params(config)
+
+    def print_error(self, cmd: SuperCommand, exc: CLIXXException) -> None:
+        ...
+
+    def print_help(self, cmd: SuperCommand) -> None:
+        ...
+
+    def print_version(self, cmd: SuperCommand) -> None:
+        ...
