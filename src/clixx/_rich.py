@@ -25,14 +25,14 @@ class RichPrinter:
         # To avoid injection, construct :class:`rich.text.Text`.
         style = Style(color="red", bold=True)
         text = Text(f"Error: {exc.format_message()}", style=style)
-        console.print(text)
+        console.print(text, soft_wrap=True)
 
     def _print_usage(self, console: Console, cmd: Command) -> None:
-        prog = cmd.get_prog()
-        usage = f"Usage: {prog}"
+        parts = ["Usage: ", cmd.get_prog()]
 
         if cmd.option_groups:
-            usage += " [OPTIONS]..."
+            parts.append(" ")
+            parts.append("[OPTIONS]...")
 
         metavars: list[str] = []
         for argument_group in cmd.argument_groups:
@@ -45,15 +45,17 @@ class RichPrinter:
                     metavars.append(metavar)
 
         if metavars:
-            usage += " " + " ".join(metavars)
+            parts.append(" ")
+            parts.append(" ".join(metavars))
 
-        console.out(usage, highlight=False)
+        text = Text.assemble(parts)
+        console.print(text)
 
     def _print_try_help(self, console: Console, cmd: Command) -> None:
         prog = cmd.get_prog()
         option = self.config.get("try_help_option", "--help")
-        try_help = f"Try '{prog} {option}' for help."
-        console.out(try_help, highlight=False)
+        text = Text(f"Try '{prog} {option}' for help.")
+        console.print(text, soft_wrap=True)
 
     def print_error(self, cmd: Command, exc: CLIXXException) -> None:
         console = Console(stderr=True, **self.console_params)
