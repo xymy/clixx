@@ -33,33 +33,25 @@ class RichPrinter:
         self.console_params = _get_console_params(config)
 
     def _print_usage(self, console: Console, cmd: Command) -> None:
-        parts = ["Usage: ", cmd.get_prog()]
+        text = Text("Usage: " + cmd.get_prog())
 
         if cmd.option_groups:
-            parts.append(" ")
-            parts.append("[OPTIONS]...")
+            text.append(" [OPTIONS]...")
 
-        metavars: list[str] = []
         for argument_group in cmd.argument_groups:
             for argument in argument_group:
                 if metavar := argument.resolve_metavar():
                     if not argument.required:
-                        metavar = f"[{metavar}]"
+                        metavar = "[" + metavar + "]"
                     if argument.nargs == -1:
                         metavar += "..."
-                    metavars.append(metavar)
-
-        if metavars:
-            parts.append(" ")
-            parts.append(" ".join(metavars))
-
-        text = Text.assemble(parts)
-        console.print(text)
+                    text.append(" " + metavar)
+        console.print(text, soft_wrap=True)
 
     def _print_try_help(self, console: Console, cmd: Command) -> None:
         prog = cmd.get_prog()
         option = self.config.get("try_help_option", "--help")
-        text = Text(f"Try '{prog} {option}' for help.")
+        text = Text("Try " + repr(prog + " " + option) + " for help.")
         console.print(text, soft_wrap=True)
 
     def print_error(self, cmd: Command, exc: CLIXXException) -> None:
