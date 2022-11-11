@@ -47,13 +47,37 @@ def _rich_printer_factory(config: dict[str, Any]) -> Printer:
     return RichPrinter(config)
 
 
+def _rich_super_printer_factory(config: dict[str, Any]) -> SuperPrinter:
+    from ._rich import RichSuperPrinter
+
+    return RichSuperPrinter(config)
+
+
 _default_printer_factory: PrinterFactory = _rich_printer_factory
+_default_super_printer_factory: SuperPrinterFactory = _rich_super_printer_factory
 
 
 def get_default_printer_factory() -> PrinterFactory:
+    """Get default printer factory."""
+
     return _default_printer_factory
 
 
 def set_default_printer_factory(printer_factory: PrinterFactory) -> None:
+    """Set default printer factory."""
+
     global _default_printer_factory
     _default_printer_factory = printer_factory
+
+
+def get_default_super_printer_factory() -> SuperPrinterFactory:
+    """Get default super printer factory."""
+
+    return _default_super_printer_factory
+
+
+def set_default_super_printer_factory(super_printer_factory: SuperPrinterFactory) -> None:
+    """Set default super printer factory."""
+
+    global _default_super_printer_factory
+    _default_super_printer_factory = super_printer_factory
