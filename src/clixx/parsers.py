@@ -21,7 +21,7 @@ from .exceptions import (
 )
 from .groups import ArgumentGroup, OptionGroup
 
-if TYPE_CHECKING:
+if TYPE_CHECKING:  # pragma: no cover
     from .commands import Command
 
 

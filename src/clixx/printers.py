@@ -4,7 +4,7 @@ from typing import TYPE_CHECKING, Any, Callable, Protocol
 
 from .exceptions import CLIXXException
 
-if TYPE_CHECKING:
+if TYPE_CHECKING:  # pragma: no cover
     from .commands import Command, SuperCommand
 
 

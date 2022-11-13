@@ -6,7 +6,7 @@ from typing import TYPE_CHECKING, Final, Generic, Iterator, TypeVar
 from .arguments import Argument, Option
 from .exceptions import GroupError
 
-if TYPE_CHECKING:
+if TYPE_CHECKING:  # pragma: no cover
     from typing_extensions import Self
 
 
