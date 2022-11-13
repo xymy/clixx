@@ -23,7 +23,7 @@ def _print_error(console: Console, exc: CLIXXException) -> None:
     # SECURITY: ``message`` usually contains user input.
     # To avoid injection, construct :class:`rich.text.Text`.
     style = Style(color="red", bold=True)
-    text = Text("Error: " + exc.format_message(), style=style)
+    text = Text("Error: " + exc.message, style=style)
     console.print(text, soft_wrap=True)
 
 

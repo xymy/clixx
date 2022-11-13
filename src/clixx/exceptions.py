@@ -19,11 +19,8 @@ class CLIXXException(Exception):
         super().__init__(message)
         self.message = message
 
-    def format_message(self) -> str:
-        return self.message
-
     def __str__(self) -> str:
-        return self.format_message()
+        return self.message
 
 
 class TooFewArguments(CLIXXException):
