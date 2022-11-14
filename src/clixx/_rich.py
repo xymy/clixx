@@ -20,7 +20,7 @@ def _get_console_params(config: dict[str, Any]) -> dict[str, Any]:
 
 
 def _print_error(console: Console, exc: CLIXXException) -> None:
-    # SECURITY: ``message`` usually contains user input.
+    # SECURITY: `exc.message` usually contains user input.
     # To avoid injection, construct :class:`rich.text.Text`.
     style = Style(color="red", bold=True)
     text = Text("Error: " + exc.message, style=style)
@@ -104,6 +104,22 @@ class RichSuperPrinter:
     def __init__(self, config: dict[str, Any]) -> None:
         self.config = config
         self.console_params = _get_console_params(config)
+
+    def _print_usage(self, console: Console, cmd: SuperCommand) -> None:
+        text = Text("Usage: " + cmd.get_prog())
+
+        if cmd.option_groups:
+            text.append(" [OPTIONS]...")
+
+        text.append(" COMMAND")
+        text.append(" [ARGS]...")
+        console.print(text, soft_wrap=True)
+
+    def _print_try_help(self, console: Console, cmd: SuperCommand) -> None:
+        prog = cmd.get_prog()
+        option = self.config.get("try_help_option", "--help")
+        text = Text("Try " + repr(prog + " " + option) + " for help.")
+        console.print(text, soft_wrap=True)
 
     def print_error(self, cmd: SuperCommand, exc: CLIXXException) -> None:
         ...
