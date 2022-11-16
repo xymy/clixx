@@ -257,11 +257,11 @@ class Enum(Type):
             if v == norm(name):
                 return member
 
-        enum_str = ", ".join(map(repr, self.enum_type.__members__.keys()))
+        enum_str = ", ".join(map(repr, self.enum_type.__members__))
         raise TypeConversionError(f"{value!r} is not one of {enum_str}.")
 
     def suggest_metavar(self) -> str | None:
-        return "[" + "|".join(self.enum_type.__members__.keys()) + "]"
+        return "[" + "|".join(self.enum_type.__members__) + "]"
 
 
 class IntEnum(Type):
