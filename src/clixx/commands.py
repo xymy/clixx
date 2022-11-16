@@ -2,10 +2,10 @@ from __future__ import annotations
 
 import sys
 from contextlib import contextmanager
-from typing import Any, Generator
+from typing import Any, Generator, Iterator
 
 from .exceptions import CLIXXException, HelpSignal, VersionSignal
-from .groups import ArgumentGroup, OptionGroup
+from .groups import ArgumentGroup, CommandGroup, OptionGroup
 from .parsers import Parser, SuperParser
 from .printers import (
     Printer,
@@ -133,6 +133,12 @@ class SuperCommand(CommandBase):
 
         self.option_groups: list[OptionGroup] = []
 
+    def iter_command_group(self) -> Iterator[CommandGroup]:
+        raise NotImplementedError
+
+    def load_command(self, name: str) -> Command | None:
+        raise NotImplementedError
+
     def add_option_group(self, group: OptionGroup) -> SuperCommand:
         self.option_groups.append(group)
         return self
@@ -140,12 +146,24 @@ class SuperCommand(CommandBase):
     def parse_args(self, argv: list[str] | None = None) -> dict[str, Any]:
         args: dict[str, Any] = {}
         argv = sys.argv[1:] if argv is None else argv
-        parser = SuperParser(self.load_command, self.option_groups)
-        parser.parse_args(args, argv)
+        with self._attach_handlers():
+            parser = SuperParser(self.load_command, self.option_groups)
+            parser.parse_args(args, argv)
         return args
 
-    def load_command(self, name: str) -> Command | None:
-        raise NotImplementedError
+    @contextmanager
+    def _attach_handlers(self) -> Generator[None, None, None]:
+        try:
+            yield
+        except CLIXXException as e:
+            self.print_error(e)
+            sys.exit(e.exit_code)
+        except HelpSignal as e:
+            self.print_help()
+            sys.exit(e.exit_code)
+        except VersionSignal as e:
+            self.print_version()
+            sys.exit(e.exit_code)
 
     def make_printer(self) -> SuperPrinter:
         if (factory := self.printer_factory) is None:
