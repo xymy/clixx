@@ -136,7 +136,7 @@ class SuperCommand(CommandBase):
     def iter_command_group(self) -> Iterator[CommandGroup]:
         raise NotImplementedError
 
-    def load_command(self, name: str) -> Command | None:
+    def load_command(self, name: str) -> Command | SuperCommand | None:
         raise NotImplementedError
 
     def add_option_group(self, group: OptionGroup) -> SuperCommand:
