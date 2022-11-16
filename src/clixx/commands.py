@@ -7,20 +7,30 @@ from typing import Any, Generator
 from .exceptions import CLIXXException, HelpSignal, VersionSignal
 from .groups import ArgumentGroup, OptionGroup
 from .parsers import Parser, SuperParser
-from .printers import Printer, PrinterFactory, get_default_printer_factory
+from .printers import (
+    Printer,
+    PrinterFactory,
+    SuperPrinter,
+    SuperPrinterFactory,
+    get_default_printer_factory,
+    get_default_super_printer_factory,
+)
 
 
 class CommandBase:
     #: The parent command. Should be set by parent.
     parent: SuperCommand | None
+    #: The program name. Should be set by parent.
+    prog: str | None
 
     def __init__(self, name: str | None = None, version: str | None = None) -> None:
         self.name = name
         self.version = version
         self.parent = None
+        self.prog = None
 
-    def get_prog(self, prog: str | None) -> str:
-        prog = sys.argv[0] if prog is None else prog
+    def get_prog(self) -> str:
+        prog = sys.argv[0] if self.prog is None else self.prog
         if self.parent is None:
             return prog
         return f"{self.parent.get_prog()} {prog}"
@@ -108,8 +118,18 @@ class Command(CommandBase):
 
 
 class SuperCommand(CommandBase):
-    def __init__(self, name: str | None = None, version: str | None = None) -> None:
+    def __init__(
+        self,
+        name: str | None = None,
+        version: str | None = None,
+        *,
+        printer_factory: SuperPrinterFactory | None = None,
+        printer_config: dict[str, Any] | None = None,
+    ) -> None:
         super().__init__(name, version)
+
+        self.printer_factory = printer_factory
+        self.printer_config = printer_config
 
         self.option_groups: list[OptionGroup] = []
 
@@ -126,3 +146,22 @@ class SuperCommand(CommandBase):
 
     def load_command(self, name: str) -> Command | None:
         raise NotImplementedError
+
+    def make_printer(self) -> SuperPrinter:
+        if (factory := self.printer_factory) is None:
+            factory = get_default_super_printer_factory()
+        if (config := self.printer_config) is None:
+            config = {}
+        return factory(config)
+
+    def print_error(self, exc: CLIXXException) -> None:
+        printer = self.make_printer()
+        printer.print_error(self, exc)
+
+    def print_help(self) -> None:
+        printer = self.make_printer()
+        printer.print_help(self)
+
+    def print_version(self) -> None:
+        printer = self.make_printer()
+        printer.print_version(self)
