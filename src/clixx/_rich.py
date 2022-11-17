@@ -96,7 +96,9 @@ class RichPrinter:
 
     def print_version(self, cmd: Command) -> None:
         console = Console(**self.console_params)
-        version_info = f"{cmd.name} {cmd.version}"
+        name = cmd.get_name()
+        version = cmd.get_version()
+        version_info = f"{name} {version}"
         console.print(version_info, highlight=False)
 
 
@@ -122,10 +124,42 @@ class RichSuperPrinter:
         console.print(text, soft_wrap=True)
 
     def print_error(self, cmd: SuperCommand, exc: CLIXXException) -> None:
-        ...
+        console = Console(stderr=True, **self.console_params)
+        self._print_usage(console, cmd)
+        self._print_try_help(console, cmd)
+        console.print()
+        _print_error(console, exc)
 
     def print_help(self, cmd: SuperCommand) -> None:
-        ...
+        console = Console(**self.console_params)
+        self._print_usage(console, cmd)
+
+        for command_group in cmd.iter_command_group():
+            if command_group.hidden:
+                continue
+            console.print(f"\n{command_group.title}:")
+
+            # TODO
+
+        for option_group in cmd.option_groups:
+            if option_group.hidden:
+                continue
+            console.print(f"\n{option_group.title}:")
+            table = Table(box=None, padding=(0, 0, 0, 2), show_header=False, show_edge=False)
+            table.add_column("Options")
+            table.add_column("Descriptions")
+            for option in option_group:
+                if option.hidden:
+                    continue
+                opts = ", ".join(option.short_options + option.long_options)
+                if metavar := option.resolve_metavar():
+                    opts += " " + metavar
+                table.add_row(opts, option.help)
+            console.print(table)
 
     def print_version(self, cmd: SuperCommand) -> None:
-        ...
+        console = Console(**self.console_params)
+        name = cmd.get_name()
+        version = cmd.get_version()
+        version_info = f"{name} {version}"
+        console.print(version_info, highlight=False)
