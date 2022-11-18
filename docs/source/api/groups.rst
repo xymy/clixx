@@ -6,7 +6,7 @@ clixx.groups
 Classes
 -------
 
-.. autoclass:: Group
+.. autoclass:: _Group
     :members:
     :special-members: __len__, __iter__, __iadd__
     :show-inheritance:

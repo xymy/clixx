@@ -37,7 +37,7 @@ EXACTLY_ONE: Final = GroupType.EXACTLY_ONE
 T = TypeVar("T")
 
 
-class Group(Generic[T]):
+class _Group(Generic[T]):
     """The group.
 
     Parameters:
@@ -74,7 +74,7 @@ class Group(Generic[T]):
         return self
 
 
-class ArgumentGroup(Group[Argument]):
+class ArgumentGroup(_Group[Argument]):
     """The argument group.
 
     Parameters:
@@ -88,7 +88,7 @@ class ArgumentGroup(Group[Argument]):
         super().__init__(title, hidden=hidden)
 
 
-class OptionGroup(Group[Option]):
+class OptionGroup(_Group[Option]):
     """The option group.
 
     Parameters:
@@ -155,7 +155,7 @@ class OptionGroup(Group[Option]):
             raise GroupError(f"Option group {self.title!r} requires exactly one option.")
 
 
-class CommandGroup(Group[str]):
+class CommandGroup(_Group[str]):
     """The command group.
 
     Parameters:
