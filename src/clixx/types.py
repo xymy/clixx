@@ -40,6 +40,15 @@ class Type:
 
         return self(value)
 
+    def format(self, value: Any) -> str:
+        """Format value.
+
+        The value must be compatible with this type. Usually the return value of
+        :meth:`~Type.safe_convert`.
+        """
+
+        return str(value)
+
     def suggest_metavar(self) -> str | None:
         """Suggest metavar for help information."""
 
@@ -83,6 +92,9 @@ class Bool(Type):
         if v in {"f", "false", "n", "no", "off", "0"}:
             return False
         raise TypeConversionError(f"{value!r} is not a valid boolean.")
+
+    def format(self, value: Any) -> str:
+        return "true" if value else "false"
 
     def suggest_metavar(self) -> str | None:
         return "BOOLEAN"
@@ -260,6 +272,10 @@ class Enum(Type):
         enum_str = ", ".join(map(repr, self.enum_type.__members__))
         raise TypeConversionError(f"{value!r} is not one of {enum_str}.")
 
+    def format(self, value: Any) -> str:
+        assert isinstance(value, enum.Enum)
+        return value.name
+
     def suggest_metavar(self) -> str | None:
         return "[" + "|".join(self.enum_type.__members__) + "]"
 
@@ -296,6 +312,10 @@ class IntEnum(Type):
 
         enum_str = ", ".join(repr(m.value) for m in self.enum_type)
         raise TypeConversionError(f"{value!r} is not one of {enum_str}.")
+
+    def format(self, value: Any) -> str:
+        assert isinstance(value, enum.IntEnum)
+        return str(value.value)
 
     def suggest_metavar(self) -> str | None:
         return "[" + "|".join(str(m.value) for m in self.enum_type) + "]"
