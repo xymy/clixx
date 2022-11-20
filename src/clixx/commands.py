@@ -23,20 +23,24 @@ def _dummy_func(*args: Any, **kwargs: Any) -> None:
     pass
 
 
-class CommandBase:
-    #: The parent command. Should be set by parent.
-    parent: SuperCommand | None
+class _Command:
     #: The program name. Should be set by parent.
     prog: str | None
+    #: The parent command. Should be set by parent.
+    parent: SuperCommand | None
 
     def __init__(self, name: str | None = None, version: str | None = None) -> None:
+        self.prog = None
+        self.parent = None
+
         self.name = name
         self.version = version
 
-        self.parent = None
-        self.prog = None
-
         self.process_function: ProcessFunction = _dummy_func
+
+    def _init(self, prog: str | None, parent: SuperCommand | None) -> None:
+        self.prog = prog
+        self.parent = parent
 
     def get_prog(self) -> str:
         prog = sys.argv[0] if self.prog is None else self.prog
@@ -62,7 +66,7 @@ class CommandBase:
         self.process_function = func
 
 
-class Command(CommandBase):
+class Command(_Command):
     def __init__(
         self,
         name: str | None = None,
@@ -134,7 +138,7 @@ class Command(CommandBase):
         printer.print_version(self)
 
 
-class SuperCommand(CommandBase):
+class SuperCommand(_Command):
     def __init__(
         self,
         name: str | None = None,
