@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import sys
 from contextlib import contextmanager
-from typing import Any, Generator, Iterator
+from typing import Any, Callable, Generator, Iterator, NoReturn
 
 from .exceptions import CLIXXException, HelpSignal, VersionSignal
 from .groups import ArgumentGroup, CommandGroup, OptionGroup
@@ -16,6 +16,12 @@ from .printers import (
     get_default_super_printer_factory,
 )
 
+ProcessFunction = Callable[..., int | None]
+
+
+def _dummy_func(*args: Any, **kwargs: Any) -> None:
+    pass
+
 
 class CommandBase:
     #: The parent command. Should be set by parent.
@@ -26,8 +32,11 @@ class CommandBase:
     def __init__(self, name: str | None = None, version: str | None = None) -> None:
         self.name = name
         self.version = version
+
         self.parent = None
         self.prog = None
+
+        self.process_function: ProcessFunction = _dummy_func
 
     def get_prog(self) -> str:
         prog = sys.argv[0] if self.prog is None else self.prog
@@ -48,6 +57,9 @@ class CommandBase:
         if self.parent is not None:
             return self.parent.get_version()
         return "Unknown Version"
+
+    def register(self, func: ProcessFunction) -> None:
+        self.process_function = func
 
 
 class Command(CommandBase):
@@ -74,6 +86,11 @@ class Command(CommandBase):
     def add_option_group(self, group: OptionGroup) -> Command:
         self.option_groups.append(group)
         return self
+
+    def __call__(self, argv: list[str] | None = None) -> NoReturn:
+        args = self.parse_args(argv)
+        exit_code = self.process_function(**args)
+        sys.exit(exit_code)
 
     def parse_args(self, argv: list[str] | None = None) -> dict[str, Any]:
         args: dict[str, Any] = {}
@@ -142,6 +159,11 @@ class SuperCommand(CommandBase):
     def add_option_group(self, group: OptionGroup) -> SuperCommand:
         self.option_groups.append(group)
         return self
+
+    def __call__(self, argv: list[str] | None = None) -> NoReturn:
+        args = self.parse_args(argv)
+        exit_code = self.process_function(**args)
+        sys.exit(exit_code)
 
     def parse_args(self, argv: list[str] | None = None) -> dict[str, Any]:
         args: dict[str, Any] = {}
