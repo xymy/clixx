@@ -77,6 +77,8 @@ class Argument:
             The default value used if argument omitted.
         hidden (bool, default=False):
             If ``True``, hide this argument from help information.
+        show_default (bool, default=False):
+            If ``True``, show the default value in help information.
         metavar (str | None, default=None):
             The argument value name used in usage. If ``None``, infer from
             declaration. If empty string, disable metavar.
@@ -94,6 +96,7 @@ class Argument:
         type: Type | type | None = None,
         default: Any = None,
         hidden: bool = False,
+        show_default: bool = False,
         metavar: str | None = None,
         help: str = "",
     ) -> None:
@@ -103,6 +106,7 @@ class Argument:
         self.type = _resolve_type(type or Str())
         self.default = default
         self.hidden = hidden
+        self.show_default = show_default
         self.metavar = metavar
         self.help = help
 
@@ -208,6 +212,8 @@ class Option:
             The default value used if option omitted.
         hidden (bool, default=False):
             If ``True``, hide this option from help information.
+        show_default (bool, default=False):
+            If ``True``, show the default value in help information.
         metavar (str | None, default=None):
             The option value name used in usage. If ``None``, infer from
             declarations. If empty string, disable metavar.
@@ -223,6 +229,7 @@ class Option:
         type: Type | type | None = None,
         default: Any = None,
         hidden: bool = False,
+        show_default: bool = False,
         metavar: str | None = None,
         help: str = "",
     ) -> None:
@@ -231,6 +238,7 @@ class Option:
         self.type = _resolve_type(type or Str())
         self.default = default
         self.hidden = hidden
+        self.show_default = show_default
         self.metavar = metavar
         self.help = help
 
@@ -342,7 +350,15 @@ class FlagOption(Option):
         help: str = "",
     ) -> None:
         super().__init__(
-            *decls, dest=dest, required=False, type=Type(), default=default, hidden=hidden, metavar="", help=help
+            *decls,
+            dest=dest,
+            required=False,
+            type=Type(),
+            default=default,
+            hidden=hidden,
+            show_default=False,
+            metavar="",
+            help=help,
         )
         self.const = const
 
@@ -397,7 +413,15 @@ class CountOption(Option):
         self, *decls: str, dest: str | None = None, default: Any = 0, hidden: bool = False, help: str = ""
     ) -> None:
         super().__init__(
-            *decls, dest=dest, required=False, type=Int(), default=default, hidden=hidden, metavar="", help=help
+            *decls,
+            dest=dest,
+            required=False,
+            type=Int(),
+            default=default,
+            hidden=hidden,
+            show_default=False,
+            metavar="",
+            help=help,
         )
 
     def store(self, args: dict[str, Any], value: str) -> None:
@@ -430,7 +454,15 @@ class SignalOption(Option):
 
     def __init__(self, *decls: str, hidden: bool = False, help: str = "") -> None:
         super().__init__(
-            *decls, dest="", required=False, type=Type(), default=None, hidden=hidden, metavar="", help=help
+            *decls,
+            dest="",
+            required=False,
+            type=Type(),
+            default=None,
+            hidden=hidden,
+            show_default=False,
+            metavar="",
+            help=help,
         )
 
     def store(self, args: dict[str, Any], value: str) -> None:
