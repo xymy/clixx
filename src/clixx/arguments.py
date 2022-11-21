@@ -392,6 +392,48 @@ class FlagOption(Option):
         self._const = value
 
 
+class AppendOption(Option):
+    def __init__(
+        self,
+        *decls: str,
+        dest: str | None = None,
+        type: Type | type | None = None,
+        hidden: bool = False,
+        metavar: str | None = None,
+        help: str = "",
+    ) -> None:
+        super().__init__(
+            *decls,
+            dest=dest,
+            required=False,
+            type=type,
+            default=None,
+            hidden=hidden,
+            show_default=False,
+            metavar=metavar,
+            help=help,
+        )
+
+    def store(self, args: dict[str, Any], value: str) -> None:
+        if not self.dest:
+            return
+
+        result = self.type.convert_str(value)
+        cast(list, args.setdefault(self.dest, [])).append(result)
+
+    def store_default(self, args: dict[str, Any]) -> None:
+        """Store default value to destination."""
+
+        if not self.dest:
+            return
+
+        if self.default is None:
+            result = []
+        else:
+            result = [self.type(value) for value in cast(list, self.default)]
+        args[self.dest] = result
+
+
 class CountOption(Option):
     """The count option.
 

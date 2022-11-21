@@ -18,6 +18,10 @@ Classes
     :members:
     :show-inheritance:
 
+.. autoclass:: AppendOption
+    :members:
+    :show-inheritance:
+
 .. autoclass:: CountOption
     :members:
     :show-inheritance:
