@@ -430,6 +430,12 @@ class File(Type):
             return value
         raise TypeConversionError(f"{value!r} is not a valid file.")
 
+    def format(self, value: Any) -> str:
+        assert isinstance(value, (str, pathlib.Path)) or hasattr(value, "read") or hasattr(value, "write")
+        if hasattr(value, "name") and isinstance(value.name, str):
+            return value.name
+        return str(value)
+
     def suggest_metavar(self) -> str | None:
         return "FILE"
 
