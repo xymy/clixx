@@ -94,6 +94,7 @@ class Bool(Type):
         raise TypeConversionError(f"{value!r} is not a valid boolean.")
 
     def format(self, value: Any) -> str:
+        assert isinstance(value, bool)
         return "true" if value else "false"
 
     def suggest_metavar(self) -> str | None:
@@ -273,7 +274,7 @@ class Enum(Type):
         raise TypeConversionError(f"{value!r} is not one of {enum_str}.")
 
     def format(self, value: Any) -> str:
-        assert isinstance(value, enum.Enum)
+        assert isinstance(value, self.enum_type)
         return value.name
 
     def suggest_metavar(self) -> str | None:
@@ -314,7 +315,7 @@ class IntEnum(Type):
         raise TypeConversionError(f"{value!r} is not one of {enum_str}.")
 
     def format(self, value: Any) -> str:
-        assert isinstance(value, enum.IntEnum)
+        assert isinstance(value, self.enum_type)
         return str(value.value)
 
     def suggest_metavar(self) -> str | None:
@@ -432,8 +433,11 @@ class File(Type):
 
     def format(self, value: Any) -> str:
         assert isinstance(value, (str, pathlib.Path)) or hasattr(value, "read") or hasattr(value, "write")
+        if isinstance(value, (str, pathlib.Path)):
+            return str(value)
         if hasattr(value, "name") and isinstance(value.name, str):
             return value.name
+        # This file does not have a pretty string representation. Just return a rough string.
         return str(value)
 
     def suggest_metavar(self) -> str | None:
