@@ -7,10 +7,16 @@ from .constants import LONG_PREFIX, LONG_PREFIX_LEN, SHORT_PREFIX, SHORT_PREFIX_
 from .exceptions import DefinitionError, HelpSignal, TypeConversionError, VersionSignal
 from .types import Int, Str, Type, _resolve_type
 
+_RESERVED = "<>'\""
+
 
 def _parse_decl(decl: str) -> str:
     if not decl:
         raise DefinitionError("Argument must be non-empty.")
+
+    for rc in _RESERVED:
+        if rc in decl:
+            raise DefinitionError(f"Argument {decl!r} contains reserved character {rc!r}.")
     return decl
 
 
@@ -38,9 +44,9 @@ def _parse_decls(decls: Sequence[str]) -> tuple[list[str], list[str]]:
         else:
             raise DefinitionError(f"Option must start with {LONG_PREFIX!r} or {SHORT_PREFIX!r}, got {decl!r}.")
 
-        for sc in "<>'\"":
-            if sc in decl:
-                raise DefinitionError(f"Option {decl!r} contains special character {sc!r}.")
+        for rc in _RESERVED:
+            if rc in decl:
+                raise DefinitionError(f"Option {decl!r} contains reserved character {rc!r}.")
     return long_options, short_options
 
 
@@ -393,6 +399,25 @@ class FlagOption(Option):
 
 
 class AppendOption(Option):
+    """The append option.
+
+    Parameters:
+        decls (tuple[str, ...]):
+            The declarations for this option.
+        dest (str | None, default=None):
+            The destination used to store/forward the option value. If ``None``,
+            infer from declarations. If empty string, disable store/forward.
+        type (Type | type | None, default=None):
+            The type converter. If ``None``, use ``Str()``.
+        hidden (bool, default=False):
+            If ``True``, hide this option from help information.
+        metavar (str | None, default=None):
+            The option value name used in usage. If ``None``, infer from
+            declarations. If empty string, disable metavar.
+        help (str, default=''):
+            The help information.
+    """
+
     def __init__(
         self,
         *decls: str,
@@ -422,16 +447,10 @@ class AppendOption(Option):
         cast(list, args.setdefault(self.dest, [])).append(result)
 
     def store_default(self, args: dict[str, Any]) -> None:
-        """Store default value to destination."""
-
         if not self.dest:
             return
 
-        if self.default is None:
-            result = []
-        else:
-            result = [self.type(value) for value in cast(list, self.default)]
-        args[self.dest] = result
+        args[self.dest] = []
 
 
 class CountOption(Option):
