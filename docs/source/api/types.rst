@@ -66,4 +66,4 @@ Classes
 Functions
 ---------
 
-.. autofunction:: _resolve_type
+.. autofunction:: resolve_type

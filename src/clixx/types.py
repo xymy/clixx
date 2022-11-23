@@ -549,7 +549,7 @@ def _resolve_norm(case_sensitive: bool) -> Callable[[str], str]:
     return str.casefold
 
 
-def _resolve_type(type: Type | type) -> Type:
+def resolve_type(type: Type | type) -> Type:
     """Convert Python's builtin type to CLIXX's type. Return as is if ``type``
     is already an instance of :class:`Type`.
 
