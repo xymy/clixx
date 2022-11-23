@@ -5,7 +5,7 @@ from typing import Any, Sequence, cast
 
 from .constants import LONG_PREFIX, LONG_PREFIX_LEN, SHORT_PREFIX, SHORT_PREFIX_LEN
 from .exceptions import DefinitionError, HelpSignal, TypeConversionError, VersionSignal
-from .types import Int, Str, Type, _resolve_type
+from .types import Int, Str, Type, resolve_type
 
 _RESERVED = "<>'\""
 
@@ -109,7 +109,7 @@ class Argument:
         self.dest, self.argument = self._parse(decl, dest=dest)
         self.nargs = nargs
         self.required = required
-        self.type = _resolve_type(type or Str())
+        self.type = resolve_type(type or Str())
         self.default = default
         self.hidden = hidden
         self.show_default = show_default
@@ -241,7 +241,7 @@ class Option:
     ) -> None:
         self.dest, self.long_options, self.short_options = self._parse(decls, dest=dest)
         self.required = required
-        self.type = _resolve_type(type or Str())
+        self.type = resolve_type(type or Str())
         self.default = default
         self.hidden = hidden
         self.show_default = show_default
@@ -380,7 +380,12 @@ class FlagOption(Option):
 
     @property
     def nargs(self) -> int:
-        """Return ``0``."""
+        """Return ``0``.
+
+        Note:
+            The flag option is idempotent. Multiple occurrences have the same
+            effect as one occurrence.
+        """
 
         return 0
 
@@ -452,6 +457,17 @@ class AppendOption(Option):
 
         args[self.dest] = []
 
+    @property
+    def nargs(self) -> int:
+        """Return ``1``.
+
+        Note:
+            The append option allows multiple occurrences, and each occurrence
+            requires one value.
+        """
+
+        return 1
+
 
 class CountOption(Option):
     """The count option.
@@ -496,7 +512,12 @@ class CountOption(Option):
 
     @property
     def nargs(self) -> int:
-        """Return ``0``."""
+        """Return ``0``.
+
+        Note:
+            The count option allows multiple occurrences, and each occurrence
+            will increment a counter.
+        """
 
         return 0
 
