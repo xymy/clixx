@@ -5,5 +5,6 @@ API Reference
     :maxdepth: 1
 
     arguments
+    exceptions
     groups
     types
