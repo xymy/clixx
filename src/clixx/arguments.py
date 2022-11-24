@@ -463,7 +463,7 @@ class AppendOption(Option):
 
         Note:
             The append option allows multiple occurrences, and each occurrence
-            requires one value.
+            will appen value to a list.
         """
 
         return 1
