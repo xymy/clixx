@@ -7,6 +7,7 @@ from .constants import LONG_PREFIX, LONG_PREFIX_LEN, SHORT_PREFIX, SHORT_PREFIX_
 from .exceptions import DefinitionError, HelpSignal, TypeConversionError, VersionSignal
 from .types import Int, Str, Type, resolve_type
 
+# The reserved characters for arguments and options.
 _RESERVED = "<>'\""
 
 
@@ -41,6 +42,8 @@ def _parse_decls(decls: Sequence[str]) -> tuple[list[str], list[str]]:
             if decl_len >= SHORT_PREFIX_LEN + 2:
                 raise DefinitionError(f"Short option {decl!r} is too long.")
             short_options.append(decl)
+        elif not decl:
+            raise DefinitionError("Option must be non-empty.")
         else:
             raise DefinitionError(f"Option must start with {LONG_PREFIX!r} or {SHORT_PREFIX!r}, got {decl!r}.")
 
@@ -380,12 +383,7 @@ class FlagOption(Option):
 
     @property
     def nargs(self) -> int:
-        """Return ``0``.
-
-        Note:
-            The flag option is idempotent. Multiple occurrences have the same
-            effect as one occurrence.
-        """
+        """Return ``0``."""
 
         return 0
 

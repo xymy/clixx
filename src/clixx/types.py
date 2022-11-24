@@ -43,7 +43,7 @@ class Type:
     def format(self, value: Any) -> str:
         """Format value.
 
-        The ``value`` must be compatible with this type. Usually the return
+        The ``value`` must be compatible with this type, usually the return
         value of :meth:`~Type.safe_convert`.
         """
 
