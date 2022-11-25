@@ -7,7 +7,7 @@ import pathlib
 import stat
 import sys
 from contextlib import suppress
-from typing import Any, Callable, Sequence, cast
+from typing import IO, Any, Callable, Sequence, cast
 
 from .exceptions import DefinitionError, TypeConversionError
 
@@ -384,6 +384,10 @@ class File(Type):
         dash (bool, default=True):
             If ``True``, recognize dash (-) as stdin/stdout.
 
+    Warning:
+        The dash will be recognized only if ``value`` is a string. That means
+        ``pathlib.Path("-")`` will never be recognized as stdin/stdout.
+
     See Also:
         - https://docs.python.org/3/library/functions.html#open
     """
@@ -409,7 +413,7 @@ class File(Type):
         if hasattr(value, "read") or hasattr(value, "write"):
             return value
         if isinstance(value, pathlib.Path):
-            return self.convert_str(str(value))
+            return self._open(value)
         raise TypeConversionError(f"{value!r} is not a valid file.")
 
     def convert_str(self, value: str) -> Any:
@@ -418,13 +422,15 @@ class File(Type):
                 return sys.stdin.buffer if "b" in self.mode else sys.stdin
             else:
                 return sys.stdout.buffer if "b" in self.mode else sys.stdout
+        return self._open(value)
 
+    def _open(self, path: str | pathlib.Path) -> IO:
         try:
             return open(  # noqa
-                value, self.mode, self.buffering, encoding=self.encoding, errors=self.errors, newline=self.newline
+                path, self.mode, self.buffering, encoding=self.encoding, errors=self.errors, newline=self.newline
             )
         except OSError as e:
-            raise TypeConversionError(f"Can not open {value!r}. {e.strerror}.")
+            raise TypeConversionError(f"Can not open {str(path)!r}. {e.strerror}.")
 
     def safe_convert(self, value: Any) -> Any:
         if isinstance(value, (str, pathlib.Path)) or hasattr(value, "read") or hasattr(value, "write"):
