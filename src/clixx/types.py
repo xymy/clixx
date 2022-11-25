@@ -441,8 +441,9 @@ class File(Type):
         assert isinstance(value, (str, pathlib.Path)) or hasattr(value, "read") or hasattr(value, "write")
         if isinstance(value, (str, pathlib.Path)):
             return str(value)
-        if hasattr(value, "name") and isinstance(value.name, str):
-            return value.name
+        if hasattr(value, "name"):
+            with suppress(TypeError):
+                return _force_decode(value.name)
         # This file does not have a pretty string representation. Just return a rough string.
         return str(value)
 
@@ -547,6 +548,13 @@ class FilePath(Path):
 
     def suggest_metavar(self) -> str | None:
         return "FILE"
+
+
+def _force_decode(filename: Any) -> str:
+    filename = os.fspath(filename)
+    if isinstance(filename, str):
+        return filename
+    return filename.decode(sys.getfilesystemencoding(), "backslashreplace")
 
 
 def _resolve_norm(case_sensitive: bool) -> Callable[[str], str]:
