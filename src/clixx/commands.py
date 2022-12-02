@@ -1,20 +1,11 @@
 from __future__ import annotations
 
 import sys
-from contextlib import contextmanager
-from typing import Any, Callable, Generator, Iterator, NoReturn
+from typing import Any, Callable, Iterator, NoReturn
 
-from .exceptions import CLIXXException, HelpSignal, VersionSignal
 from .groups import ArgumentGroup, CommandGroup, OptionGroup
 from .parsers import Parser, SuperParser
-from .printers import (
-    Printer,
-    PrinterFactory,
-    SuperPrinter,
-    SuperPrinterFactory,
-    get_default_printer_factory,
-    get_default_super_printer_factory,
-)
+from .printers import PrinterFactory, PrinterHelper, SuperPrinterFactory, SuperPrinterHelper
 
 ProcessFunction = Callable[..., int | None]
 
@@ -26,6 +17,7 @@ def _dummy_func(*args: Any, **kwargs: Any) -> None:
 class _Command:
     #: The program name. Should be set by parent.
     prog: str | None
+
     #: The parent command. Should be set by parent.
     parent: SuperCommand | None
 
@@ -99,43 +91,10 @@ class Command(_Command):
     def parse_args(self, argv: list[str] | None = None) -> dict[str, Any]:
         args: dict[str, Any] = {}
         argv = sys.argv[1:] if argv is None else argv
-        with self._attach_handlers():
+        with PrinterHelper(self, self.printer_factory, self.printer_config):
             parser = Parser(self.argument_groups, self.option_groups)
             parser.parse_args(args, argv)
         return args
-
-    @contextmanager
-    def _attach_handlers(self) -> Generator[None, None, None]:
-        try:
-            yield
-        except CLIXXException as e:
-            self.print_error(e)
-            sys.exit(e.exit_code)
-        except HelpSignal as e:
-            self.print_help()
-            sys.exit(e.exit_code)
-        except VersionSignal as e:
-            self.print_version()
-            sys.exit(e.exit_code)
-
-    def make_printer(self) -> Printer:
-        if (factory := self.printer_factory) is None:
-            factory = get_default_printer_factory()
-        if (config := self.printer_config) is None:
-            config = {}
-        return factory(config)
-
-    def print_error(self, exc: CLIXXException) -> None:
-        printer = self.make_printer()
-        printer.print_error(self, exc)
-
-    def print_help(self) -> None:
-        printer = self.make_printer()
-        printer.print_help(self)
-
-    def print_version(self) -> None:
-        printer = self.make_printer()
-        printer.print_version(self)
 
 
 class SuperCommand(_Command):
@@ -172,40 +131,7 @@ class SuperCommand(_Command):
     def parse_args(self, argv: list[str] | None = None) -> dict[str, Any]:
         args: dict[str, Any] = {}
         argv = sys.argv[1:] if argv is None else argv
-        with self._attach_handlers():
+        with SuperPrinterHelper(self, self.printer_factory, self.printer_config):
             parser = SuperParser(self.load_command, self.option_groups)
             parser.parse_args(args, argv)
         return args
-
-    @contextmanager
-    def _attach_handlers(self) -> Generator[None, None, None]:
-        try:
-            yield
-        except CLIXXException as e:
-            self.print_error(e)
-            sys.exit(e.exit_code)
-        except HelpSignal as e:
-            self.print_help()
-            sys.exit(e.exit_code)
-        except VersionSignal as e:
-            self.print_version()
-            sys.exit(e.exit_code)
-
-    def make_printer(self) -> SuperPrinter:
-        if (factory := self.printer_factory) is None:
-            factory = get_default_super_printer_factory()
-        if (config := self.printer_config) is None:
-            config = {}
-        return factory(config)
-
-    def print_error(self, exc: CLIXXException) -> None:
-        printer = self.make_printer()
-        printer.print_error(self, exc)
-
-    def print_help(self) -> None:
-        printer = self.make_printer()
-        printer.print_help(self)
-
-    def print_version(self) -> None:
-        printer = self.make_printer()
-        printer.print_version(self)
