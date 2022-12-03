@@ -20,7 +20,7 @@ def _get_console_params(config: dict[str, Any]) -> dict[str, Any]:
 
 
 def _print_error(console: Console, exc: CLIXXException) -> None:
-    # SECURITY: `exc.message` usually contains user input.
+    # SECURITY: ``exc.message`` usually contains user input.
     # To avoid injection, construct :class:`rich.text.Text`.
     style = Style(color="red", bold=True)
     text = Text("Error: " + exc.message, style=style)

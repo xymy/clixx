@@ -128,6 +128,22 @@ class _PrinterHelper:
 
 
 class PrinterHelper(_PrinterHelper):
+    """The printer helper.
+
+    Parameters:
+        cmd (Command):
+            The command.
+        printer_factory (PrinterFactory | None, default=None):
+            The printer factory.
+        printer_config (dict[str, Any] | None, default=None):
+            The printer config.
+        is_exit (bool, default=True):
+            If ``True``, exit this process after handling exception or signal.
+        is_raise (bool, default=False):
+            If ``True``, propagate exception or signal after handling it.
+            Ignored if ``is_exit`` is ``True``.
+    """
+
     def __init__(
         self,
         cmd: Command,
@@ -150,6 +166,22 @@ class PrinterHelper(_PrinterHelper):
 
 
 class SuperPrinterHelper(_PrinterHelper):
+    """The super printer helper.
+
+    Parameters:
+        cmd (SuperCommand):
+            The super command.
+        printer_factory (SuperPrinterFactory | None, default=None):
+            The super printer factory.
+        printer_config (dict[str, Any] | None, default=None):
+            The super printer config.
+        is_exit (bool, default=True):
+            If ``True``, exit this process after handling exception or signal.
+        is_raise (bool, default=False):
+            If ``True``, propagate exception or signal after handling it.
+            Ignored if ``is_exit`` is ``True``.
+    """
+
     def __init__(
         self,
         cmd: SuperCommand,

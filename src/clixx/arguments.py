@@ -123,7 +123,7 @@ class Argument:
     def _parse(decl: str, *, dest: str | None) -> tuple[str, str]:
         argument = _parse_decl(decl)
 
-        # Infer destination from declaration if `dest` not given.
+        # Infer destination from declaration if ``dest`` not given.
         if dest is not None:
             dest = _check_dest(dest) if dest else ""
         else:
@@ -255,7 +255,7 @@ class Option:
     def _parse(decls: Sequence[str], *, dest: str | None = None) -> tuple[str, list[str], list[str]]:
         long_options, short_options = _parse_decls(decls)
 
-        # Infer destination from declarations if `dest` not given.
+        # Infer destination from declarations if ``dest`` not given.
         if dest is not None:
             dest = _check_dest(dest) if dest else ""
         elif long_options:
