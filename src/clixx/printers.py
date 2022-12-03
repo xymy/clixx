@@ -39,7 +39,6 @@ class SuperPrinter(Protocol):
 
 #: The type of printer factory.
 PrinterFactory = Callable[[dict[str, Any]], Printer]
-
 #: The type of super printer factory.
 SuperPrinterFactory = Callable[[dict[str, Any]], SuperPrinter]
 
@@ -92,24 +91,35 @@ class _PrinterHelper:
         cmd: Command | SuperCommand,
         printer_factory: PrinterFactory | SuperPrinterFactory | None = None,
         printer_config: dict[str, Any] | None = None,
+        *,
+        is_exit: bool = True,
+        is_raise: bool = False,
     ) -> None:
         self.cmd = cmd
         self.printer_factory = printer_factory
         self.printer_config = printer_config
+        self.is_exit = is_exit
+        self.is_raise = is_raise
 
     def __enter__(self) -> Self:  # type: ignore [valid-type]
         return self
 
-    def __exit__(self, exc_type: Any, exc_value: Any, traceback: Any) -> None:
+    def __exit__(self, exc_type: Any, exc_value: Any, traceback: Any) -> bool:
         if isinstance(exc_value, CLIXXException):
             self.print_error(exc_value)
-            sys.exit(exc_value.exit_code)
+            return self._exit(exc_value.exit_code)
         if isinstance(exc_value, HelpSignal):
             self.print_help()
-            sys.exit(exc_value.exit_code)
+            return self._exit(exc_value.exit_code)
         if isinstance(exc_value, VersionSignal):
             self.print_version()
-            sys.exit(exc_value.exit_code)
+            return self._exit(exc_value.exit_code)
+        return False
+
+    def _exit(self, exit_code: int) -> bool:
+        if self.is_exit:
+            sys.exit(exit_code)
+        return not self.is_raise
 
     @classmethod
     def get_default_printer_factory(cls) -> PrinterFactory | SuperPrinterFactory:
@@ -136,12 +146,34 @@ class _PrinterHelper:
 
 
 class PrinterHelper(_PrinterHelper):
+    def __init__(
+        self,
+        cmd: Command,
+        printer_factory: PrinterFactory | None = None,
+        printer_config: dict[str, Any] | None = None,
+        *,
+        is_exit: bool = True,
+        is_raise: bool = False,
+    ) -> None:
+        super().__init__(cmd, printer_factory, printer_config, is_exit=is_exit, is_raise=is_raise)
+
     @classmethod
     def get_default_printer_factory(cls) -> PrinterFactory:
         return get_default_printer_factory()
 
 
 class SuperPrinterHelper(_PrinterHelper):
+    def __init__(
+        self,
+        cmd: SuperCommand,
+        printer_factory: SuperPrinterFactory | None = None,
+        printer_config: dict[str, Any] | None = None,
+        *,
+        is_exit: bool = True,
+        is_raise: bool = False,
+    ) -> None:
+        super().__init__(cmd, printer_factory, printer_config, is_exit=is_exit, is_raise=is_raise)
+
     @classmethod
     def get_default_printer_factory(cls) -> SuperPrinterFactory:
         return get_default_super_printer_factory()
