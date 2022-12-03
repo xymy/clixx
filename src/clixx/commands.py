@@ -83,15 +83,17 @@ class Command(_Command):
         self.option_groups.append(group)
         return self
 
-    def __call__(self, argv: list[str] | None = None) -> NoReturn:
-        args = self.parse_args(argv)
+    def __call__(self, argv: list[str] | None = None, *, is_exit: bool = True, is_raise: bool = False) -> NoReturn:
+        args = self.parse_args(argv, is_exit=is_exit, is_raise=is_raise)
         exit_code = self.process_function(**args)
         sys.exit(exit_code)
 
-    def parse_args(self, argv: list[str] | None = None) -> dict[str, Any]:
+    def parse_args(
+        self, argv: list[str] | None = None, *, is_exit: bool = True, is_raise: bool = False
+    ) -> dict[str, Any]:
         args: dict[str, Any] = {}
         argv = sys.argv[1:] if argv is None else argv
-        with PrinterHelper(self, self.printer_factory, self.printer_config):
+        with PrinterHelper(self, self.printer_factory, self.printer_config, is_exit=is_exit, is_raise=is_raise):
             parser = Parser(self.argument_groups, self.option_groups)
             parser.parse_args(args, argv)
         return args
@@ -123,15 +125,17 @@ class SuperCommand(_Command):
         self.option_groups.append(group)
         return self
 
-    def __call__(self, argv: list[str] | None = None) -> NoReturn:
-        args = self.parse_args(argv)
+    def __call__(self, argv: list[str] | None = None, *, is_exit: bool = True, is_raise: bool = False) -> NoReturn:
+        args = self.parse_args(argv, is_exit=is_exit, is_raise=is_raise)
         exit_code = self.process_function(**args)
         sys.exit(exit_code)
 
-    def parse_args(self, argv: list[str] | None = None) -> dict[str, Any]:
+    def parse_args(
+        self, argv: list[str] | None = None, *, is_exit: bool = True, is_raise: bool = False
+    ) -> dict[str, Any]:
         args: dict[str, Any] = {}
         argv = sys.argv[1:] if argv is None else argv
-        with SuperPrinterHelper(self, self.printer_factory, self.printer_config):
+        with SuperPrinterHelper(self, self.printer_factory, self.printer_config, is_exit=is_exit, is_raise=is_raise):
             parser = SuperParser(self.load_command, self.option_groups)
             parser.parse_args(args, argv)
         return args
