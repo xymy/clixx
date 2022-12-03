@@ -59,32 +59,6 @@ _default_printer_factory: PrinterFactory = _rich_printer_factory
 _default_super_printer_factory: SuperPrinterFactory = _rich_super_printer_factory
 
 
-def get_default_printer_factory() -> PrinterFactory:
-    """Get default printer factory."""
-
-    return _default_printer_factory
-
-
-def set_default_printer_factory(printer_factory: PrinterFactory) -> None:
-    """Set default printer factory."""
-
-    global _default_printer_factory
-    _default_printer_factory = printer_factory
-
-
-def get_default_super_printer_factory() -> SuperPrinterFactory:
-    """Get default super printer factory."""
-
-    return _default_super_printer_factory
-
-
-def set_default_super_printer_factory(super_printer_factory: SuperPrinterFactory) -> None:
-    """Set default super printer factory."""
-
-    global _default_super_printer_factory
-    _default_super_printer_factory = super_printer_factory
-
-
 class _PrinterHelper:
     def __init__(
         self,
@@ -121,13 +95,9 @@ class _PrinterHelper:
             sys.exit(exit_code)
         return not self.is_raise
 
-    @classmethod
-    def get_default_printer_factory(cls) -> PrinterFactory | SuperPrinterFactory:
-        raise NotImplementedError
-
     def make_printer(self) -> Printer | SuperPrinter:
         if (factory := self.printer_factory) is None:
-            factory = self.get_default_printer_factory()
+            factory = self.get_factory()
         if (config := self.printer_config) is None:
             config = {}
         return factory(config)
@@ -144,6 +114,18 @@ class _PrinterHelper:
         printer = self.make_printer()
         printer.print_version(self.cmd)  # type: ignore
 
+    @classmethod
+    def get_factory(cls) -> PrinterFactory | SuperPrinterFactory:
+        """Get default printer factory."""
+
+        raise NotImplementedError
+
+    @classmethod
+    def set_factory(cls, printer_factory: PrinterFactory | SuperPrinterFactory) -> None:
+        """Set default printer factory."""
+
+        raise NotImplementedError
+
 
 class PrinterHelper(_PrinterHelper):
     def __init__(
@@ -158,8 +140,13 @@ class PrinterHelper(_PrinterHelper):
         super().__init__(cmd, printer_factory, printer_config, is_exit=is_exit, is_raise=is_raise)
 
     @classmethod
-    def get_default_printer_factory(cls) -> PrinterFactory:
-        return get_default_printer_factory()
+    def get_factory(cls) -> PrinterFactory:
+        return _default_printer_factory
+
+    @classmethod
+    def set_factory(cls, printer_factory: PrinterFactory) -> None:  # type: ignore [override]
+        global _default_printer_factory
+        _default_printer_factory = printer_factory
 
 
 class SuperPrinterHelper(_PrinterHelper):
@@ -175,5 +162,10 @@ class SuperPrinterHelper(_PrinterHelper):
         super().__init__(cmd, printer_factory, printer_config, is_exit=is_exit, is_raise=is_raise)
 
     @classmethod
-    def get_default_printer_factory(cls) -> SuperPrinterFactory:
-        return get_default_super_printer_factory()
+    def get_factory(cls) -> SuperPrinterFactory:
+        return _default_super_printer_factory
+
+    @classmethod
+    def set_factory(cls, super_printer_factory: SuperPrinterFactory) -> None:  # type: ignore [override]
+        global _default_super_printer_factory
+        _default_super_printer_factory = super_printer_factory
