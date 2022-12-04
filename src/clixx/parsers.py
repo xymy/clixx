@@ -2,12 +2,11 @@ from __future__ import annotations
 
 import weakref
 from contextlib import contextmanager
-from typing import TYPE_CHECKING, Any, Callable, Generator, cast
+from typing import Any, Generator, cast
 
 from .arguments import Argument, Option
-from .constants import LONG_PREFIX, LONG_PREFIX_LEN, SEPARATOR, SHORT_PREFIX, SHORT_PREFIX_LEN
+from .constants import DEST_COMMAND_NAME, LONG_PREFIX, LONG_PREFIX_LEN, SEPARATOR, SHORT_PREFIX, SHORT_PREFIX_LEN
 from .exceptions import (
-    CommandError,
     InvalidArgumentValue,
     InvalidOptionValue,
     MissingOption,
@@ -20,9 +19,6 @@ from .exceptions import (
     UnknownOption,
 )
 from .groups import ArgumentGroup, OptionGroup
-
-if TYPE_CHECKING:  # pragma: no cover
-    from .commands import Command, SuperCommand
 
 
 @contextmanager
@@ -318,10 +314,7 @@ class Parser:
 
 
 class SuperParser:
-    def __init__(
-        self, command_loader: Callable[[str], Command | SuperCommand | None], option_groups: list[OptionGroup]
-    ) -> None:
-        self.command_loader = command_loader
+    def __init__(self, option_groups: list[OptionGroup]) -> None:
         self.option_groups = option_groups
 
     def parse_args(self, args: dict[str, Any], argv: list[str]) -> Context:
@@ -338,20 +331,17 @@ class SuperParser:
             elif option_parser.is_short_option(arg):
                 option_parser.parse_short_option(ctx, args, arg)
             else:
-                self._load_command(ctx, args, arg)
+                self._store_command(ctx, args, arg)
                 break
 
         if switch_to_positional_only:
             while (arg := ctx.next_arg) is not None:
-                self._load_command(ctx, args, arg)
+                self._store_command(ctx, args, arg)
                 break
 
         option_parser.finalize(ctx, args)
         return ctx
 
-    def _load_command(self, ctx: Context, args: dict[str, Any], arg: str) -> None:
-        command = self.command_loader(arg)
-        if command is None:
-            raise CommandError(f"Unknown command {arg!r}.")
-        # Store command to a special destination.
-        args["<command>"] = command
+    def _store_command(self, ctx: Context, args: dict[str, Any], arg: str) -> None:
+        # Store command name to a special destination.
+        args[DEST_COMMAND_NAME] = arg

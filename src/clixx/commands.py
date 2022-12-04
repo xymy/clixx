@@ -3,11 +3,13 @@ from __future__ import annotations
 import sys
 from typing import Any, Callable, Iterator, NoReturn
 
+from .constants import DEST_COMMAND_NAME
+from .exceptions import CommandError
 from .groups import ArgumentGroup, CommandGroup, OptionGroup
 from .parsers import Parser, SuperParser
 from .printers import PrinterFactory, PrinterHelper, SuperPrinterFactory, SuperPrinterHelper
 
-ProcessFunction = Callable[..., int | None]
+ProcessFunction = Callable[..., "int | None"]
 
 
 def _dummy_func(*args: Any, **kwargs: Any) -> None:
@@ -127,6 +129,12 @@ class SuperCommand(_Command):
 
     def __call__(self, argv: list[str] | None = None, *, is_exit: bool = True, is_raise: bool = False) -> NoReturn:
         args = self.parse_args(argv, is_exit=is_exit, is_raise=is_raise)
+        with SuperPrinterHelper(self, self.printer_factory, self.printer_config, is_exit=is_exit, is_raise=is_raise):
+            cmd_name = args.pop(DEST_COMMAND_NAME, None)
+            if cmd_name is None:
+                raise CommandError("Missing command.")
+            if self.load_command(cmd_name) is None:
+                raise CommandError("Unknown command.")
         exit_code = self.process_function(**args)
         sys.exit(exit_code)
 
@@ -136,6 +144,6 @@ class SuperCommand(_Command):
         args: dict[str, Any] = {}
         argv = sys.argv[1:] if argv is None else argv
         with SuperPrinterHelper(self, self.printer_factory, self.printer_config, is_exit=is_exit, is_raise=is_raise):
-            parser = SuperParser(self.load_command, self.option_groups)
+            parser = SuperParser(self.option_groups)
             parser.parse_args(args, argv)
         return args
