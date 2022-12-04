@@ -1,12 +1,12 @@
 from __future__ import annotations
 
 import sys
-from typing import Any, Callable, Iterator, NoReturn, Optional
+from typing import Any, Callable, Iterator, Literal, NoReturn, Optional, overload
 
 from .constants import DEST_COMMAND_NAME
 from .exceptions import CommandError
 from .groups import ArgumentGroup, CommandGroup, OptionGroup
-from .parsers import Parser, SuperParser
+from .parsers import Context, Parser, SuperParser
 from .printers import PrinterFactory, PrinterHelper, SuperPrinterFactory, SuperPrinterHelper
 
 ProcessFunction = Callable[..., Optional[int]]
@@ -90,14 +90,40 @@ class Command(_Command):
         exit_code = self.process_function(**args)
         sys.exit(exit_code)
 
+    @overload
+    def parse_args(
+        self, argv: list[str] | None = None, *, is_exit: bool = True, is_raise: bool = False, return_ctx: Literal[True]
+    ) -> tuple[dict[str, Any], Context]:
+        ...
+
+    @overload
+    def parse_args(
+        self, argv: list[str] | None = None, *, is_exit: bool = True, is_raise: bool = False, return_ctx: Literal[False]
+    ) -> dict[str, Any]:
+        ...
+
+    @overload
     def parse_args(
         self, argv: list[str] | None = None, *, is_exit: bool = True, is_raise: bool = False
     ) -> dict[str, Any]:
+        ...
+
+    @overload
+    def parse_args(
+        self, argv: list[str] | None = None, *, is_exit: bool = True, is_raise: bool = False, return_ctx: bool
+    ) -> dict[str, Any] | tuple[dict[str, Any], Context]:
+        ...
+
+    def parse_args(
+        self, argv: list[str] | None = None, *, is_exit: bool = True, is_raise: bool = False, return_ctx: bool = False
+    ) -> dict[str, Any] | tuple[dict[str, Any], Context]:
         args: dict[str, Any] = {}
         argv = sys.argv[1:] if argv is None else argv
         with PrinterHelper(self, self.printer_factory, self.printer_config, is_exit=is_exit, is_raise=is_raise):
             parser = Parser(self.argument_groups, self.option_groups)
-            parser.parse_args(args, argv)
+            ctx = parser.parse_args(args, argv)
+        if return_ctx:
+            return args, ctx
         return args
 
 
@@ -138,12 +164,38 @@ class SuperCommand(_Command):
         exit_code = self.process_function(**args)
         sys.exit(exit_code)
 
+    @overload
+    def parse_args(
+        self, argv: list[str] | None = None, *, is_exit: bool = True, is_raise: bool = False, return_ctx: Literal[True]
+    ) -> tuple[dict[str, Any], Context]:
+        ...
+
+    @overload
+    def parse_args(
+        self, argv: list[str] | None = None, *, is_exit: bool = True, is_raise: bool = False, return_ctx: Literal[False]
+    ) -> dict[str, Any]:
+        ...
+
+    @overload
     def parse_args(
         self, argv: list[str] | None = None, *, is_exit: bool = True, is_raise: bool = False
     ) -> dict[str, Any]:
+        ...
+
+    @overload
+    def parse_args(
+        self, argv: list[str] | None = None, *, is_exit: bool = True, is_raise: bool = False, return_ctx: bool
+    ) -> dict[str, Any] | tuple[dict[str, Any], Context]:
+        ...
+
+    def parse_args(
+        self, argv: list[str] | None = None, *, is_exit: bool = True, is_raise: bool = False, return_ctx: bool = False
+    ) -> dict[str, Any] | tuple[dict[str, Any], Context]:
         args: dict[str, Any] = {}
         argv = sys.argv[1:] if argv is None else argv
         with SuperPrinterHelper(self, self.printer_factory, self.printer_config, is_exit=is_exit, is_raise=is_raise):
             parser = SuperParser(self.option_groups)
-            parser.parse_args(args, argv)
+            ctx = parser.parse_args(args, argv)
+        if return_ctx:
+            return args, ctx
         return args
