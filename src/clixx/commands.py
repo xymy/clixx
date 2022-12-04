@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import sys
-from typing import Any, Callable, Iterator, NoReturn
+from typing import Any, Callable, Iterator, NoReturn, Optional
 
 from .constants import DEST_COMMAND_NAME
 from .exceptions import CommandError
@@ -9,7 +9,7 @@ from .groups import ArgumentGroup, CommandGroup, OptionGroup
 from .parsers import Parser, SuperParser
 from .printers import PrinterFactory, PrinterHelper, SuperPrinterFactory, SuperPrinterHelper
 
-ProcessFunction = Callable[..., "int | None"]
+ProcessFunction = Callable[..., Optional[int]]
 
 
 def _dummy_func(*args: Any, **kwargs: Any) -> None:

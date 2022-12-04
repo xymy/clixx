@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import sys
-from typing import TYPE_CHECKING, Any, Callable, Protocol
+from typing import TYPE_CHECKING, Any, Callable, Dict, Protocol
 
 from .exceptions import CLIXXException, HelpSignal, VersionSignal
 
@@ -38,9 +38,9 @@ class SuperPrinter(Protocol):
 
 
 #: The type of printer factory.
-PrinterFactory = Callable[[dict[str, Any]], Printer]
+PrinterFactory = Callable[[Dict[str, Any]], Printer]
 #: The type of super printer factory.
-SuperPrinterFactory = Callable[[dict[str, Any]], SuperPrinter]
+SuperPrinterFactory = Callable[[Dict[str, Any]], SuperPrinter]
 
 
 def _rich_printer_factory(config: dict[str, Any]) -> Printer:
