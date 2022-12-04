@@ -15,26 +15,26 @@ class Printer(Protocol):
     """The protocol class for printer."""
 
     def print_error(self, cmd: Command, exc: CLIXXException) -> None:
-        ...
+        """Print error information."""
 
     def print_help(self, cmd: Command) -> None:
-        ...
+        """Print help information."""
 
     def print_version(self, cmd: Command) -> None:
-        ...
+        """Print version information."""
 
 
 class SuperPrinter(Protocol):
     """The protocol class for super printer."""
 
     def print_error(self, cmd: SuperCommand, exc: CLIXXException) -> None:
-        ...
+        """Print error information."""
 
     def print_help(self, cmd: SuperCommand) -> None:
-        ...
+        """Print help information."""
 
     def print_version(self, cmd: SuperCommand) -> None:
-        ...
+        """Print version information."""
 
 
 #: The type of printer factory.
@@ -76,9 +76,13 @@ class _PrinterHelper:
         self.is_raise = is_raise
 
     def __enter__(self) -> Self:  # type: ignore [valid-type]
+        """Attach exception and signal handlers."""
+
         return self
 
     def __exit__(self, exc_type: Any, exc_value: Any, traceback: Any) -> bool:
+        """Detach exception and signal handlers."""
+
         if isinstance(exc_value, CLIXXException):
             self.print_error(exc_value)
             return self._exit(exc_value.exit_code)
