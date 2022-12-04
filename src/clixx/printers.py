@@ -116,14 +116,10 @@ class _PrinterHelper:
 
     @classmethod
     def get_factory(cls) -> PrinterFactory | SuperPrinterFactory:
-        """Get default printer factory."""
-
         raise NotImplementedError
 
     @classmethod
     def set_factory(cls, printer_factory: PrinterFactory | SuperPrinterFactory) -> None:
-        """Set default printer factory."""
-
         raise NotImplementedError
 
 
@@ -157,10 +153,14 @@ class PrinterHelper(_PrinterHelper):
 
     @classmethod
     def get_factory(cls) -> PrinterFactory:
+        """Get default printer factory."""
+
         return _default_printer_factory
 
     @classmethod
     def set_factory(cls, printer_factory: PrinterFactory) -> None:  # type: ignore [override]
+        """Set default printer factory."""
+
         global _default_printer_factory
         _default_printer_factory = printer_factory
 
@@ -195,9 +195,13 @@ class SuperPrinterHelper(_PrinterHelper):
 
     @classmethod
     def get_factory(cls) -> SuperPrinterFactory:
+        """Get default super printer factory."""
+
         return _default_super_printer_factory
 
     @classmethod
     def set_factory(cls, super_printer_factory: SuperPrinterFactory) -> None:  # type: ignore [override]
+        """Set default super printer factory."""
+
         global _default_super_printer_factory
         _default_super_printer_factory = super_printer_factory

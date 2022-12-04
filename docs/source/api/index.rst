@@ -7,4 +7,5 @@ API Reference
     arguments
     exceptions
     groups
+    printers
     types
