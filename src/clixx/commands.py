@@ -166,15 +166,17 @@ class SuperCommand(_Command):
         return self
 
     def __call__(self, argv: list[str] | None = None, *, standalone: bool = True) -> int | NoReturn:
-        args = self.parse_args(argv, **_interpret_standalone(standalone))
+        args, ctx = self.parse_args(argv, **_interpret_standalone(standalone), return_ctx=True)
         with SuperPrinterHelper(self, self.printer_factory, self.printer_config, **_interpret_standalone(standalone)):
-            cmd_name = args.pop(DEST_COMMAND_NAME, None)
-            if cmd_name is None:
+            if (cmd_name := args.pop(DEST_COMMAND_NAME, None)) is None:
                 raise CommandError("Missing command.")
-            if self.load_command(cmd_name) is None:
+
+            if (cmd := self.load_command(cmd_name)) is None:
                 raise CommandError("Unknown command.")
 
-        exit_code = self.process_function(**args)
+        self.process_function(**args)
+        exit_code = cmd(ctx.argv_remained, standalone=standalone)  # type: ignore
+
         if standalone:
             sys.exit(exit_code)
         return _norm_exit_code(exit_code)
