@@ -12,6 +12,19 @@ from typing import IO, Any, Callable, Sequence, cast
 from .exceptions import DefinitionError, TypeConversionError
 
 
+def _force_decode(filename: Any) -> str:
+    filename = os.fspath(filename)
+    if isinstance(filename, str):
+        return filename
+    return filename.decode(sys.getfilesystemencoding(), "backslashreplace")
+
+
+def _resolve_norm(case_sensitive: bool) -> Callable[[str], str]:
+    if case_sensitive:
+        return str
+    return str.casefold
+
+
 class Type:
     """The base class for all CLIXX type converters.
 
@@ -548,19 +561,6 @@ class FilePath(Path):
 
     def suggest_metavar(self) -> str | None:
         return "FILE"
-
-
-def _force_decode(filename: Any) -> str:
-    filename = os.fspath(filename)
-    if isinstance(filename, str):
-        return filename
-    return filename.decode(sys.getfilesystemencoding(), "backslashreplace")
-
-
-def _resolve_norm(case_sensitive: bool) -> Callable[[str], str]:
-    if case_sensitive:
-        return str
-    return str.casefold
 
 
 def resolve_type(type: Type | type) -> Type:
