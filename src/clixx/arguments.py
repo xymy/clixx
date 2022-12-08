@@ -11,6 +11,19 @@ from .types import Int, Str, Type, resolve_type
 _RESERVED = "<>'\""
 
 
+def _check_dest(dest: str) -> str:
+    dest = dest.replace("-", "_")
+    if not dest.isidentifier():
+        raise DefinitionError(f"{dest!r} is not a valid identifier.")
+    if iskeyword(dest):
+        raise DefinitionError(f"{dest!r} is a keyword.")
+    return dest
+
+
+def _norm_metavar(metavar: str) -> str:
+    return metavar.replace("-", "_").upper()
+
+
 def _parse_decl(decl: str) -> str:
     if not decl:
         raise DefinitionError("Argument must be non-empty.")
@@ -51,19 +64,6 @@ def _parse_decls(decls: Sequence[str]) -> tuple[list[str], list[str]]:
             if rc in decl:
                 raise DefinitionError(f"Option {decl!r} contains reserved character {rc!r}.")
     return long_options, short_options
-
-
-def _check_dest(dest: str) -> str:
-    dest = dest.replace("-", "_")
-    if not dest.isidentifier():
-        raise DefinitionError(f"{dest!r} is not a valid identifier.")
-    if iskeyword(dest):
-        raise DefinitionError(f"{dest!r} is a keyword.")
-    return dest
-
-
-def _norm_metavar(metavar: str) -> str:
-    return metavar.replace("-", "_").upper()
 
 
 class Argument:
