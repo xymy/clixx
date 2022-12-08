@@ -1,13 +1,16 @@
 from __future__ import annotations
 
 import sys
-from typing import Any, Callable, Iterator, Literal, NoReturn, Optional, overload
+from typing import TYPE_CHECKING, Any, Callable, Iterator, Literal, NoReturn, Optional, overload
 
 from .constants import DEST_COMMAND_NAME
 from .exceptions import CommandError
 from .groups import ArgumentGroup, CommandGroup, OptionGroup
 from .parsers import Context, Parser, SuperParser
 from .printers import PrinterFactory, PrinterHelper, SuperPrinterFactory, SuperPrinterHelper
+
+if TYPE_CHECKING:
+    from typing_extensions import Self
 
 ProcessFunction = Callable[..., Optional[int]]
 
@@ -27,7 +30,6 @@ def _norm_exit_code(exit_code: int | None) -> int:
 class _Command:
     #: The program name. Should be set by parent.
     prog: str | None
-
     #: The parent command. Should be set by parent.
     parent: SuperCommand | None
 
@@ -85,11 +87,11 @@ class Command(_Command):
         self.argument_groups: list[ArgumentGroup] = []
         self.option_groups: list[OptionGroup] = []
 
-    def add_argument_group(self, group: ArgumentGroup) -> Command:
+    def add_argument_group(self, group: ArgumentGroup) -> Self:  # type: ignore [valid-type]
         self.argument_groups.append(group)
         return self
 
-    def add_option_group(self, group: OptionGroup) -> Command:
+    def add_option_group(self, group: OptionGroup) -> Self:  # type: ignore [valid-type]
         self.option_groups.append(group)
         return self
 
@@ -161,7 +163,7 @@ class SuperCommand(_Command):
     def load_command(self, name: str) -> Command | SuperCommand | None:
         raise NotImplementedError
 
-    def add_option_group(self, group: OptionGroup) -> SuperCommand:
+    def add_option_group(self, group: OptionGroup) -> Self:  # type: ignore [valid-type]
         self.option_groups.append(group)
         return self
 
