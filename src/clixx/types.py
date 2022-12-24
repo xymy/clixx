@@ -13,10 +13,10 @@ from .exceptions import DefinitionError, TypeConversionError
 
 
 def _force_decode(filename: Any) -> str:
-    filename = os.fspath(filename)
-    if isinstance(filename, str):
-        return filename
-    return filename.decode(sys.getfilesystemencoding(), "backslashreplace")
+    fn = os.fspath(filename)
+    if isinstance(fn, str):
+        return fn
+    return fn.decode(sys.getfilesystemencoding(), "backslashreplace")
 
 
 def _resolve_norm(case_sensitive: bool) -> Callable[[str], str]:

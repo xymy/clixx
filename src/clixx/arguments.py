@@ -312,7 +312,11 @@ class Option:
 
     @property
     def nargs(self) -> int:
-        """Return ``1``."""
+        """Return ``1``.
+
+        Note:
+            The option requires exactly one value.
+        """
 
         return 1
 
@@ -383,7 +387,11 @@ class FlagOption(Option):
 
     @property
     def nargs(self) -> int:
-        """Return ``0``."""
+        """Return ``0``.
+
+        Note:
+            The flag option does not take a value.
+        """
 
         return 0
 
