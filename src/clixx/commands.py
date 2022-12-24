@@ -23,7 +23,9 @@ def _interpret_standalone(standalone: bool) -> dict[str, bool]:
     return {"is_exit": standalone, "is_rasie": not standalone}
 
 
-def _norm_exit_code(exit_code: int | None) -> int:
+def _exit_command(exit_code: int | None, standalone: bool) -> int | NoReturn:
+    if standalone:
+        sys.exit(exit_code)
     return 0 if exit_code is None else exit_code
 
 
@@ -96,12 +98,11 @@ class Command(_Command):
         return self
 
     def __call__(self, argv: list[str] | None = None, *, standalone: bool = True) -> int | NoReturn:
-        args = self.parse_args(argv, **_interpret_standalone(standalone))
+        with PrinterHelper(self, self.printer_factory, self.printer_config, **_interpret_standalone(standalone)):
+            args = self.parse_args(argv, **_interpret_standalone(standalone))
+            exit_code = self.process_function(**args)
 
-        exit_code = self.process_function(**args)
-        if standalone:
-            sys.exit(exit_code)
-        return _norm_exit_code(exit_code)
+        return _exit_command(exit_code, standalone)
 
     @overload
     def parse_args(
@@ -168,20 +169,19 @@ class SuperCommand(_Command):
         return self
 
     def __call__(self, argv: list[str] | None = None, *, standalone: bool = True) -> int | NoReturn:
-        args, ctx = self.parse_args(argv, **_interpret_standalone(standalone), return_ctx=True)
         with SuperPrinterHelper(self, self.printer_factory, self.printer_config, **_interpret_standalone(standalone)):
+            args, ctx = self.parse_args(argv, **_interpret_standalone(standalone), return_ctx=True)
+
             if (cmd_name := args.pop(DEST_COMMAND_NAME, None)) is None:
                 raise CommandError("Missing command.")
 
             if (cmd := self.load_command(cmd_name)) is None:
                 raise CommandError("Unknown command.")
 
-        self.process_function(**args)
-        exit_code = cmd(ctx.argv_remained, standalone=standalone)  # type: ignore
+            self.process_function(**args)
+            exit_code = cmd(ctx.argv_remained, standalone=standalone)
 
-        if standalone:
-            sys.exit(exit_code)
-        return _norm_exit_code(exit_code)
+        return _exit_command(exit_code, standalone)
 
     @overload
     def parse_args(
