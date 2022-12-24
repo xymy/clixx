@@ -28,14 +28,14 @@ def _norm_exit_code(exit_code: int | None) -> int:
 
 
 class _Command:
-    #: The program name. Should be set by parent.
-    prog: str | None
     #: The parent command. Should be set by parent.
     parent: SuperCommand | None
+    #: The program name. Should be set by parent.
+    prog: str | None
 
     def __init__(self, name: str | None = None, version: str | None = None) -> None:
-        self.prog = None
         self.parent = None
+        self.prog = None
 
         self.name = name
         self.version = version
