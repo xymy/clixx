@@ -34,19 +34,18 @@ class _Command:
     parent: SuperCommand | None
     #: The program name. Should be set by parent.
     prog: str | None
+    #: The parsed arguments. Should be set after parsing by ``__call__``.
+    args: dict[str, Any] | None
 
     def __init__(self, name: str | None = None, version: str | None = None) -> None:
         self.name = name
         self.version = version
 
-        self.parent: SuperCommand | None = None
-        self.prog: str | None = None
+        self.parent = None
+        self.prog = None
+        self.args = None
 
         self.process_function: ProcessFunction = _dummy_func
-
-    def _init(self, prog: str | None, parent: SuperCommand | None) -> None:
-        self.prog = prog
-        self.parent = parent
 
     def get_name(self) -> str:
         if self.name is not None:
@@ -97,9 +96,21 @@ class Command(_Command):
         self.option_groups.append(group)
         return self
 
-    def __call__(self, argv: list[str] | None = None, *, standalone: bool = True) -> int | NoReturn:
+    def __call__(
+        self,
+        argv: list[str] | None = None,
+        *,
+        parent: SuperCommand | None = None,
+        prog: str | None = None,
+        standalone: bool = True,
+    ) -> int | NoReturn:
         with PrinterHelper(self, self.printer_factory, self.printer_config, **_interpret_standalone(standalone)):
+            self.parent = parent
+            self.prog = prog
+
             args = self.parse_args(argv, **_interpret_standalone(standalone))
+            self.args = args
+
             exit_code = self.process_function(**args)
 
         return _exit_command(exit_code, standalone)
@@ -168,9 +179,20 @@ class SuperCommand(_Command):
         self.option_groups.append(group)
         return self
 
-    def __call__(self, argv: list[str] | None = None, *, standalone: bool = True) -> int | NoReturn:
+    def __call__(
+        self,
+        argv: list[str] | None = None,
+        *,
+        parent: SuperCommand | None = None,
+        prog: str | None = None,
+        standalone: bool = True,
+    ) -> int | NoReturn:
         with SuperPrinterHelper(self, self.printer_factory, self.printer_config, **_interpret_standalone(standalone)):
+            self.parent = parent
+            self.prog = prog
+
             args, ctx = self.parse_args(argv, **_interpret_standalone(standalone), return_ctx=True)
+            self.args = args
 
             if (cmd_name := args.pop(DEST_COMMAND_NAME, None)) is None:
                 raise CommandError("Missing command.")
