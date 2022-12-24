@@ -36,23 +36,17 @@ class _Command:
     prog: str | None
 
     def __init__(self, name: str | None = None, version: str | None = None) -> None:
-        self.parent = None
-        self.prog = None
-
         self.name = name
         self.version = version
+
+        self.parent: SuperCommand | None = None
+        self.prog: str | None = None
 
         self.process_function: ProcessFunction = _dummy_func
 
     def _init(self, prog: str | None, parent: SuperCommand | None) -> None:
         self.prog = prog
         self.parent = parent
-
-    def get_prog(self) -> str:
-        prog = sys.argv[0] if self.prog is None else self.prog
-        if self.parent is None:
-            return prog
-        return f"{self.parent.get_prog()} {prog}"
 
     def get_name(self) -> str:
         if self.name is not None:
@@ -67,6 +61,12 @@ class _Command:
         if self.parent is not None:
             return self.parent.get_version()
         return "Unknown Version"
+
+    def get_prog(self) -> str:
+        prog = sys.argv[0] if self.prog is None else self.prog
+        if self.parent is None:
+            return prog
+        return f"{self.parent.get_prog()} {prog}"
 
     def register(self, func: ProcessFunction) -> None:
         self.process_function = func
@@ -83,11 +83,11 @@ class Command(_Command):
     ) -> None:
         super().__init__(name, version)
 
-        self.printer_factory = printer_factory
-        self.printer_config = printer_config
-
         self.argument_groups: list[ArgumentGroup] = []
         self.option_groups: list[OptionGroup] = []
+
+        self.printer_factory = printer_factory
+        self.printer_config = printer_config
 
     def add_argument_group(self, group: ArgumentGroup) -> Self:  # type: ignore [valid-type]
         self.argument_groups.append(group)
@@ -153,10 +153,10 @@ class SuperCommand(_Command):
     ) -> None:
         super().__init__(name, version)
 
+        self.option_groups: list[OptionGroup] = []
+
         self.printer_factory = printer_factory
         self.printer_config = printer_config
-
-        self.option_groups: list[OptionGroup] = []
 
     def iter_command_group(self) -> Iterator[CommandGroup]:
         raise NotImplementedError
@@ -176,7 +176,7 @@ class SuperCommand(_Command):
                 raise CommandError("Missing command.")
 
             if (cmd := self.load_command(cmd_name)) is None:
-                raise CommandError("Unknown command.")
+                raise CommandError(f"Unknown command {cmd_name!r}.")
 
             self.process_function(**args)
             exit_code = cmd(ctx.argv_remained, standalone=standalone)
