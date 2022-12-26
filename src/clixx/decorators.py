@@ -1,14 +1,19 @@
 from __future__ import annotations
 
+from contextlib import suppress
 from typing import Any, Callable, TypeVar
 
 from .arguments import AppendOption, Argument, CountOption, FlagOption, HelpOption, Option, VersionOption
+from .commands import Command
+from .exceptions import DefinitionError
+from .groups import ANY, ArgumentGroup, GroupType, OptionGroup
+from .printers import PrinterFactory
 from .types import Type
 
 F = TypeVar("F", bound=Callable[..., Any])
 
 
-def _prepare_definition(func: F, obj: Argument | Option) -> None:
+def _prepare_definition(func: F, obj: Argument | Option | ArgumentGroup | OptionGroup) -> None:
     if not hasattr(func, "__clixx_definition__"):
         func.__clixx_definition__ = []  # type: ignore
     func.__clixx_definition__.append(obj)  # type: ignore
@@ -134,5 +139,51 @@ def version_option(
         obj = VersionOption(*decls, hidden=hidden, help=help)
         _prepare_definition(func, obj)
         return func
+
+    return decorator
+
+
+def argument_group(title: str, *, hidden: bool = False) -> Callable[[F], F]:
+    def decorator(func: F) -> F:
+        obj = ArgumentGroup(title, hidden=hidden)
+        _prepare_definition(func, obj)
+        return func
+
+    return decorator
+
+
+def option_group(title: str, *, type: GroupType = ANY, hidden: bool = False) -> Callable[[F], F]:
+    def decorator(func: F) -> F:
+        obj = OptionGroup(title, type=type, hidden=hidden)
+        _prepare_definition(func, obj)
+        return func
+
+    return decorator
+
+
+def command(
+    name: str | None = None,
+    version: str | None = None,
+    *,
+    printer_factory: PrinterFactory | None = None,
+    printer_config: dict[str, Any] | None = None,
+) -> Callable[[F], Command]:
+    def decorator(func: F) -> Command:
+        cmd = Command(name, version, printer_factory=printer_factory, printer_config=printer_config)
+        if hasattr(func, "__clixx_definition__"):
+            it = iter(func.__clixx_definition__)
+            with suppress(StopIteration):
+                group = next(it)
+                while True:
+                    if isinstance(group, ArgumentGroup):
+                        while isinstance(member := next(it), Argument):
+                            group.add(member)
+                    elif isinstance(group, OptionGroup):
+                        while isinstance(member := next(it), Option):
+                            group.add(member)
+                    else:
+                        raise DefinitionError(f"Found no-grouped argument {group!r}.")
+                    group = member
+        return cmd
 
     return decorator
