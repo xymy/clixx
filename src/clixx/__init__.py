@@ -1,5 +1,17 @@
 from .arguments import Argument, CountOption, FlagOption, HelpOption, Option, SignalOption, VersionOption
-from .commands import Command
+from .commands import Command, SuperCommand
+from .decorators import (
+    append_option,
+    argument,
+    argument_group,
+    command,
+    count_option,
+    flag_option,
+    help_option,
+    option,
+    option_group,
+    version_option,
+)
 from .groups import ALL, ANY, AT_LEAST_ONE, AT_MOST_ONE, EXACTLY_ONE, NONE, ArgumentGroup, GroupType, OptionGroup
 from .printers import PrinterHelper, SuperPrinterHelper
 from .types import (
@@ -17,6 +29,7 @@ from .types import (
     Path,
     Str,
     Type,
+    resolve_type,
 )
 
 __all__ = [
@@ -30,6 +43,18 @@ __all__ = [
     "VersionOption",
     # commands
     "Command",
+    "SuperCommand",
+    # decorators
+    "argument",
+    "option",
+    "flag_option",
+    "append_option",
+    "count_option",
+    "help_option",
+    "version_option",
+    "argument_group",
+    "option_group",
+    "command",
     # groups
     "GroupType",
     "ANY",
@@ -58,6 +83,7 @@ __all__ = [
     "Path",
     "DirPath",
     "FilePath",
+    "resolve_type",
 ]
 
 __title__ = "clixx"
