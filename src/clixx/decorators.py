@@ -165,25 +165,30 @@ def command(
     name: str | None = None,
     version: str | None = None,
     *,
+    pass_cmd: bool = False,
     printer_factory: PrinterFactory | None = None,
     printer_config: dict[str, Any] | None = None,
 ) -> Callable[[F], Command]:
     def decorator(func: F) -> Command:
-        cmd = Command(name, version, printer_factory=printer_factory, printer_config=printer_config)
+        cmd = Command(name, version, pass_cmd=pass_cmd, printer_factory=printer_factory, printer_config=printer_config)
         if hasattr(func, "__clixx_definition__"):
-            it = iter(func.__clixx_definition__)
+            it = reversed(func.__clixx_definition__)
             with suppress(StopIteration):
                 group = next(it)
                 while True:
                     if isinstance(group, ArgumentGroup):
+                        cmd.add_argument_group(group)
                         while isinstance(member := next(it), Argument):
                             group.add(member)
                     elif isinstance(group, OptionGroup):
+                        cmd.add_option_group(group)
                         while isinstance(member := next(it), Option):
                             group.add(member)
                     else:
                         raise DefinitionError(f"Found no-grouped argument {group!r}.")
                     group = member
+
+        cmd.register(func)
         return cmd
 
     return decorator

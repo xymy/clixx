@@ -20,7 +20,7 @@ def _dummy_func(*args: Any, **kwargs: Any) -> None:
 
 
 def _interpret_standalone(standalone: bool) -> dict[str, bool]:
-    return {"is_exit": standalone, "is_rasie": not standalone}
+    return {"is_exit": standalone, "is_raise": not standalone}
 
 
 def _exit_command(exit_code: int | None, standalone: bool) -> int | NoReturn:
@@ -77,6 +77,7 @@ class Command(_Command):
         name: str | None = None,
         version: str | None = None,
         *,
+        pass_cmd: bool = False,
         printer_factory: PrinterFactory | None = None,
         printer_config: dict[str, Any] | None = None,
     ) -> None:
@@ -85,6 +86,7 @@ class Command(_Command):
         self.argument_groups: list[ArgumentGroup] = []
         self.option_groups: list[OptionGroup] = []
 
+        self.pass_cmd = pass_cmd
         self.printer_factory = printer_factory
         self.printer_config = printer_config
 
@@ -111,7 +113,10 @@ class Command(_Command):
             args = self.parse_args(argv, **_interpret_standalone(standalone))
             self.args = args
 
-            exit_code = self.process_function(**args)
+            if self.pass_cmd:
+                exit_code = self.process_function(self, **args)
+            else:
+                exit_code = self.process_function(**args)
 
         return _exit_command(exit_code, standalone)
 
@@ -159,6 +164,7 @@ class SuperCommand(_Command):
         name: str | None = None,
         version: str | None = None,
         *,
+        pass_cmd: bool = False,
         printer_factory: SuperPrinterFactory | None = None,
         printer_config: dict[str, Any] | None = None,
     ) -> None:
@@ -166,6 +172,7 @@ class SuperCommand(_Command):
 
         self.option_groups: list[OptionGroup] = []
 
+        self.pass_cmd = pass_cmd
         self.printer_factory = printer_factory
         self.printer_config = printer_config
 
@@ -200,7 +207,11 @@ class SuperCommand(_Command):
             if (cmd := self.load_command(cmd_name)) is None:
                 raise CommandError(f"Unknown command {cmd_name!r}.")
 
-            self.process_function(**args)
+            if self.pass_cmd:
+                exit_code = self.process_function(self, **args)
+            else:
+                exit_code = self.process_function(**args)
+
             exit_code = cmd(ctx.argv_remained, standalone=standalone)
 
         return _exit_command(exit_code, standalone)
