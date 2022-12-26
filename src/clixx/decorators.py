@@ -171,6 +171,7 @@ def command(
 ) -> Callable[[F], Command]:
     def decorator(func: F) -> Command:
         cmd = Command(name, version, pass_cmd=pass_cmd, printer_factory=printer_factory, printer_config=printer_config)
+
         if hasattr(func, "__clixx_definition__"):
             it = reversed(func.__clixx_definition__)
             with suppress(StopIteration):
@@ -185,7 +186,11 @@ def command(
                         while isinstance(member := next(it), Option):
                             group.add(member)
                     else:
-                        raise DefinitionError(f"Found no-grouped argument {group!r}.")
+                        if isinstance(group, Argument):
+                            raise DefinitionError(f"Found non-grouped argument {group!r}.")
+                        if isinstance(group, Option):
+                            raise DefinitionError(f"Found non-grouped option {group!r}.")
+                        raise DefinitionError(f"Found unexpected object {group!r}.")
                     group = member
 
         cmd.register(func)
