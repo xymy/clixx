@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import sys
+from contextlib import suppress
 from typing import TYPE_CHECKING, Any, Callable, Iterator, Literal, NoReturn, Optional, overload
 
 from .constants import DEST_COMMAND_NAME
@@ -176,15 +177,15 @@ class SuperCommand(_Command):
         self.printer_factory = printer_factory
         self.printer_config = printer_config
 
+    def add_option_group(self, group: OptionGroup) -> Self:  # type: ignore [valid-type]
+        self.option_groups.append(group)
+        return self
+
     def iter_command_group(self) -> Iterator[CommandGroup]:
         raise NotImplementedError
 
     def load_command(self, name: str) -> Command | SuperCommand | None:
         raise NotImplementedError
-
-    def add_option_group(self, group: OptionGroup) -> Self:  # type: ignore [valid-type]
-        self.option_groups.append(group)
-        return self
 
     def __call__(
         self,
@@ -252,3 +253,47 @@ class SuperCommand(_Command):
         if return_ctx:
             return args, ctx
         return args
+
+
+class SimpleSuperCommand(SuperCommand):
+    def __init__(
+        self,
+        name: str | None = None,
+        version: str | None = None,
+        *,
+        pass_cmd: bool = False,
+        printer_factory: SuperPrinterFactory | None = None,
+        printer_config: dict[str, Any] | None = None,
+    ) -> None:
+        super().__init__(
+            name, version, pass_cmd=pass_cmd, printer_factory=printer_factory, printer_config=printer_config
+        )
+        self.commands: dict[str, dict[str, Command | SuperCommand]] = {}
+
+    def add_command(
+        self, group_name: str, cmd_name: str, cmd: Command | SuperCommand
+    ) -> Self:  # type: ignore [valid-type]
+        self.commands[group_name][cmd_name] = cmd
+        return self
+
+    def register_command(
+        self, group_name: str, cmd_name: str
+    ) -> Callable[[Command | SuperCommand], Command | SuperCommand]:
+        def decorator(cmd: Command | SuperCommand) -> Command | SuperCommand:
+            self.add_command(group_name, cmd_name, cmd)
+            return cmd
+
+        return decorator
+
+    def iter_command_group(self) -> Iterator[CommandGroup]:
+        for group_name in self.commands:
+            group = CommandGroup(group_name)
+            for cmd_name in self.commands[group_name]:
+                group.add(cmd_name)
+            yield group
+
+    def load_command(self, name: str) -> Command | SuperCommand | None:
+        for cmd_dict in self.commands.values():
+            with suppress(KeyError):
+                return cmd_dict[name]
+        return None
