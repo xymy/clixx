@@ -193,7 +193,7 @@ def command(
                         raise DefinitionError(f"Found unexpected object {group!r}.")
                     group = member
 
-        cmd.register(func)
+        cmd.process_function = func
         return cmd
 
     return decorator

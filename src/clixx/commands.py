@@ -46,7 +46,7 @@ class _Command:
         self.prog = None
         self.args = None
 
-        self.process_function: ProcessFunction = _dummy_func
+        self.process_function = _dummy_func
 
     def get_name(self) -> str:
         if self.name is not None:
@@ -68,8 +68,15 @@ class _Command:
             return prog
         return f"{self.parent.get_prog()} {prog}"
 
-    def register(self, func: ProcessFunction) -> None:
-        self.process_function = func
+    @property
+    def process_function(self) -> ProcessFunction:
+        """The process function."""
+
+        return self._process_function
+
+    @process_function.setter
+    def process_function(self, value: ProcessFunction) -> None:
+        self._process_function = value
 
 
 class Command(_Command):
