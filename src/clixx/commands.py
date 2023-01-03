@@ -73,6 +73,21 @@ class _Command:
 
 
 class Command(_Command):
+    """The command.
+
+    Parameters:
+        name (str | None, default=None):
+            The name used when showing version information.
+        version (str | None, default=None):
+            The version used when showing version information.
+        pass_cmd (bool, default=False):
+            If ``True``, pass this command instance to the process function.
+        printer_factory (PrinterFactory | None, default=None):
+            The printer factory.
+        printer_config (dict[str, Any] | None, default=None):
+            The printer config.
+    """
+
     def __init__(
         self,
         name: str | None = None,
@@ -160,6 +175,21 @@ class Command(_Command):
 
 
 class SuperCommand(_Command):
+    """The super command.
+
+    Parameters:
+        name (str | None, default=None):
+            The name used when showing version information.
+        version (str | None, default=None):
+            The version used when showing version information.
+        pass_cmd (bool, default=False):
+            If ``True``, pass this command instance to the process function.
+        printer_factory (SuperPrinterFactory | None, default=None):
+            The super printer factory.
+        printer_config (dict[str, Any] | None, default=None):
+            The super printer config.
+    """
+
     def __init__(
         self,
         name: str | None = None,
