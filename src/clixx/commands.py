@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import sys
 from contextlib import suppress
-from typing import TYPE_CHECKING, Any, Callable, Iterator, Literal, NoReturn, Optional, overload
+from typing import TYPE_CHECKING, Any, Callable, Iterator, Literal, NoReturn, Optional, TypeVar, Union, overload
 
 from .constants import DEST_COMMAND_NAME
 from .exceptions import CommandError
@@ -292,6 +292,9 @@ class SuperCommand(_Command):
         return args
 
 
+AnyCommand = TypeVar("AnyCommand", bound=Union[Command, SuperCommand])
+
+
 class SimpleSuperCommand(SuperCommand):
     def __init__(
         self,
@@ -314,10 +317,8 @@ class SimpleSuperCommand(SuperCommand):
         group[cmd_name] = cmd
         return self
 
-    def register_command(
-        self, group_name: str, cmd_name: str
-    ) -> Callable[[Command | SuperCommand], Command | SuperCommand]:
-        def decorator(cmd: Command | SuperCommand) -> Command | SuperCommand:
+    def register_command(self, group_name: str, cmd_name: str) -> Callable[[AnyCommand], AnyCommand]:
+        def decorator(cmd: AnyCommand) -> AnyCommand:
             self.add_command(group_name, cmd_name, cmd)
             return cmd
 
