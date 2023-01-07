@@ -38,9 +38,11 @@ class _Command:
     #: The parsed arguments. Should be set after parsing by ``__call__``.
     args: dict[str, Any] | None
 
-    def __init__(self, name: str | None = None, version: str | None = None) -> None:
+    def __init__(self, name: str | None = None, version: str | None = None, *, pass_cmd: bool = False) -> None:
         self.name = name
         self.version = version
+
+        self.pass_cmd = pass_cmd
 
         self.parent = None
         self.prog = None
@@ -104,14 +106,13 @@ class Command(_Command):
         printer_factory: PrinterFactory | None = None,
         printer_config: dict[str, Any] | None = None,
     ) -> None:
-        super().__init__(name, version)
+        super().__init__(name, version, pass_cmd=pass_cmd)
+
+        self.printer_factory = printer_factory
+        self.printer_config = printer_config
 
         self.argument_groups: list[ArgumentGroup] = []
         self.option_groups: list[OptionGroup] = []
-
-        self.pass_cmd = pass_cmd
-        self.printer_factory = printer_factory
-        self.printer_config = printer_config
 
     def add_argument_group(self, group: ArgumentGroup) -> Self:  # type: ignore [valid-type]
         self.argument_groups.append(group)
@@ -206,13 +207,12 @@ class SuperCommand(_Command):
         printer_factory: SuperPrinterFactory | None = None,
         printer_config: dict[str, Any] | None = None,
     ) -> None:
-        super().__init__(name, version)
+        super().__init__(name, version, pass_cmd=pass_cmd)
 
-        self.option_groups: list[OptionGroup] = []
-
-        self.pass_cmd = pass_cmd
         self.printer_factory = printer_factory
         self.printer_config = printer_config
+
+        self.option_groups: list[OptionGroup] = []
 
     def add_option_group(self, group: OptionGroup) -> Self:  # type: ignore [valid-type]
         self.option_groups.append(group)
