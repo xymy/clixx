@@ -313,8 +313,8 @@ class SimpleSuperCommand(SuperCommand):
     def add_command(
         self, group_name: str, cmd_name: str, cmd: Command | SuperCommand
     ) -> Self:  # type: ignore [valid-type]
-        group = self.commands.setdefault(group_name, {})
-        group[cmd_name] = cmd
+        group_dict = self.commands.setdefault(group_name, {})
+        group_dict[cmd_name] = cmd
         return self
 
     def register_command(self, group_name: str, cmd_name: str) -> Callable[[AnyCommand], AnyCommand]:
@@ -325,14 +325,14 @@ class SimpleSuperCommand(SuperCommand):
         return decorator
 
     def iter_command_group(self) -> Iterator[CommandGroup]:
-        for group_name in self.commands:
+        for group_name, group_dict in self.commands.items():
             group = CommandGroup(group_name)
-            for cmd_name in self.commands[group_name]:
+            for cmd_name in group_dict:
                 group.add(cmd_name)
             yield group
 
     def load_command(self, name: str) -> Command | SuperCommand | None:
-        for cmd_dict in self.commands.values():
+        for group_dict in self.commands.values():
             with suppress(KeyError):
-                return cmd_dict[name]
+                return group_dict[name]
         return None
