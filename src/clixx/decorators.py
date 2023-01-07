@@ -212,6 +212,25 @@ def simple_super_command(
             name, version, pass_cmd=pass_cmd, printer_factory=printer_factory, printer_config=printer_config
         )
 
+        if hasattr(func, "__clixx_definition__"):
+            it = reversed(func.__clixx_definition__)
+            with suppress(StopIteration):
+                group = next(it)
+                while True:
+                    if isinstance(group, ArgumentGroup):
+                        raise DefinitionError("Super command does not support argument group.")
+                    elif isinstance(group, OptionGroup):
+                        cmd.add_option_group(group)
+                        while isinstance(member := next(it), Option):
+                            group.add(member)
+                    else:
+                        if isinstance(group, Argument):
+                            raise DefinitionError("Super command does not support argument.")
+                        if isinstance(group, Option):
+                            raise DefinitionError(f"Found non-grouped option {group!r}.")
+                        raise DefinitionError(f"Found unexpected object {group!r}.")
+                    group = member
+
         cmd.process_function = func
         return cmd
 

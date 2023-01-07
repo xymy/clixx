@@ -140,6 +140,8 @@ class RichSuperPrinter:
             console.print(f"\n{command_group.title}:")
 
             # TODO
+            for cmd_name in command_group:
+                console.print(f"  {cmd_name}")
 
         for option_group in cmd.option_groups:
             if option_group.hidden:
