@@ -10,6 +10,7 @@ from .decorators import (
     help_option,
     option,
     option_group,
+    simple_super_command,
     version_option,
 )
 from .groups import ALL, ANY, AT_LEAST_ONE, AT_MOST_ONE, EXACTLY_ONE, NONE, ArgumentGroup, GroupType, OptionGroup
@@ -55,6 +56,7 @@ __all__ = [
     "argument_group",
     "option_group",
     "command",
+    "simple_super_command",
     # groups
     "GroupType",
     "ANY",

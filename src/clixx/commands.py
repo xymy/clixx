@@ -310,7 +310,8 @@ class SimpleSuperCommand(SuperCommand):
     def add_command(
         self, group_name: str, cmd_name: str, cmd: Command | SuperCommand
     ) -> Self:  # type: ignore [valid-type]
-        self.commands[group_name][cmd_name] = cmd
+        group = self.commands.setdefault(group_name, {})
+        group[cmd_name] = cmd
         return self
 
     def register_command(

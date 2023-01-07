@@ -4,10 +4,10 @@ from contextlib import suppress
 from typing import Any, Callable, TypeVar
 
 from .arguments import AppendOption, Argument, CountOption, FlagOption, HelpOption, Option, VersionOption
-from .commands import Command
+from .commands import Command, SimpleSuperCommand
 from .exceptions import DefinitionError
 from .groups import ANY, ArgumentGroup, GroupType, OptionGroup
-from .printers import PrinterFactory
+from .printers import PrinterFactory, SuperPrinterFactory
 from .types import Type
 
 F = TypeVar("F", bound=Callable[..., Any])
@@ -192,6 +192,25 @@ def command(
                             raise DefinitionError(f"Found non-grouped option {group!r}.")
                         raise DefinitionError(f"Found unexpected object {group!r}.")
                     group = member
+
+        cmd.process_function = func
+        return cmd
+
+    return decorator
+
+
+def simple_super_command(
+    name: str | None = None,
+    version: str | None = None,
+    *,
+    pass_cmd: bool = False,
+    printer_factory: SuperPrinterFactory | None = None,
+    printer_config: dict[str, Any] | None = None,
+) -> Callable[[F], SimpleSuperCommand]:
+    def decorator(func: F) -> SimpleSuperCommand:
+        cmd = SimpleSuperCommand(
+            name, version, pass_cmd=pass_cmd, printer_factory=printer_factory, printer_config=printer_config
+        )
 
         cmd.process_function = func
         return cmd
