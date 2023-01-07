@@ -143,7 +143,7 @@ def version_option(
     return decorator
 
 
-def argument_group(title: str, *, hidden: bool = False) -> Callable[[F], F]:
+def argument_group(title: str, *, hidden: bool = True) -> Callable[[F], F]:
     def decorator(func: F) -> F:
         obj = ArgumentGroup(title, hidden=hidden)
         _prepare_definition(func, obj)

@@ -43,11 +43,11 @@ class _Group(Generic[T]):
     Parameters:
         title (str):
             The group title.
-        hidden (bool, default=False):
+        hidden (bool):
             If ``True``, hide this group from help information.
     """
 
-    def __init__(self, title: str, *, hidden: bool = False) -> None:
+    def __init__(self, title: str, *, hidden: bool) -> None:
         self.title = title
         self.hidden = hidden
         self.members: list[T] = []
@@ -80,11 +80,11 @@ class ArgumentGroup(_Group[Argument]):
     Parameters:
         title (str):
             The group title.
-        hidden (bool, default=False):
+        hidden (bool, default=True):
             If ``True``, hide this argument group from help information.
     """
 
-    def __init__(self, title: str, *, hidden: bool = False) -> None:
+    def __init__(self, title: str, *, hidden: bool = True) -> None:
         super().__init__(title, hidden=hidden)
 
 
