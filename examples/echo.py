@@ -4,7 +4,7 @@ import clixx
 
 
 @clixx.command("MyEcho", "1.0.0", pass_cmd=True)
-@clixx.argument_group("Arguments", hidden=True)
+@clixx.argument_group("Arguments")
 @clixx.argument("strings", nargs=-1)
 @clixx.option_group("Options")
 @clixx.help_option("-h", "--help")
@@ -14,6 +14,7 @@ def main(cmd: clixx.Command, strings: list[str], verbose: int) -> None:
     for string in strings:
         print(string)
 
+    # Print args dict for verbose.
     if verbose > 0:
         print(cmd.args)
 
