@@ -38,9 +38,12 @@ class _Command:
     #: The parsed arguments. Should be set after parsing by ``__call__``.
     args: dict[str, Any] | None
 
-    def __init__(self, name: str | None = None, version: str | None = None, *, pass_cmd: bool = False) -> None:
+    def __init__(
+        self, name: str | None = None, version: str | None = None, description: str = "", *, pass_cmd: bool = False
+    ) -> None:
         self.name = name
         self.version = version
+        self.description = description
 
         self.pass_cmd = pass_cmd
 
@@ -89,6 +92,8 @@ class Command(_Command):
             The name used when showing version information.
         version (str | None, default=None):
             The version used when showing version information.
+        description (str, default=''):
+            The description.
         pass_cmd (bool, default=False):
             If ``True``, pass this command instance to the process function.
         printer_factory (PrinterFactory | None, default=None):
@@ -101,12 +106,13 @@ class Command(_Command):
         self,
         name: str | None = None,
         version: str | None = None,
+        description: str = "",
         *,
         pass_cmd: bool = False,
         printer_factory: PrinterFactory | None = None,
         printer_config: dict[str, Any] | None = None,
     ) -> None:
-        super().__init__(name, version, pass_cmd=pass_cmd)
+        super().__init__(name, version, description, pass_cmd=pass_cmd)
 
         self.printer_factory = printer_factory
         self.printer_config = printer_config
@@ -190,6 +196,8 @@ class SuperCommand(_Command):
             The name used when showing version information.
         version (str | None, default=None):
             The version used when showing version information.
+        description (str, default=''):
+            The description.
         pass_cmd (bool, default=False):
             If ``True``, pass this command instance to the process function.
         printer_factory (SuperPrinterFactory | None, default=None):
@@ -202,12 +210,13 @@ class SuperCommand(_Command):
         self,
         name: str | None = None,
         version: str | None = None,
+        description: str = "",
         *,
         pass_cmd: bool = False,
         printer_factory: SuperPrinterFactory | None = None,
         printer_config: dict[str, Any] | None = None,
     ) -> None:
-        super().__init__(name, version, pass_cmd=pass_cmd)
+        super().__init__(name, version, description, pass_cmd=pass_cmd)
 
         self.printer_factory = printer_factory
         self.printer_config = printer_config
@@ -300,13 +309,19 @@ class SimpleSuperCommand(SuperCommand):
         self,
         name: str | None = None,
         version: str | None = None,
+        description: str = "",
         *,
         pass_cmd: bool = False,
         printer_factory: SuperPrinterFactory | None = None,
         printer_config: dict[str, Any] | None = None,
     ) -> None:
         super().__init__(
-            name, version, pass_cmd=pass_cmd, printer_factory=printer_factory, printer_config=printer_config
+            name,
+            version,
+            description,
+            pass_cmd=pass_cmd,
+            printer_factory=printer_factory,
+            printer_config=printer_config,
         )
         self.commands: dict[str, dict[str, Command | SuperCommand]] = {}
 

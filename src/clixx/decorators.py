@@ -164,13 +164,21 @@ def option_group(title: str, *, type: GroupType = ANY, hidden: bool = False) -> 
 def command(
     name: str | None = None,
     version: str | None = None,
+    description: str = "",
     *,
     pass_cmd: bool = False,
     printer_factory: PrinterFactory | None = None,
     printer_config: dict[str, Any] | None = None,
 ) -> Callable[[F], Command]:
     def decorator(func: F) -> Command:
-        cmd = Command(name, version, pass_cmd=pass_cmd, printer_factory=printer_factory, printer_config=printer_config)
+        cmd = Command(
+            name,
+            version,
+            description,
+            pass_cmd=pass_cmd,
+            printer_factory=printer_factory,
+            printer_config=printer_config,
+        )
 
         if hasattr(func, "__clixx_definition__"):
             it = reversed(func.__clixx_definition__)
@@ -202,6 +210,7 @@ def command(
 def simple_super_command(
     name: str | None = None,
     version: str | None = None,
+    description: str = "",
     *,
     pass_cmd: bool = False,
     printer_factory: SuperPrinterFactory | None = None,
@@ -209,7 +218,12 @@ def simple_super_command(
 ) -> Callable[[F], SimpleSuperCommand]:
     def decorator(func: F) -> SimpleSuperCommand:
         cmd = SimpleSuperCommand(
-            name, version, pass_cmd=pass_cmd, printer_factory=printer_factory, printer_config=printer_config
+            name,
+            version,
+            description,
+            pass_cmd=pass_cmd,
+            printer_factory=printer_factory,
+            printer_config=printer_config,
         )
 
         if hasattr(func, "__clixx_definition__"):
