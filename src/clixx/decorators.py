@@ -4,13 +4,13 @@ from contextlib import suppress
 from typing import Any, Callable, TypeVar
 
 from .arguments import AppendOption, Argument, CountOption, FlagOption, HelpOption, Option, VersionOption
-from .commands import Command, SimpleSuperCommand
+from .commands import Command, ProcessFunction, SimpleSuperCommand
 from .exceptions import DefinitionError
 from .groups import ANY, ArgumentGroup, GroupType, OptionGroup
 from .printers import PrinterFactory, SuperPrinterFactory
 from .types import Type
 
-F = TypeVar("F", bound=Callable[..., Any])
+F = TypeVar("F", bound=ProcessFunction)
 
 
 def _prepare_definition(func: F, obj: Argument | Option | ArgumentGroup | OptionGroup) -> None:
