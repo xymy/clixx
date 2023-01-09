@@ -15,8 +15,8 @@ F = TypeVar("F", bound=Callable[..., Any])
 
 def _prepare_definition(func: F, obj: Argument | Option | ArgumentGroup | OptionGroup) -> None:
     if not hasattr(func, "__clixx_definition__"):
-        func.__clixx_definition__ = []  # type: ignore
-    func.__clixx_definition__.append(obj)  # type: ignore
+        func.__clixx_definition__ = []  # type: ignore [attr-defined]
+    func.__clixx_definition__.append(obj)  # type: ignore [attr-defined]
 
 
 def argument(
@@ -32,6 +32,34 @@ def argument(
     metavar: str | None = None,
     help: str = "",
 ) -> Callable[[F], F]:
+    """The argument, aka positional argument.
+
+    Parameters:
+        decl (str):
+            The declaration for this argument.
+        dest (str | None, default=None):
+            The destination used to store/forward the argument value. If ``None``,
+            infer from declaration. If empty string, disable store/forward.
+        nargs (int, default=1):
+            The number of argument values. Valid values are ``nargs == 1`` or
+            ``nargs == -1``.
+        required (bool, default=False):
+            Whether this argument is required or optional.
+        type (Type | type | None, default=None):
+            The type converter. If ``None``, use ``Str()``.
+        default (Any, default=None):
+            The default value used if argument omitted.
+        hidden (bool, default=False):
+            If ``True``, hide this argument from help information.
+        show_default (bool, default=False):
+            If ``True``, show the default value in help information.
+        metavar (str | None, default=None):
+            The argument value name used in usage. If ``None``, infer from
+            declaration. If empty string, disable metavar.
+        help (str, default=''):
+            The help information.
+    """
+
     def decorator(func: F) -> F:
         obj = Argument(
             decl,
@@ -62,6 +90,31 @@ def option(
     metavar: str | None = None,
     help: str = "",
 ) -> Callable[[F], F]:
+    """The option, aka optional argument.
+
+    Parameters:
+        decls (tuple[str, ...]):
+            The declarations for this option.
+        dest (str | None, default=None):
+            The destination used to store/forward the option value. If ``None``,
+            infer from declarations. If empty string, disable store/forward.
+        required (bool, default=False):
+            Whether this option is required or optional.
+        type (Type | type | None, default=None):
+            The type converter. If ``None``, use ``Str()``.
+        default (Any, default=None):
+            The default value used if option omitted.
+        hidden (bool, default=False):
+            If ``True``, hide this option from help information.
+        show_default (bool, default=False):
+            If ``True``, show the default value in help information.
+        metavar (str | None, default=None):
+            The option value name used in usage. If ``None``, infer from
+            declarations. If empty string, disable metavar.
+        help (str, default=''):
+            The help information.
+    """
+
     def decorator(func: F) -> F:
         obj = Option(
             *decls,
@@ -88,6 +141,24 @@ def flag_option(
     hidden: bool = False,
     help: str = "",
 ) -> Callable[[F], F]:
+    """The flag option.
+
+    Parameters:
+        decls (tuple[str, ...]):
+            The declarations for this option.
+        dest (str | None, default=None):
+            The destination used to store/forward the option value. If ``None``,
+            infer from declarations. If empty string, disable store/forward.
+        const (Any, default=True):
+            The constant value used if option occurred.
+        default (Any, default=False):
+            The default value used if option omitted.
+        hidden (bool, default=False):
+            If ``True``, hide this option from help information.
+        help (str, default=''):
+            The help information.
+    """
+
     def decorator(func: F) -> F:
         obj = FlagOption(*decls, dest=dest, const=const, default=default, hidden=hidden, help=help)
         _prepare_definition(func, obj)
@@ -104,6 +175,25 @@ def append_option(
     metavar: str | None = None,
     help: str = "",
 ) -> Callable[[F], F]:
+    """The append option.
+
+    Parameters:
+        decls (tuple[str, ...]):
+            The declarations for this option.
+        dest (str | None, default=None):
+            The destination used to store/forward the option value. If ``None``,
+            infer from declarations. If empty string, disable store/forward.
+        type (Type | type | None, default=None):
+            The type converter. If ``None``, use ``Str()``.
+        hidden (bool, default=False):
+            If ``True``, hide this option from help information.
+        metavar (str | None, default=None):
+            The option value name used in usage. If ``None``, infer from
+            declarations. If empty string, disable metavar.
+        help (str, default=''):
+            The help information.
+    """
+
     def decorator(func: F) -> F:
         obj = AppendOption(*decls, dest=dest, type=type, hidden=hidden, metavar=metavar, help=help)
         _prepare_definition(func, obj)
@@ -115,6 +205,22 @@ def append_option(
 def count_option(
     *decls: str, dest: str | None = None, default: Any = 0, hidden: bool = False, help: str = ""
 ) -> Callable[[F], F]:
+    """The count option.
+
+    Parameters:
+        decls (tuple[str, ...]):
+            The declarations for this option.
+        dest (str | None, default=None):
+            The destination used to store/forward the option value. If ``None``,
+            infer from declarations. If empty string, disable store/forward.
+        default (Any, default=0):
+            The default value used if option omitted.
+        hidden (bool, default=False):
+            If ``True``, hide this option from help information.
+        help (str, default=''):
+            The help information.
+    """
+
     def decorator(func: F) -> F:
         obj = CountOption(*decls, dest=dest, default=default, hidden=hidden, help=help)
         _prepare_definition(func, obj)
@@ -124,6 +230,17 @@ def count_option(
 
 
 def help_option(*decls: str, hidden: bool = False, help: str = "Show help information and exit.") -> Callable[[F], F]:
+    """The help option.
+
+    Parameters:
+        decls (tuple[str, ...]):
+            The declarations for this option.
+        hidden (bool, default=False):
+            If ``True``, hide this option from help information.
+        help (str, default='Show help information and exit.'):
+            The help information.
+    """
+
     def decorator(func: F) -> F:
         obj = HelpOption(*decls, hidden=hidden, help=help)
         _prepare_definition(func, obj)
@@ -135,6 +252,17 @@ def help_option(*decls: str, hidden: bool = False, help: str = "Show help inform
 def version_option(
     *decls: str, hidden: bool = False, help: str = "Show version information and exit."
 ) -> Callable[[F], F]:
+    """The version option.
+
+    Parameters:
+        decls (tuple[str, ...]):
+            The declarations for this option.
+        hidden (bool, default=False):
+            If ``True``, hide this option from help information.
+        help (str, default='Show version information and exit.'):
+            The help information.
+    """
+
     def decorator(func: F) -> F:
         obj = VersionOption(*decls, hidden=hidden, help=help)
         _prepare_definition(func, obj)
@@ -144,6 +272,15 @@ def version_option(
 
 
 def argument_group(title: str, *, hidden: bool = True) -> Callable[[F], F]:
+    """The argument group.
+
+    Parameters:
+        title (str):
+            The group title.
+        hidden (bool, default=True):
+            If ``True``, hide this argument group from help information.
+    """
+
     def decorator(func: F) -> F:
         obj = ArgumentGroup(title, hidden=hidden)
         _prepare_definition(func, obj)
@@ -153,6 +290,17 @@ def argument_group(title: str, *, hidden: bool = True) -> Callable[[F], F]:
 
 
 def option_group(title: str, *, type: GroupType = ANY, hidden: bool = False) -> Callable[[F], F]:
+    """The option group.
+
+    Parameters:
+        title (str):
+            The group title.
+        type (GroupType, default=ANY):
+            The group constraint type.
+        hidden (bool, default=False):
+            If ``True``, hide this option group from help information.
+    """
+
     def decorator(func: F) -> F:
         obj = OptionGroup(title, type=type, hidden=hidden)
         _prepare_definition(func, obj)
