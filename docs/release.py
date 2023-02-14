@@ -5,13 +5,15 @@ import tarfile
 from importlib import import_module
 from pathlib import Path
 
+PKG_NAME = "clixx"
+
 if not (python := sys.executable):
     print("Error: Python is unable to retrieve the real path to its executable.", file=sys.stderr)
     sys.exit(1)
 
 src_dir = Path(__file__).resolve().parents[1].joinpath("src")
 sys.path.insert(0, os.fsdecode(src_dir))
-clixx = import_module("clixx")
+pkg = import_module(PKG_NAME)
 
 docs_dir = Path(__file__).resolve().parent
 build_dir = docs_dir / "build"
@@ -24,6 +26,6 @@ source_dir = docs_dir / "source"
 html_dir = build_dir / "html"
 subprocess.run([python, "-m", "sphinx.cmd.build", "-b", "html", "-d", doctrees_dir, source_dir, html_dir])
 
-name = f"{clixx.__title__}-{clixx.__version__}-doc"
+name = f"{pkg.__title__}-{pkg.__version__}-doc"
 with tarfile.open(dist_dir / f"{name}.tar.gz", "w:gz") as tar:
     tar.add(html_dir, name)
