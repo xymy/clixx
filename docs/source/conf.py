@@ -21,7 +21,7 @@ clixx = import_module("clixx")
 # -- Project information -----------------------------------------------------
 
 project = "CLIXX"
-copyright = "2022, xymy"
+copyright = "2022-2023, xymy"
 author = "xymy"
 
 version = clixx.__version__
