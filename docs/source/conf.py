@@ -16,7 +16,7 @@ from pathlib import Path
 
 src_dir = Path(__file__).resolve().parents[2].joinpath("src")
 sys.path.insert(0, os.fsdecode(src_dir))
-clixx = import_module("clixx")
+pkg = import_module("clixx")
 
 # -- Project information -----------------------------------------------------
 
@@ -24,8 +24,8 @@ project = "CLIXX"
 copyright = "2022-2023, xymy"
 author = "xymy"
 
-version = clixx.__version__
-release = clixx.__version__
+version = pkg.__version__
+release = pkg.__version__
 
 # -- General configuration ---------------------------------------------------
 
