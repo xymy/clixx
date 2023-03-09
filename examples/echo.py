@@ -1,18 +1,34 @@
 from __future__ import annotations
 
+from rich.console import Console
+
 import clixx
 
 
 @clixx.command("MyEcho", "1.0.0", pass_cmd=True)
 @clixx.argument_group("Arguments")
 @clixx.argument("strings", nargs=-1)
-@clixx.option_group("Options")
+@clixx.option_group("Style Options", type=clixx.AT_MOST_ONE)
+@clixx.flag_option("--red", help="print red message.")
+@clixx.flag_option("--green", help="print green message.")
+@clixx.flag_option("--blue", help="print blue message.")
+@clixx.option_group("General Options")
 @clixx.help_option("-h", "--help")
 @clixx.version_option("-V", "--version")
 @clixx.count_option("-v", "--verbose", help="Show more information.")
-def main(cmd: clixx.Command, strings: list[str], verbose: int) -> None:
+def main(cmd: clixx.Command, strings: list[str], red: bool, green: bool, blue: bool, verbose: int) -> None:
+    style: str | None = None
+    if red:
+        style = "red"
+    elif green:
+        style = "green"
+    elif blue:
+        style = "blue"
+
+    # Print colorful message via rich.
+    console = Console(highlight=False)
     for string in strings:
-        print(string)
+        console.print(string, style=style)
 
     # Print args dict for verbose.
     if verbose > 0:
