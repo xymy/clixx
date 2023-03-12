@@ -26,13 +26,13 @@ def main(cmd: clixx.Command, strings: list[str], red: bool, green: bool, blue: b
         style = "blue"
 
     # Print colorful message via rich.
-    console = Console(highlight=False)
+    console = Console()
     for string in strings:
-        console.print(string, style=style)
+        console.print(string, style=style, highlight=False)
 
     # Print args dict for verbose.
     if verbose > 0:
-        print(cmd.args)
+        console.print(cmd.args)
 
 
 if __name__ == "__main__":
