@@ -6,4 +6,4 @@ SHORT_PREFIX: Final = "-"
 LONG_PREFIX_LEN: Final = len(LONG_PREFIX)
 SHORT_PREFIX_LEN: Final = len(SHORT_PREFIX)
 
-DEST_COMMAND_NAME = "<command_name>"
+DEST_COMMAND_NAME: Final = "<command_name>"

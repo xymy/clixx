@@ -141,17 +141,17 @@ class Int(Type):
     def convert_str(self, value: str) -> Any:
         try:
             return int(value, base=self.base)
-        except ValueError:
+        except ValueError as e:
             if self.base in {0, 10}:
-                raise TypeConversionError(f"{value!r} is not a valid integer.")
+                raise TypeConversionError(f"{value!r} is not a valid integer.") from e
             elif self.base == 16:
-                raise TypeConversionError(f"{value!r} is not a valid hexadecimal integer.")
+                raise TypeConversionError(f"{value!r} is not a valid hexadecimal integer.") from e
             elif self.base == 8:
-                raise TypeConversionError(f"{value!r} is not a valid octal integer.")
+                raise TypeConversionError(f"{value!r} is not a valid octal integer.") from e
             elif self.base == 2:
-                raise TypeConversionError(f"{value!r} is not a valid binary integer.")
+                raise TypeConversionError(f"{value!r} is not a valid binary integer.") from e
             else:
-                raise TypeConversionError(f"{value!r} is not a valid integer with base {self.base!r}.")
+                raise TypeConversionError(f"{value!r} is not a valid integer with base {self.base!r}.") from e
 
     def suggest_metavar(self) -> str | None:
         return "INTEGER"
@@ -174,8 +174,8 @@ class Float(Type):
     def convert_str(self, value: str) -> Any:
         try:
             return float(value)
-        except ValueError:
-            raise TypeConversionError(f"{value!r} is not a valid floating point number.")
+        except ValueError as e:
+            raise TypeConversionError(f"{value!r} is not a valid floating point number.") from e
 
     def suggest_metavar(self) -> str | None:
         return "FLOAT"
@@ -368,10 +368,7 @@ class DateTime(Type):
                 return datetime.datetime.strptime(value, format)
 
         formats_str = ", ".join(map(repr, self.formats))
-        if len(self.formats) == 1:
-            hint = f"Valid format is {formats_str}."
-        else:
-            hint = f"Valid formats are {formats_str}."
+        hint = f"Valid format is {formats_str}." if len(self.formats) == 1 else f"Valid formats are {formats_str}."
         raise TypeConversionError(f"{value!r} is not a valid datetime. {hint}")
 
     def suggest_metavar(self) -> str | None:
@@ -443,7 +440,7 @@ class File(Type):
                 path, self.mode, self.buffering, encoding=self.encoding, errors=self.errors, newline=self.newline
             )
         except OSError as e:
-            raise TypeConversionError(f"Can not open {str(path)!r}. {e.strerror}.")
+            raise TypeConversionError(f"Can not open {str(path)!r}. {e.strerror}.") from e
 
     def safe_convert(self, value: Any) -> Any:
         if isinstance(value, (str, pathlib.Path)) or hasattr(value, "read") or hasattr(value, "write"):
@@ -512,10 +509,10 @@ class Path(Type):
 
         try:
             st = path.stat()
-        except OSError:
+        except OSError as e:
             if not self.exists:
                 return path
-            raise TypeConversionError(f"{str(path)!r} does not exist.")
+            raise TypeConversionError(f"{str(path)!r} does not exist.") from e
 
         self._check_path_stat(path, st)
         if self.readable and not os.access(path, os.R_OK):
