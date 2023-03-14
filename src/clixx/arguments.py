@@ -1,14 +1,14 @@
 from __future__ import annotations
 
 from keyword import iskeyword
-from typing import Any, Sequence, cast
+from typing import Any, Final, Sequence, cast
 
 from .constants import LONG_PREFIX, LONG_PREFIX_LEN, SHORT_PREFIX, SHORT_PREFIX_LEN
 from .exceptions import DefinitionError, HelpSignal, TypeConversionError, VersionSignal
 from .types import Int, Str, Type, resolve_type
 
 # The reserved characters for arguments and options.
-_RESERVED = "<>'\""
+_RESERVED: Final = frozenset("\"'<>")
 
 
 def _check_dest(dest: str) -> str:
@@ -60,9 +60,9 @@ def _parse_decls(decls: Sequence[str]) -> tuple[list[str], list[str]]:
         else:
             raise DefinitionError(f"Option must start with {LONG_PREFIX!r} or {SHORT_PREFIX!r}, got {decl!r}.")
 
-        for rc in _RESERVED:
-            if rc in decl:
-                raise DefinitionError(f"Option {decl!r} contains reserved character {rc!r}.")
+        if inter := _RESERVED.intersection(decl):
+            inter_str = ", ".join(map(repr, sorted(inter)))
+            raise DefinitionError(f"Option {decl!r} contains reserved character {inter_str}.")
     return long_options, short_options
 
 
@@ -124,7 +124,7 @@ class Argument:
         argument = _parse_decl(decl)
 
         # Infer destination from declaration if ``dest`` not given.
-        if dest is not None:
+        if dest is not None:  # noqa
             dest = _check_dest(dest) if dest else ""
         else:
             dest = _check_dest(argument)
@@ -201,7 +201,7 @@ class Argument:
         try:
             return self.type.safe_convert(value)
         except TypeConversionError as e:
-            raise DefinitionError(f"Invalid default value for argument {self.format_decl()}. {str(e)}")
+            raise DefinitionError(f"Invalid default value for argument {self.format_decl()}. {str(e)}") from e
 
 
 class Option:
@@ -330,7 +330,7 @@ class Option:
             try:
                 value = self.type.safe_convert(value)
             except TypeConversionError as e:
-                raise DefinitionError(f"Invalid default value for option {self.format_decls()}. {str(e)}")
+                raise DefinitionError(f"Invalid default value for option {self.format_decls()}. {str(e)}") from e
         self._default = value
 
 
@@ -405,7 +405,7 @@ class FlagOption(Option):
             try:
                 value = self.type.safe_convert(value)
             except TypeConversionError as e:
-                raise DefinitionError(f"Invalid constant value for option {self.format_decls()}. {str(e)}")
+                raise DefinitionError(f"Invalid constant value for option {self.format_decls()}. {str(e)}") from e
         self._const = value
 
 
