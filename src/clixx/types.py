@@ -368,7 +368,10 @@ class DateTime(Type):
                 return datetime.datetime.strptime(value, format)
 
         formats_str = ", ".join(map(repr, self.formats))
-        hint = f"Valid format is {formats_str}." if len(self.formats) == 1 else f"Valid formats are {formats_str}."
+        if len(self.formats) == 1:  # noqa
+            hint = f"Valid format is {formats_str}."
+        else:
+            hint = f"Valid formats are {formats_str}."
         raise TypeConversionError(f"{value!r} is not a valid datetime. {hint}")
 
     def suggest_metavar(self) -> str | None:

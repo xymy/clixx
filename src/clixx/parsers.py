@@ -26,7 +26,7 @@ def _raise_invalid_argument_value(name: str) -> Generator[None, None, None]:
     try:
         yield
     except TypeConversionError as e:
-        raise InvalidArgumentValue(f"Invalid value for argument {name}. {str(e)}")
+        raise InvalidArgumentValue(f"Invalid value for argument {name}. {str(e)}") from e
 
 
 @contextmanager
@@ -34,7 +34,7 @@ def _raise_invalid_option_value(name: str) -> Generator[None, None, None]:
     try:
         yield
     except TypeConversionError as e:
-        raise InvalidOptionValue(f"Invalid value for option {name}. {str(e)}")
+        raise InvalidOptionValue(f"Invalid value for option {name}. {str(e)}") from e
 
 
 class ArgumentNode:
