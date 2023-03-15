@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import weakref
 from contextlib import contextmanager
-from typing import Any, Generator, cast
+from typing import Any, Callable, Generator, cast
 
 from .arguments import Argument, Option
 from .constants import DEST_COMMAND_NAME, LONG_PREFIX, LONG_PREFIX_LEN, SEPARATOR, SHORT_PREFIX, SHORT_PREFIX_LEN
@@ -22,18 +22,20 @@ from .groups import ArgumentGroup, OptionGroup
 
 
 @contextmanager
-def _raise_invalid_argument_value(name: str) -> Generator[None, None, None]:
+def _raise_invalid_argument_value(format_decl: Callable[[], str]) -> Generator[None, None, None]:
     try:
         yield
     except TypeConversionError as e:
+        name = format_decl()
         raise InvalidArgumentValue(f"Invalid value for argument {name}. {str(e)}") from e
 
 
 @contextmanager
-def _raise_invalid_option_value(name: str) -> Generator[None, None, None]:
+def _raise_invalid_option_value(format_decls: Callable[[], str]) -> Generator[None, None, None]:
     try:
         yield
     except TypeConversionError as e:
+        name = format_decls()
         raise InvalidOptionValue(f"Invalid value for option {name}. {str(e)}") from e
 
 
@@ -49,12 +51,12 @@ class ArgumentNode:
             self.parent.num_occurred += 1
 
     def store(self, args: dict[str, Any], value: str) -> None:
-        with _raise_invalid_argument_value(self.format_decl()):
+        with _raise_invalid_argument_value(self.format_decl):
             self._argument.store(args, value)
         self._inc_occurred()
 
     def store_default(self, args: dict[str, Any]) -> None:
-        with _raise_invalid_argument_value(self.format_decl()):
+        with _raise_invalid_argument_value(self.format_decl):
             self._argument.store_default(args)
 
     def format_decl(self) -> str:
@@ -88,17 +90,17 @@ class OptionNode:
             self.parent.num_occurred += 1
 
     def store(self, args: dict[str, Any], value: str, *, key: str) -> None:
-        with _raise_invalid_option_value(repr(key)):
+        with _raise_invalid_option_value(lambda: repr(key)):
             self._option.store(args, value)
         self._inc_occurred()
 
     def store_const(self, args: dict[str, Any]) -> None:
-        with _raise_invalid_option_value(self.format_decls()):
+        with _raise_invalid_option_value(self.format_decls):
             self._option.store_const(args)
         self._inc_occurred()
 
     def store_default(self, args: dict[str, Any]) -> None:
-        with _raise_invalid_option_value(self.format_decls()):
+        with _raise_invalid_option_value(self.format_decls):
             self._option.store_default(args)
 
     def format_decls(self) -> str:
