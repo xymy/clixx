@@ -75,7 +75,7 @@ class _PrinterHelper:
         self.is_exit = is_exit
         self.is_raise = is_raise
 
-    def __enter__(self) -> Self:  # type: ignore [valid-type]
+    def __enter__(self) -> Self:
         """Attach exception and signal handlers."""
 
         return self

@@ -120,11 +120,11 @@ class Command(_Command):
         self.argument_groups: list[ArgumentGroup] = []
         self.option_groups: list[OptionGroup] = []
 
-    def add_argument_group(self, group: ArgumentGroup) -> Self:  # type: ignore [valid-type]
+    def add_argument_group(self, group: ArgumentGroup) -> Self:
         self.argument_groups.append(group)
         return self
 
-    def add_option_group(self, group: OptionGroup) -> Self:  # type: ignore [valid-type]
+    def add_option_group(self, group: OptionGroup) -> Self:
         self.option_groups.append(group)
         return self
 
@@ -143,7 +143,7 @@ class Command(_Command):
             args = self.parse_args(argv, **_interpret_standalone(standalone))
             self.args = args
 
-            if self.pass_cmd:
+            if self.pass_cmd:  # noqa
                 exit_code = self.process_function(self, **args)
             else:
                 exit_code = self.process_function(**args)
@@ -223,7 +223,7 @@ class SuperCommand(_Command):
 
         self.option_groups: list[OptionGroup] = []
 
-    def add_option_group(self, group: OptionGroup) -> Self:  # type: ignore [valid-type]
+    def add_option_group(self, group: OptionGroup) -> Self:
         self.option_groups.append(group)
         return self
 
@@ -254,7 +254,7 @@ class SuperCommand(_Command):
             if (cmd := self.load_command(cmd_name)) is None:
                 raise CommandError(f"Unknown command {cmd_name!r}.")
 
-            if self.pass_cmd:
+            if self.pass_cmd:  # noqa
                 exit_code = self.process_function(self, **args)
             else:
                 exit_code = self.process_function(**args)
@@ -325,9 +325,7 @@ class SimpleSuperCommand(SuperCommand):
         )
         self.commands: dict[str, dict[str, Command | SuperCommand]] = {}
 
-    def add_command(
-        self, group_name: str, cmd_name: str, cmd: Command | SuperCommand
-    ) -> Self:  # type: ignore [valid-type]
+    def add_command(self, group_name: str, cmd_name: str, cmd: Command | SuperCommand) -> Self:
         group_dict = self.commands.setdefault(group_name, {})
         group_dict[cmd_name] = cmd
         return self
