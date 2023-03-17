@@ -114,16 +114,18 @@ class OptionGroup(_Group[Option]):
 
         if self.type == ANY:
             return self._check_any(num_occurred)
-        if self.type == ALL:
+        elif self.type == ALL:
             return self._check_all(num_occurred)
-        if self.type == NONE:
+        elif self.type == NONE:
             return self._check_none(num_occurred)
-        if self.type == AT_LEAST_ONE:
+        elif self.type == AT_LEAST_ONE:
             return self._check_at_least_one(num_occurred)
-        if self.type == AT_MOST_ONE:
+        elif self.type == AT_MOST_ONE:
             return self._check_at_most_one(num_occurred)
-        if self.type == EXACTLY_ONE:
+        elif self.type == EXACTLY_ONE:
             return self._check_exactly_one(num_occurred)
+        else:
+            raise AssertionError
 
     def _check_any(self, num_occurred: int) -> None:
         pass
