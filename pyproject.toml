@@ -19,6 +19,8 @@ select = [
     "F",      # pyflakes
     "E",      # pycodestyle error
     "W",      # pycodestyle warning
+    "D3",     # pydocstyle
+    "YTT",    # flake8-2020
     "B",      # flake8-bugbear
     "C4",     # flake8-comprehensions
     "ISC",    # flake8-implicit-str-concat
