@@ -8,7 +8,7 @@ from pathlib import Path
 
 src_dir = Path(__file__).resolve().parents[1].joinpath("src")
 sys.path.insert(0, os.fsdecode(src_dir))
-import clixx as pkg  # noqa
+import clixx as pkg
 
 parser = argparse.ArgumentParser()
 parser.add_argument("--clean", action="store_true", help="clean build directory before building")
