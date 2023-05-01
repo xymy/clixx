@@ -43,5 +43,3 @@ pretty = true
 [tool.pyright]
 pythonVersion = "3.8"
 pythonPlatform = "All"
-useLibraryCodeForTypes = true
-reportShadowedImports = false
