@@ -7,16 +7,16 @@ import pathlib
 import stat
 import sys
 from contextlib import suppress
-from typing import IO, Any, Callable, Sequence, cast
+from typing import IO, Any, Callable, Sequence, Union, cast
 
 from .exceptions import DefinitionError, TypeConversionError
 
 
 def _force_decode(filename: Any) -> str:
-    fn = os.fspath(filename)
-    if isinstance(fn, str):
-        return fn
-    return fn.decode(sys.getfilesystemencoding(), "backslashreplace")
+    fname = cast(Union[str, bytes], os.fspath(filename))
+    if isinstance(fname, str):
+        return fname
+    return fname.decode(sys.getfilesystemencoding(), "backslashreplace")
 
 
 def _resolve_norm(case_sensitive: bool) -> Callable[[str], str]:
