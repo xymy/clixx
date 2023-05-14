@@ -1,14 +1,11 @@
 from __future__ import annotations
 
 from keyword import iskeyword
-from typing import Any, Final, Sequence, cast
+from typing import Any, Sequence, cast
 
-from .constants import LONG_PREFIX, LONG_PREFIX_LEN, SHORT_PREFIX, SHORT_PREFIX_LEN
+from .constants import LONG_PREFIX, LONG_PREFIX_LEN, RESERVED_CHARACTERS, SHORT_PREFIX, SHORT_PREFIX_LEN
 from .exceptions import DefinitionError, HelpSignal, TypeConversionError, VersionSignal
 from .types import Int, Str, Type, resolve_type
-
-# The reserved characters for arguments and options.
-_RESERVED: Final = frozenset("\"'<>")
 
 
 def _check_dest(dest: str) -> str:
@@ -28,7 +25,7 @@ def _parse_decl(decl: str) -> str:
     if not decl:
         raise DefinitionError("Argument must be non-empty.")
 
-    for rc in _RESERVED:
+    for rc in RESERVED_CHARACTERS:
         if rc in decl:
             raise DefinitionError(f"Argument {decl!r} contains reserved character {rc!r}.")
     return decl
@@ -60,9 +57,9 @@ def _parse_decls(decls: Sequence[str]) -> tuple[list[str], list[str]]:
         else:
             raise DefinitionError(f"Option must start with {LONG_PREFIX!r} or {SHORT_PREFIX!r}, got {decl!r}.")
 
-        if inter := _RESERVED.intersection(decl):
-            inter_str = ", ".join(map(repr, sorted(inter)))
-            raise DefinitionError(f"Option {decl!r} contains reserved character {inter_str}.")
+        if rcs := RESERVED_CHARACTERS.intersection(decl):
+            rcs_str = ", ".join(map(repr, sorted(rcs)))
+            raise DefinitionError(f"Option {decl!r} contains reserved character {rcs_str}.")
     return long_options, short_options
 
 
