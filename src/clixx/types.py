@@ -501,6 +501,11 @@ class Path(Type):
     def convert(self, value: Any) -> Any:
         if isinstance(value, pathlib.Path):
             return self._check_path(value)
+        if isinstance(value, bytes):
+            try:
+                return self.convert_str(os.fsdecode(value))
+            except Exception as e:
+                raise TypeConversionError(f"{value!r} is not a valid path.") from e
         raise TypeConversionError(f"{value!r} is not a valid path.")
 
     def convert_str(self, value: str) -> Any:
@@ -531,9 +536,12 @@ class Path(Type):
         pass
 
     def safe_convert(self, value: Any) -> Any:
-        if isinstance(value, (str, pathlib.Path)):
+        if isinstance(value, (str, bytes, pathlib.Path)):
             return value
         raise TypeConversionError(f"{value!r} is not a valid path.")
+
+    def format(self, value: Any) -> str:
+        return _force_decode(value)
 
     def suggest_metavar(self) -> str | None:
         return "PATH"
