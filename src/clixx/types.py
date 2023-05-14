@@ -425,7 +425,7 @@ class File(Type):
     def convert(self, value: Any) -> Any:
         if hasattr(value, "read") or hasattr(value, "write"):
             return value
-        if isinstance(value, pathlib.Path):
+        if isinstance(value, (bytes, pathlib.Path)):
             return self._open(value)
         raise TypeConversionError(f"{value!r} is not a valid file.")
 
@@ -437,7 +437,7 @@ class File(Type):
                 return sys.stdout.buffer if "b" in self.mode else sys.stdout
         return self._open(value)
 
-    def _open(self, path: str | pathlib.Path) -> IO:
+    def _open(self, path: str | bytes | pathlib.Path) -> IO:
         try:
             return open(  # noqa
                 path, self.mode, self.buffering, encoding=self.encoding, errors=self.errors, newline=self.newline
@@ -446,17 +446,17 @@ class File(Type):
             raise TypeConversionError(f"Can not open {str(path)!r}. {e.strerror}.") from e
 
     def safe_convert(self, value: Any) -> Any:
-        if isinstance(value, (str, pathlib.Path)) or hasattr(value, "read") or hasattr(value, "write"):
+        if isinstance(value, (str, bytes, pathlib.Path)) or hasattr(value, "read") or hasattr(value, "write"):
             return value
         raise TypeConversionError(f"{value!r} is not a valid file.")
 
     def format(self, value: Any) -> str:
-        assert isinstance(value, (str, pathlib.Path)) or hasattr(value, "read") or hasattr(value, "write")
-        if isinstance(value, (str, pathlib.Path)):
-            return str(value)
-        if hasattr(value, "name"):
+        if isinstance(value, (str, bytes, pathlib.Path)):
+            return _force_decode(value)
+        # The file object may know its filename.
+        if (name := getattr(value, "name", None)) is not None:
             with suppress(TypeError):
-                return _force_decode(value.name)
+                return _force_decode(name)
         # This file does not have a pretty string representation. Just return a rough string.
         return str(value)
 
