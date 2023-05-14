@@ -40,6 +40,8 @@ def _raise_invalid_option_value(format_decls: Callable[[], str]) -> Generator[No
 
 
 class ArgumentNode:
+    """The stateful argument node."""
+
     def __init__(self, argument: Argument, parent: ArgumentGroupNode) -> None:
         self._argument = argument
         self.parent = cast(ArgumentGroupNode, weakref.proxy(parent))
@@ -72,6 +74,8 @@ class ArgumentNode:
 
 
 class ArgumentGroupNode:
+    """The stateful argument group node."""
+
     def __init__(self, group: ArgumentGroup, children: list[ArgumentNode]) -> None:
         self._group = group
         self.children = children
@@ -79,6 +83,8 @@ class ArgumentGroupNode:
 
 
 class OptionNode:
+    """The stateful option node."""
+
     def __init__(self, option: Option, parent: OptionGroupNode) -> None:
         self._option = option
         self.parent = cast(OptionGroupNode, weakref.proxy(parent))
@@ -116,6 +122,8 @@ class OptionNode:
 
 
 class OptionGroupNode:
+    """The stateful option group node."""
+
     def __init__(self, group: OptionGroup, children: list[OptionNode]) -> None:
         self._group = group
         self.children = children
@@ -344,6 +352,7 @@ class SuperParser:
         option_parser.finalize(ctx, args)
         return ctx
 
-    def _store_command(self, ctx: Context, args: dict[str, Any], arg: str) -> None:
+    @staticmethod
+    def _store_command(ctx: Context, args: dict[str, Any], arg: str) -> None:
         # Store command name to a special destination.
         args[DEST_COMMAND_NAME] = arg
