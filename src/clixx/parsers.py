@@ -4,8 +4,8 @@ import weakref
 from contextlib import contextmanager
 from typing import Any, Callable, Generator, cast
 
-from .arguments import Argument, Option
-from .constants import DEST_COMMAND_NAME, LONG_PREFIX, LONG_PREFIX_LEN, SEPARATOR, SHORT_PREFIX, SHORT_PREFIX_LEN
+from .arguments import Argument, Option, is_long_option, is_separator, is_short_option
+from .constants import DEST_COMMAND_NAME, SHORT_PREFIX_LEN
 from .exceptions import (
     InvalidArgumentValue,
     InvalidOptionValue,
@@ -228,14 +228,6 @@ class OptionParser:
                     map[key] = node
         return tree, map
 
-    @staticmethod
-    def is_long_option(arg: str) -> bool:
-        return arg.startswith(LONG_PREFIX) and len(arg) > LONG_PREFIX_LEN
-
-    @staticmethod
-    def is_short_option(arg: str) -> bool:
-        return arg.startswith(SHORT_PREFIX) and len(arg) > SHORT_PREFIX_LEN
-
     def get_option(self, key: str) -> OptionNode:
         option = self.option_map.get(key, None)
         if option is None:
@@ -263,7 +255,7 @@ class OptionParser:
                 option.store(args, value, key=key)
 
     def parse_short_option(self, ctx: Context, args: dict[str, Any], arg: str) -> None:
-        index = len(SHORT_PREFIX)
+        index = SHORT_PREFIX_LEN
         while index < len(arg):
             key = "-" + arg[index]
             index += 1
@@ -304,12 +296,12 @@ class Parser:
 
         switch_to_positional_only = False
         while (arg := ctx.next_arg) is not None:
-            if arg == SEPARATOR:
+            if is_separator(arg):
                 switch_to_positional_only = True
                 break
-            elif option_parser.is_long_option(arg):
+            elif is_long_option(arg):
                 option_parser.parse_long_option(ctx, args, arg)
-            elif option_parser.is_short_option(arg):
+            elif is_short_option(arg):
                 option_parser.parse_short_option(ctx, args, arg)
             else:
                 argument_parser.parse_argument(ctx, args, arg)
@@ -333,12 +325,12 @@ class SuperParser:
 
         switch_to_positional_only = False
         while (arg := ctx.next_arg) is not None:
-            if arg == SEPARATOR:
+            if is_separator(arg):
                 switch_to_positional_only = True
                 break
-            elif option_parser.is_long_option(arg):
+            elif is_long_option(arg):
                 option_parser.parse_long_option(ctx, args, arg)
-            elif option_parser.is_short_option(arg):
+            elif is_short_option(arg):
                 option_parser.parse_short_option(ctx, args, arg)
             else:
                 self._store_command(ctx, args, arg)

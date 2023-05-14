@@ -3,7 +3,7 @@ from __future__ import annotations
 from keyword import iskeyword
 from typing import Any, Sequence, cast
 
-from .constants import LONG_PREFIX, LONG_PREFIX_LEN, RESERVED_CHARACTERS, SHORT_PREFIX, SHORT_PREFIX_LEN
+from .constants import LONG_PREFIX, LONG_PREFIX_LEN, RESERVED_CHARACTERS, SEPARATOR, SHORT_PREFIX, SHORT_PREFIX_LEN
 from .exceptions import DefinitionError, HelpSignal, TypeConversionError, VersionSignal
 from .types import Int, Str, Type, resolve_type
 
@@ -600,3 +600,21 @@ class VersionOption(SignalOption):
 
     def store_const(self, args: dict[str, Any]) -> None:
         raise VersionSignal
+
+
+def is_separator(arg: str) -> bool:
+    """Determine whether the ``arg`` is a separator."""
+
+    return arg == SEPARATOR
+
+
+def is_long_option(arg: str) -> bool:
+    """Determine whether the ``arg`` is a long option."""
+
+    return arg.startswith(LONG_PREFIX) and len(arg) > LONG_PREFIX_LEN
+
+
+def is_short_option(arg: str) -> bool:
+    """Determine whether the ``arg`` is a short option."""
+
+    return arg.startswith(SHORT_PREFIX) and len(arg) > SHORT_PREFIX_LEN
