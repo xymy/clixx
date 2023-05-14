@@ -1,13 +1,12 @@
 from __future__ import annotations
 
 import enum
-from typing import TYPE_CHECKING, Final, Generic, Iterator, TypeVar
+from typing import Final, Generic, Iterator, TypeVar
+
+from typing_extensions import Self
 
 from .arguments import Argument, Option
 from .exceptions import GroupError
-
-if TYPE_CHECKING:  # pragma: no cover
-    from typing_extensions import Self
 
 
 class GroupType(enum.Enum):

@@ -2,16 +2,15 @@ from __future__ import annotations
 
 import sys
 from contextlib import suppress
-from typing import TYPE_CHECKING, Any, Callable, Iterator, Literal, NoReturn, Optional, TypeVar, Union, overload
+from typing import Any, Callable, Iterator, Literal, NoReturn, Optional, TypeVar, Union, overload
+
+from typing_extensions import Self
 
 from .constants import DEST_COMMAND_NAME
 from .exceptions import CommandError
 from .groups import ArgumentGroup, CommandGroup, OptionGroup
 from .parsers import Context, Parser, SuperParser
 from .printers import PrinterFactory, PrinterHelper, SuperPrinterFactory, SuperPrinterHelper
-
-if TYPE_CHECKING:
-    from typing_extensions import Self
 
 ProcessFunction = Callable[..., Optional[int]]
 

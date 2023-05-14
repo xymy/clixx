@@ -3,11 +3,11 @@ from __future__ import annotations
 import sys
 from typing import TYPE_CHECKING, Any, Callable, Dict, Protocol
 
+from typing_extensions import Self
+
 from .exceptions import CLIXXException, HelpSignal, VersionSignal
 
 if TYPE_CHECKING:  # pragma: no cover
-    from typing_extensions import Self
-
     from .commands import Command, SuperCommand
 
 
