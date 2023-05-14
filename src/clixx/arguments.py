@@ -120,7 +120,6 @@ class Argument:
     def _parse(decl: str, *, dest: str | None) -> tuple[str, str]:
         argument = _parse_decl(decl)
 
-        # Infer destination from declaration if ``dest`` not given.
         if dest is not None:  # noqa
             dest = _check_dest(dest) if dest else ""
         else:
@@ -252,7 +251,6 @@ class Option:
     def _parse(decls: Sequence[str], *, dest: str | None = None) -> tuple[str, list[str], list[str]]:
         long_options, short_options = _parse_decls(decls)
 
-        # Infer destination from declarations if ``dest`` not given.
         if dest is not None:
             dest = _check_dest(dest) if dest else ""
         elif long_options:
@@ -481,7 +479,7 @@ class CountOption(Option):
         dest (str | None, default=None):
             The destination used to store/forward the option value. If ``None``,
             infer from declarations. If empty string, disable store/forward.
-        default (Any, default=0):
+        default (int, default=0):
             The default value used if option omitted.
         hidden (bool, default=False):
             If ``True``, hide this option from help information.
@@ -490,7 +488,7 @@ class CountOption(Option):
     """
 
     def __init__(
-        self, *decls: str, dest: str | None = None, default: Any = 0, hidden: bool = False, help: str = ""
+        self, *decls: str, dest: str | None = None, default: int = 0, hidden: bool = False, help: str = ""
     ) -> None:
         super().__init__(
             *decls,
