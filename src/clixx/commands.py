@@ -123,11 +123,11 @@ class Command(_Command):
     ) -> None:
         super().__init__(name, version, description, epilog, pass_cmd=pass_cmd)
 
-        self.printer_factory = printer_factory
-        self.printer_config = printer_config
-
         self.argument_groups: list[ArgumentGroup] = []
         self.option_groups: list[OptionGroup] = []
+
+        self.printer_factory = printer_factory
+        self.printer_config = printer_config
 
     def add_argument_group(self, group: ArgumentGroup) -> Self:
         self.argument_groups.append(group)
@@ -230,10 +230,10 @@ class SuperCommand(_Command):
     ) -> None:
         super().__init__(name, version, description, epilog, pass_cmd=pass_cmd)
 
+        self.option_groups: list[OptionGroup] = []
+
         self.printer_factory = printer_factory
         self.printer_config = printer_config
-
-        self.option_groups: list[OptionGroup] = []
 
     def add_option_group(self, group: OptionGroup) -> Self:
         self.option_groups.append(group)
@@ -322,6 +322,7 @@ class SimpleSuperCommand(SuperCommand):
         name: str | None = None,
         version: str | None = None,
         description: str = "",
+        epilog: str = "",
         *,
         pass_cmd: bool = False,
         printer_factory: SuperPrinterFactory | None = None,
@@ -331,6 +332,7 @@ class SimpleSuperCommand(SuperCommand):
             name,
             version,
             description,
+            epilog,
             pass_cmd=pass_cmd,
             printer_factory=printer_factory,
             printer_config=printer_config,
