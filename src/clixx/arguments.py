@@ -163,8 +163,8 @@ class Argument:
     def resolve_metavar(self) -> str:
         """Resolve metavar."""
 
-        if self.metavar is not None:
-            return self.metavar
+        if (metavar := self.metavar) is not None:
+            return metavar
         else:
             return _norm_metavar(self.argument)
 
@@ -296,8 +296,8 @@ class Option:
     def resolve_metavar(self) -> str:
         """Resolve metavar."""
 
-        if self.metavar is not None:
-            return self.metavar
+        if (metavar := self.metavar) is not None:  # noqa
+            return metavar
         elif (metavar := self.type.suggest_metavar()) is not None:
             return metavar
         elif self.long_options:
