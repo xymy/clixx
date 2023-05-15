@@ -2,9 +2,9 @@ from __future__ import annotations
 
 import sys
 from contextlib import suppress
-from typing import Any, Callable, Iterator, Literal, NoReturn, Optional, TypeVar, Union, overload
+from typing import Any, Callable, Iterator, Literal, Optional, TypeVar, Union, overload
 
-from typing_extensions import Self
+from typing_extensions import Never, Self
 
 from .constants import DEST_COMMAND_NAME
 from .exceptions import CommandError
@@ -16,14 +16,19 @@ ProcessFunction = Callable[..., Optional[int]]
 
 
 def _dummy_function(*args: Any, **kwargs: Any) -> None:
-    pass
+    from rich.console import Console
+
+    console = Console()
+    if args:
+        console.print(args)
+    console.print(kwargs)
 
 
 def _interpret_standalone(standalone: bool) -> dict[str, bool]:
     return {"is_exit": standalone, "is_raise": not standalone}
 
 
-def _exit_command(exit_code: int | None, standalone: bool) -> int | NoReturn:
+def _exit_command(exit_code: int | None, standalone: bool) -> int | Never:
     if standalone:
         sys.exit(exit_code)
     return 0 if exit_code is None else exit_code
@@ -139,18 +144,21 @@ class Command(_Command):
 
     def __call__(
         self,
+        args: dict[str, Any] | None = None,
         argv: list[str] | None = None,
         *,
         parent: SuperCommand | None = None,
         prog: str | None = None,
         standalone: bool = True,
-    ) -> int | NoReturn:
+    ) -> int | Never:
         with PrinterHelper(self, self.printer_factory, self.printer_config, **_interpret_standalone(standalone)):
             self.parent = parent
             self.prog = prog
+            self.args = args = args if args is not None else {}
+            self.argv = argv = argv if argv is not None else sys.argv[1:]
 
-            args = self.parse_args(argv, **_interpret_standalone(standalone))
-            self.args = args
+            parser = Parser(self.argument_groups, self.option_groups)
+            parser.parse_args(args, argv)
 
             if self.pass_cmd:  # noqa
                 exit_code = self.process_function(self, **args)
@@ -158,43 +166,6 @@ class Command(_Command):
                 exit_code = self.process_function(**args)
 
         return _exit_command(exit_code, standalone)
-
-    @overload
-    def parse_args(
-        self, argv: list[str] | None = None, *, is_exit: bool = True, is_raise: bool = False, return_ctx: Literal[True]
-    ) -> tuple[dict[str, Any], Context]:
-        ...
-
-    @overload
-    def parse_args(
-        self, argv: list[str] | None = None, *, is_exit: bool = True, is_raise: bool = False, return_ctx: Literal[False]
-    ) -> dict[str, Any]:
-        ...
-
-    @overload
-    def parse_args(
-        self, argv: list[str] | None = None, *, is_exit: bool = True, is_raise: bool = False
-    ) -> dict[str, Any]:
-        ...
-
-    @overload
-    def parse_args(
-        self, argv: list[str] | None = None, *, is_exit: bool = True, is_raise: bool = False, return_ctx: bool
-    ) -> dict[str, Any] | tuple[dict[str, Any], Context]:
-        ...
-
-    def parse_args(
-        self, argv: list[str] | None = None, *, is_exit: bool = True, is_raise: bool = False, return_ctx: bool = False
-    ) -> dict[str, Any] | tuple[dict[str, Any], Context]:
-        args: dict[str, Any] = {}
-        argv = sys.argv[1:] if argv is None else argv
-        with PrinterHelper(self, self.printer_factory, self.printer_config, is_exit=is_exit, is_raise=is_raise):
-            parser = Parser(self.argument_groups, self.option_groups)
-            ctx = parser.parse_args(args, argv)
-
-        if return_ctx:
-            return args, ctx
-        return args
 
 
 class SuperCommand(_Command):
@@ -252,7 +223,7 @@ class SuperCommand(_Command):
         parent: SuperCommand | None = None,
         prog: str | None = None,
         standalone: bool = True,
-    ) -> int | NoReturn:
+    ) -> int | Never:
         with SuperPrinterHelper(self, self.printer_factory, self.printer_config, **_interpret_standalone(standalone)):
             self.parent = parent
             self.prog = prog
@@ -271,7 +242,7 @@ class SuperCommand(_Command):
             else:
                 exit_code = self.process_function(**args)
 
-            exit_code = cmd(ctx.argv_remained, standalone=standalone)
+            exit_code = cmd(argv=ctx.argv_remained, standalone=standalone)
 
         return _exit_command(exit_code, standalone)
 
