@@ -49,7 +49,10 @@ class Type:
         return value
 
     def safe_convert(self, value: Any) -> Any:
-        """Safe convert to compatible value."""
+        """Safe convert to compatible value.
+
+        This is used to verify and preprocess the constant/default values.
+        """
 
         return self(value)
 

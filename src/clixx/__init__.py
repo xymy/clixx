@@ -1,4 +1,16 @@
-from .arguments import Argument, CountOption, FlagOption, HelpOption, Option, SignalOption, VersionOption
+from .arguments import (
+    AppendOption,
+    Argument,
+    CountOption,
+    FlagOption,
+    HelpOption,
+    Option,
+    SignalOption,
+    VersionOption,
+    is_long_option,
+    is_separator,
+    is_short_option,
+)
 from .commands import Command, SuperCommand
 from .decorators import (
     append_option,
@@ -38,10 +50,14 @@ __all__ = [
     "Argument",
     "Option",
     "FlagOption",
+    "AppendOption",
     "CountOption",
     "SignalOption",
     "HelpOption",
     "VersionOption",
+    "is_separator",
+    "is_long_option",
+    "is_short_option",
     # commands
     "Command",
     "SuperCommand",
