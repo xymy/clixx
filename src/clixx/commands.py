@@ -15,7 +15,7 @@ from .printers import PrinterFactory, PrinterHelper, SuperPrinterFactory, SuperP
 ProcessFunction = Callable[..., Optional[int]]
 
 
-def _dummy_func(*args: Any, **kwargs: Any) -> None:
+def _dummy_function(*args: Any, **kwargs: Any) -> None:
     pass
 
 
@@ -38,11 +38,18 @@ class _Command:
     args: dict[str, Any] | None
 
     def __init__(
-        self, name: str | None = None, version: str | None = None, description: str = "", *, pass_cmd: bool = False
+        self,
+        name: str | None = None,
+        version: str | None = None,
+        description: str = "",
+        epilog: str = "",
+        *,
+        pass_cmd: bool = False,
     ) -> None:
         self.name = name
         self.version = version
         self.description = description
+        self.epilog = epilog
 
         self.pass_cmd = pass_cmd
 
@@ -50,7 +57,7 @@ class _Command:
         self.prog = None
         self.args = None
 
-        self.process_function = _dummy_func
+        self.process_function = _dummy_function
 
     def get_name(self) -> str:
         if self.name is not None:
@@ -88,11 +95,13 @@ class Command(_Command):
 
     Parameters:
         name (str | None, default=None):
-            The name used when showing version information.
+            The name to display in the version information.
         version (str | None, default=None):
-            The version used when showing version information.
+            The version to display in the version information.
         description (str, default=''):
-            The description.
+            The description to display before the main help.
+        epilog (str, default=''):
+            The epilog to display after the main help.
         pass_cmd (bool, default=False):
             If ``True``, pass this command instance to the process function.
         printer_factory (PrinterFactory | None, default=None):
@@ -106,12 +115,13 @@ class Command(_Command):
         name: str | None = None,
         version: str | None = None,
         description: str = "",
+        epilog: str = "",
         *,
         pass_cmd: bool = False,
         printer_factory: PrinterFactory | None = None,
         printer_config: dict[str, Any] | None = None,
     ) -> None:
-        super().__init__(name, version, description, pass_cmd=pass_cmd)
+        super().__init__(name, version, description, epilog, pass_cmd=pass_cmd)
 
         self.printer_factory = printer_factory
         self.printer_config = printer_config
@@ -192,11 +202,13 @@ class SuperCommand(_Command):
 
     Parameters:
         name (str | None, default=None):
-            The name used when showing version information.
+            The name to display in the version information.
         version (str | None, default=None):
-            The version used when showing version information.
+            The version to display in the version information.
         description (str, default=''):
-            The description.
+            The description to display before the main help.
+        epilog (str, default=''):
+            The epilog to display after the main help.
         pass_cmd (bool, default=False):
             If ``True``, pass this command instance to the process function.
         printer_factory (SuperPrinterFactory | None, default=None):
@@ -210,12 +222,13 @@ class SuperCommand(_Command):
         name: str | None = None,
         version: str | None = None,
         description: str = "",
+        epilog: str = "",
         *,
         pass_cmd: bool = False,
         printer_factory: SuperPrinterFactory | None = None,
         printer_config: dict[str, Any] | None = None,
     ) -> None:
-        super().__init__(name, version, description, pass_cmd=pass_cmd)
+        super().__init__(name, version, description, epilog, pass_cmd=pass_cmd)
 
         self.printer_factory = printer_factory
         self.printer_config = printer_config
