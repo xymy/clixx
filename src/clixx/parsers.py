@@ -181,18 +181,6 @@ class ArgumentParser:
                 seq.append(node)
         return tree, seq
 
-    def get_argument(self, arg: str) -> ArgumentNode:
-        if self._pos >= len(self.argument_seq):
-            raise TooManyArguments(f"Got too many arguments. Found extra argument {arg!r}.")
-        argument = self.argument_seq[self._pos]
-        if argument.nargs == 1:
-            self._pos += 1
-        return argument
-
-    def parse_argument(self, ctx: Context, args: dict[str, Any], arg: str) -> None:
-        argument = self.get_argument(arg)
-        argument.store(args, arg)
-
     def finalize(self, ctx: Context, args: dict[str, Any]) -> None:
         for group in self.argument_tree:
             for argument in group.children:
@@ -202,6 +190,18 @@ class ArgumentParser:
                             f"Got too few arguments. {argument.format_decl()} is required but not given."
                         )
                     argument.store_default(args)
+
+    def _get_argument(self, arg: str) -> ArgumentNode:
+        if self._pos >= len(self.argument_seq):
+            raise TooManyArguments(f"Got too many arguments. Found extra argument {arg!r}.")
+        argument = self.argument_seq[self._pos]
+        if argument.nargs == 1:
+            self._pos += 1
+        return argument
+
+    def parse_argument(self, ctx: Context, args: dict[str, Any], arg: str) -> None:
+        argument = self._get_argument(arg)
+        argument.store(args, arg)
 
 
 class OptionParser:
@@ -228,7 +228,16 @@ class OptionParser:
                     map[key] = node
         return tree, map
 
-    def get_option(self, key: str) -> OptionNode:
+    def finalize(self, ctx: Context, args: dict[str, Any]) -> None:
+        for group in self.option_tree:
+            for option in group.children:
+                if not option.occurred:
+                    if option.required:
+                        raise MissingOption(f"Missing option {option.format_decls()}.")
+                    option.store_default(args)
+            group.check()
+
+    def _get_option(self, key: str) -> OptionNode:
         option = self.option_map.get(key, None)
         if option is None:
             raise UnknownOption(f"Unknown option {key!r}.")
@@ -239,14 +248,14 @@ class OptionParser:
 
         if "=" in arg:  # --option=value
             key, value = arg.split("=", 1)
-            option = self.get_option(key)
+            option = self._get_option(key)
             if option.nargs == 0:
                 raise TooManyOptionValues(f"Option {key!r} does not take a value.")
             option.store(args, value, key=key)
 
         else:  # --option [value]
             key = arg
-            option = self.get_option(key)
+            option = self._get_option(key)
             if option.nargs == 0:
                 option.store_const(args)
             else:
@@ -259,7 +268,7 @@ class OptionParser:
         while index < len(arg):
             key = "-" + arg[index]
             index += 1
-            option = self.get_option(key)
+            option = self._get_option(key)
 
             if option.nargs == 0:
                 option.store_const(args)
@@ -273,15 +282,6 @@ class OptionParser:
                         raise TooFewOptionValues(f"Option {key!r} requires a value.")
                 option.store(args, value, key=key)
                 break  # end of parsing
-
-    def finalize(self, ctx: Context, args: dict[str, Any]) -> None:
-        for group in self.option_tree:
-            for option in group.children:
-                if not option.occurred:
-                    if option.required:
-                        raise MissingOption(f"Missing option {option.format_decls()}.")
-                    option.store_default(args)
-            group.check()
 
 
 class Parser:
