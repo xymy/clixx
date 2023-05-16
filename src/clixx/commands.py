@@ -4,7 +4,7 @@ import sys
 from contextlib import suppress
 from typing import Any, Callable, Iterator, Literal, Optional, TypeVar, Union, overload
 
-from typing_extensions import Never, Self
+from typing_extensions import Never, Self, TypeAlias
 
 from .constants import DEST_COMMAND_NAME
 from .exceptions import CommandError
@@ -12,7 +12,8 @@ from .groups import ArgumentGroup, CommandGroup, OptionGroup
 from .parsers import Parser, SuperParser
 from .printers import PrinterFactory, PrinterHelper, SuperPrinterFactory, SuperPrinterHelper
 
-ProcessFunction = Callable[..., Optional[int]]
+ProcessFunction: TypeAlias = Callable[..., Optional[int]]
+SuperProcessFunction: TypeAlias = Callable[..., Optional["dict[str, Any]"]]
 
 
 def _dummy_function(*args: Any, **kwargs: Any) -> None:
@@ -20,7 +21,10 @@ def _dummy_function(*args: Any, **kwargs: Any) -> None:
 
     console = Console()
     if args:
-        console.print(args)
+        if len(args) == 1:
+            console.print(args[0])
+        else:
+            console.print(args)
     console.print(kwargs)
 
 
@@ -77,8 +81,6 @@ class _Command:
         self.prog = None
         self.args = None
 
-        self.process_function = _dummy_function
-
     def get_name(self) -> str:
         if self.name is not None:
             return self.name
@@ -98,16 +100,6 @@ class _Command:
         if self.parent is None:
             return prog
         return f"{self.parent.get_prog()} {prog}"
-
-    @property
-    def process_function(self) -> ProcessFunction:
-        """The process function."""
-
-        return self._process_function
-
-    @process_function.setter
-    def process_function(self, value: ProcessFunction) -> None:
-        self._process_function = value
 
 
 class Command(_Command):
@@ -143,11 +135,23 @@ class Command(_Command):
     ) -> None:
         super().__init__(name, version, description, epilog, pass_cmd=pass_cmd)
 
+        self.process_function = _dummy_function
+
         self.argument_groups: list[ArgumentGroup] = []
         self.option_groups: list[OptionGroup] = []
 
         self.printer_factory = printer_factory
         self.printer_config = printer_config
+
+    @property
+    def process_function(self) -> ProcessFunction:
+        """The process function."""
+
+        return self._process_function
+
+    @process_function.setter
+    def process_function(self, value: ProcessFunction) -> None:
+        self._process_function = value
 
     def add_argument_group(self, group: ArgumentGroup) -> Self:
         self.argument_groups.append(group)
@@ -215,10 +219,22 @@ class SuperCommand(_Command):
     ) -> None:
         super().__init__(name, version, description, epilog, pass_cmd=pass_cmd)
 
+        self.super_process_function = _dummy_function
+
         self.option_groups: list[OptionGroup] = []
 
         self.printer_factory = printer_factory
         self.printer_config = printer_config
+
+    @property
+    def super_process_function(self) -> SuperProcessFunction:
+        """The super process function."""
+
+        return self._super_process_function
+
+    @super_process_function.setter
+    def super_process_function(self, value: SuperProcessFunction) -> None:
+        self._super_process_function = value
 
     def add_option_group(self, group: OptionGroup) -> Self:
         self.option_groups.append(group)
@@ -255,11 +271,12 @@ class SuperCommand(_Command):
                 raise CommandError(f"Unknown command {cmd_name!r}.")
 
             if self.pass_cmd:  # noqa
-                exit_code = self.process_function(self, **args)
+                args = self.super_process_function(self, **args)
             else:
-                exit_code = self.process_function(**args)
+                args = self.super_process_function(**args)
 
-            exit_code = cmd({}, ctx.argv_remained, parent=self, standalone=standalone)
+            args = args if args is not None else {}
+            exit_code = cmd(args, ctx.argv_remained, parent=self, standalone=standalone)
         return _exit_command(exit_code, standalone)
 
 

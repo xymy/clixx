@@ -1,22 +1,24 @@
 from __future__ import annotations
 
 from contextlib import suppress
-from typing import Any, Callable, TypeVar
+from typing import Any, Callable, TypeVar, Union
 
 from .arguments import AppendOption, Argument, CountOption, FlagOption, HelpOption, Option, VersionOption
-from .commands import Command, ProcessFunction, SimpleSuperCommand
+from .commands import Command, ProcessFunction, SimpleSuperCommand, SuperProcessFunction
 from .exceptions import DefinitionError
 from .groups import ANY, ArgumentGroup, GroupType, OptionGroup
 from .printers import PrinterFactory, SuperPrinterFactory
 from .types import Type
 
-F = TypeVar("F", bound=ProcessFunction)
+PF = TypeVar("PF", bound=ProcessFunction)
+SPF = TypeVar("SPF", bound=SuperProcessFunction)
+F = TypeVar("F", bound=Union[ProcessFunction, SuperProcessFunction])
 
 
 def _prepare_definition(func: F, obj: Argument | Option | ArgumentGroup | OptionGroup) -> None:
     if not hasattr(func, "__clixx_definition__"):
-        func.__clixx_definition__ = []  # type: ignore [attr-defined]
-    func.__clixx_definition__.append(obj)  # type: ignore [attr-defined]
+        func.__clixx_definition__ = []  # type: ignore [union-attr]
+    func.__clixx_definition__.append(obj)  # type: ignore [union-attr]
 
 
 def argument(
@@ -31,7 +33,7 @@ def argument(
     show_default: bool = False,
     metavar: str | None = None,
     help: str = "",
-) -> Callable[[F], F]:
+) -> Callable[[PF], PF]:
     """The argument, aka positional argument.
 
     Parameters:
@@ -60,7 +62,7 @@ def argument(
             The help information.
     """
 
-    def decorator(func: F) -> F:
+    def decorator(func: PF) -> PF:
         obj = Argument(
             decl,
             dest=dest,
@@ -317,8 +319,8 @@ def command(
     pass_cmd: bool = False,
     printer_factory: PrinterFactory | None = None,
     printer_config: dict[str, Any] | None = None,
-) -> Callable[[F], Command]:
-    def decorator(func: F) -> Command:
+) -> Callable[[PF], Command]:
+    def decorator(func: PF) -> Command:
         cmd = Command(
             name,
             version,
@@ -363,8 +365,8 @@ def simple_super_command(
     pass_cmd: bool = False,
     printer_factory: SuperPrinterFactory | None = None,
     printer_config: dict[str, Any] | None = None,
-) -> Callable[[F], SimpleSuperCommand]:
-    def decorator(func: F) -> SimpleSuperCommand:
+) -> Callable[[SPF], SimpleSuperCommand]:
+    def decorator(func: SPF) -> SimpleSuperCommand:
         cmd = SimpleSuperCommand(
             name,
             version,
@@ -393,7 +395,7 @@ def simple_super_command(
                         raise DefinitionError(f"Found unexpected object {group!r}.")
                     group = member
 
-        cmd.process_function = func
+        cmd.super_process_function = func
         return cmd
 
     return decorator
