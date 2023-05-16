@@ -145,14 +145,11 @@ class Argument:
         if not self.dest:
             return
 
-        if self.nargs == 1:
+        if self.nargs == 1:  # noqa
             result = None if self.default is None else self.type(self.default)
         else:
-            # Variadic arguments are stored as list. Defaults to empty list.
-            if self.default is None:
-                result = []
-            else:
-                result = [self.type(value) for value in cast(list, self.default)]
+            # Variadic arguments default to empty list.
+            result = []
         args[self.dest] = result
 
     def format_decl(self) -> str:
@@ -188,9 +185,7 @@ class Argument:
             if self.nargs == 1:
                 value = self._verify(value)
             else:
-                if not isinstance(value, (list, tuple)):
-                    raise DefinitionError("For nargs == -1, the default value must be list, tuple or None.")
-                value = [self._verify(v) for v in value]
+                raise DefinitionError("For nargs == -1, the default value must be None.")
         self._default = value
 
     def _verify(self, value: Any) -> Any:
