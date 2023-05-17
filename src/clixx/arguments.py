@@ -146,7 +146,7 @@ class Argument:
             return
 
         if self.nargs == 1:  # noqa
-            result = None if self.default is None else self.type(self.default)
+            result = self.type(self.default) if self.default is not None else None
         else:
             # Variadic arguments default to empty list.
             result = []
@@ -280,7 +280,7 @@ class Option:
         if not self.dest:
             return
 
-        result = None if self.default is None else self.type(self.default)
+        result = self.type(self.default) if self.default is not None else None
         args[self.dest] = result
 
     def format_decls(self) -> str:
@@ -372,7 +372,7 @@ class FlagOption(Option):
         if not self.dest:
             return
 
-        result = None if self.const is None else self.type(self.const)
+        result = self.type(self.const) if self.const is not None else None
         args[self.dest] = result
 
     @property

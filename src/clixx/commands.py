@@ -50,7 +50,7 @@ def _exit_command(exit_code: int | None, standalone: bool) -> int | Never:
 def _exit_command(exit_code: int | None, standalone: bool) -> int | Never:
     if standalone:
         sys.exit(exit_code)
-    return 0 if exit_code is None else exit_code
+    return exit_code if exit_code is not None else 0
 
 
 class _Command:
