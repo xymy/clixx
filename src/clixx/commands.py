@@ -12,11 +12,11 @@ from .groups import ArgumentGroup, CommandGroup, OptionGroup
 from .parsers import Parser, SuperParser
 from .printers import PrinterFactory, PrinterHelper, SuperPrinterFactory, SuperPrinterHelper
 
-ProcessFunction: TypeAlias = Callable[..., Optional[int]]
-SuperProcessFunction: TypeAlias = Callable[..., Optional["dict[str, Any]"]]
+CommandFunction: TypeAlias = Callable[..., Optional[int]]
+SuperCommandFunction: TypeAlias = Callable[..., Optional["dict[str, Any]"]]
 
 
-def _dummy_function(*args: Any, **kwargs: Any) -> None:
+def _print_args(*args: Any, **kwargs: Any) -> None:
     from rich.console import Console
 
     console = Console()
@@ -24,7 +24,7 @@ def _dummy_function(*args: Any, **kwargs: Any) -> None:
         if len(args) == 1:
             console.print(args[0])
         else:
-            console.print(args)
+            raise AssertionError
     console.print(kwargs)
 
 
@@ -115,7 +115,7 @@ class Command(_Command):
         epilog (str, default=''):
             The epilog to display after the main help.
         pass_cmd (bool, default=False):
-            If ``True``, pass this command instance to the process function.
+            If ``True``, pass this command instance to the command function.
         printer_factory (PrinterFactory | None, default=None):
             The printer factory.
         printer_config (dict[str, Any] | None, default=None):
@@ -135,7 +135,7 @@ class Command(_Command):
     ) -> None:
         super().__init__(name, version, description, epilog, pass_cmd=pass_cmd)
 
-        self.process_function = _dummy_function
+        self.function = _print_args
 
         self.argument_groups: list[ArgumentGroup] = []
         self.option_groups: list[OptionGroup] = []
@@ -144,14 +144,14 @@ class Command(_Command):
         self.printer_config = printer_config
 
     @property
-    def process_function(self) -> ProcessFunction:
-        """The process function."""
+    def function(self) -> CommandFunction:
+        """The command function."""
 
-        return self._process_function
+        return self._function
 
-    @process_function.setter
-    def process_function(self, value: ProcessFunction) -> None:
-        self._process_function = value
+    @function.setter
+    def function(self, value: CommandFunction) -> None:
+        self._function = value
 
     def add_argument_group(self, group: ArgumentGroup) -> Self:
         self.argument_groups.append(group)
@@ -180,9 +180,9 @@ class Command(_Command):
             parser.parse_args(args, argv)
 
             if self.pass_cmd:  # noqa
-                exit_code = self.process_function(self, **args)
+                exit_code = self.function(self, **args)
             else:
-                exit_code = self.process_function(**args)
+                exit_code = self.function(**args)
         return _exit_command(exit_code, standalone)
 
 
@@ -199,7 +199,7 @@ class SuperCommand(_Command):
         epilog (str, default=''):
             The epilog to display after the main help.
         pass_cmd (bool, default=False):
-            If ``True``, pass this command instance to the process function.
+            If ``True``, pass this command instance to the command function.
         printer_factory (SuperPrinterFactory | None, default=None):
             The super printer factory.
         printer_config (dict[str, Any] | None, default=None):
@@ -219,7 +219,7 @@ class SuperCommand(_Command):
     ) -> None:
         super().__init__(name, version, description, epilog, pass_cmd=pass_cmd)
 
-        self.super_process_function = _dummy_function
+        self.function = _print_args
 
         self.option_groups: list[OptionGroup] = []
 
@@ -227,14 +227,14 @@ class SuperCommand(_Command):
         self.printer_config = printer_config
 
     @property
-    def super_process_function(self) -> SuperProcessFunction:
-        """The super process function."""
+    def function(self) -> SuperCommandFunction:
+        """The super command function."""
 
-        return self._super_process_function
+        return self._function
 
-    @super_process_function.setter
-    def super_process_function(self, value: SuperProcessFunction) -> None:
-        self._super_process_function = value
+    @function.setter
+    def function(self, value: SuperCommandFunction) -> None:
+        self._function = value
 
     def add_option_group(self, group: OptionGroup) -> Self:
         self.option_groups.append(group)
@@ -271,9 +271,9 @@ class SuperCommand(_Command):
                 raise CommandError(f"Unknown command {cmd_name!r}.")
 
             if self.pass_cmd:  # noqa
-                args = self.super_process_function(self, **args)
+                args = self.function(self, **args)
             else:
-                args = self.super_process_function(**args)
+                args = self.function(**args)
 
             args = args if args is not None else {}
             exit_code = cmd(args, ctx.argv_remained, parent=self, standalone=standalone)
