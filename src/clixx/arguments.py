@@ -73,12 +73,11 @@ class Argument:
             The destination used to store the argument value. If ``None``, infer
             from declaration. If empty string, disable the store action.
         nargs (int, default=1):
-            The number of argument values. Valid values are ``nargs == 1`` or
-            ``nargs == -1``.
+            The number of argument values. Valid values are ``nargs == 1`` or ``nargs == -1``.
         required (bool, default=False):
             Whether this argument is required or optional.
         type (Type | type | None, default=None):
-            The type converter. If ``None``, use ``Str()``.
+            The type converter. If ``None``, use :class:`clixx.types.Str()`.
         default (Any, default=None):
             The default value used if argument omitted.
         hidden (bool, default=False):
@@ -207,7 +206,7 @@ class Option:
         required (bool, default=False):
             Whether this option is required or optional.
         type (Type | type | None, default=None):
-            The type converter. If ``None``, use ``Str()``.
+            The type converter. If ``None``, use :class:`clixx.types.Str()`.
         default (Any, default=None):
             The default value used if option omitted.
         hidden (bool, default=False):
@@ -409,7 +408,7 @@ class AppendOption(Option):
             The destination used to store the option value. If ``None``, infer
             from declarations. If empty string, disable the store action.
         type (Type | type | None, default=None):
-            The type converter. If ``None``, use ``Str()``.
+            The type converter. If ``None``, use :class:`clixx.types.Str()`.
         hidden (bool, default=False):
             If ``True``, hide this option from help information.
         metavar (str | None, default=None):

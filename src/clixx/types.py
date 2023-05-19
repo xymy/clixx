@@ -551,7 +551,8 @@ class Path(Type):
 
 
 class DirPath(Path):
-    """Similar to :class:`Path`, but check whether the path is a directory if it exists."""
+    """Similar to :class:`clixx.types.Path`, but check whether the path is
+    a directory if it exists."""
 
     @staticmethod
     def _check_path_stat(path: pathlib.Path, st: os.stat_result) -> None:
@@ -563,7 +564,8 @@ class DirPath(Path):
 
 
 class FilePath(Path):
-    """Similar to :class:`Path`, but check whether the path is a file if it exists."""
+    """Similar to :class:`clixx.types.Path`, but check whether the path is
+    a file if it exists."""
 
     @staticmethod
     def _check_path_stat(path: pathlib.Path, st: os.stat_result) -> None:
@@ -578,17 +580,17 @@ def resolve_type(type: Type | type) -> Type:
     """Convert Python's builtin type to CLIXX's type. Return as is if ``type``
     is already an instance of :class:`Type`.
 
-    +----------------+------------------+
-    | Source         | Target           |
-    +================+==================+
-    | :class:`str`   | :class:`Str()`   |
-    +----------------+------------------+
-    | :class:`bool`  | :class:`Bool()`  |
-    +----------------+------------------+
-    | :class:`int`   | :class:`Int()`   |
-    +----------------+------------------+
-    | :class:`float` | :class:`Float()` |
-    +----------------+------------------+
+    +----------------+------------------------------+
+    | Source         | Target                       |
+    +================+==============================+
+    | :class:`str`   | :class:`clixx.types.Str()`   |
+    +----------------+------------------------------+
+    | :class:`bool`  | :class:`clixx.types.Bool()`  |
+    +----------------+------------------------------+
+    | :class:`int`   | :class:`clixx.types.Int()`   |
+    +----------------+------------------------------+
+    | :class:`float` | :class:`clixx.types.Float()` |
+    +----------------+------------------------------+
     """
 
     if isinstance(type, Type):
