@@ -70,8 +70,8 @@ class Argument:
         decl (str):
             The declaration for this argument.
         dest (str | None, default=None):
-            The destination used to store/forward the argument value. If ``None``,
-            infer from declaration. If empty string, disable store/forward.
+            The destination used to store the argument value. If ``None``, infer
+            from declaration. If empty string, disable the store action.
         nargs (int, default=1):
             The number of argument values. Valid values are ``nargs == 1`` or
             ``nargs == -1``.
@@ -202,8 +202,8 @@ class Option:
         decls (tuple[str, ...]):
             The declarations for this option.
         dest (str | None, default=None):
-            The destination used to store/forward the option value. If ``None``,
-            infer from declarations. If empty string, disable store/forward.
+            The destination used to store the option value. If ``None``, infer
+            from declarations. If empty string, disable the store action.
         required (bool, default=False):
             Whether this option is required or optional.
         type (Type | type | None, default=None):
@@ -331,8 +331,8 @@ class FlagOption(Option):
         decls (tuple[str, ...]):
             The declarations for this option.
         dest (str | None, default=None):
-            The destination used to store/forward the option value. If ``None``,
-            infer from declarations. If empty string, disable store/forward.
+            The destination used to store the option value. If ``None``, infer
+            from declarations. If empty string, disable the store action.
         const (Any, default=True):
             The constant value used if option occurred.
         default (Any, default=False):
@@ -406,8 +406,8 @@ class AppendOption(Option):
         decls (tuple[str, ...]):
             The declarations for this option.
         dest (str | None, default=None):
-            The destination used to store/forward the option value. If ``None``,
-            infer from declarations. If empty string, disable store/forward.
+            The destination used to store the option value. If ``None``, infer
+            from declarations. If empty string, disable the store action.
         type (Type | type | None, default=None):
             The type converter. If ``None``, use ``Str()``.
         hidden (bool, default=False):
@@ -472,8 +472,8 @@ class CountOption(Option):
         decls (tuple[str, ...]):
             The declarations for this option.
         dest (str | None, default=None):
-            The destination used to store/forward the option value. If ``None``,
-            infer from declarations. If empty string, disable store/forward.
+            The destination used to store the option value. If ``None``, infer
+            from declarations. If empty string, disable the store action.
         default (int, default=0):
             The default value used if option omitted.
         hidden (bool, default=False):

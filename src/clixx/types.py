@@ -454,6 +454,7 @@ class File(Type):
         raise TypeConversionError(f"{value!r} is not a valid file.")
 
     def format(self, value: Any) -> str:
+        # These types can be decoded anyway.
         if isinstance(value, (str, bytes, pathlib.Path)):
             return _force_decode(value)
         # The file object may know its filename.
@@ -474,8 +475,7 @@ class Path(Type):
 
     Parameters:
         resolve (bool, default=False):
-            If ``True``, make the path absolute, resolve all symlinks, and
-            normalize it.
+            If ``True``, make the path absolute, resolve all symlinks, and normalize it.
         exists (bool, default=False):
             If ``True``, check whether the path exists.
         readable (bool, default=False):
