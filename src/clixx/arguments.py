@@ -141,7 +141,7 @@ class Argument:
     def store_default(self, args: dict[str, Any]) -> None:
         """Store default value to destination."""
 
-        if not self.dest:
+        if not self.dest or self.dest in args:
             return
 
         if self.nargs == 1:  # noqa
@@ -276,7 +276,7 @@ class Option:
     def store_default(self, args: dict[str, Any]) -> None:
         """Store default value to destination."""
 
-        if not self.dest:
+        if not self.dest or self.dest in args:
             return
 
         result = self.type(self.default) if self.default is not None else None
@@ -447,7 +447,7 @@ class AppendOption(Option):
         cast(list, args.setdefault(self.dest, [])).append(result)
 
     def store_default(self, args: dict[str, Any]) -> None:
-        if not self.dest:
+        if not self.dest or self.dest in args:
             return
 
         args[self.dest] = []
