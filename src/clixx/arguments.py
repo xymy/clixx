@@ -73,7 +73,7 @@ class Argument:
             The destination used to store the argument value. If ``None``, infer
             from declaration. If empty string, disable the store action.
         nargs (int, default=1):
-            The number of argument values. Valid values are ``nargs == 1`` or ``nargs == -1``.
+            The number of argument values. Valid values are ``1`` or ``-1``.
         required (bool, default=False):
             Whether this argument is required or optional.
         type (Type | type | None, default=None):

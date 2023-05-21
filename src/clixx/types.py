@@ -60,7 +60,7 @@ class Type:
         """Format value.
 
         The ``value`` must be compatible with this type, usually the return
-        value of :meth:`~Type.safe_convert`.
+        value of :meth:`~clixx.types.Type.safe_convert`.
         """
 
         return str(value)
@@ -551,8 +551,8 @@ class Path(Type):
 
 
 class DirPath(Path):
-    """Similar to :class:`clixx.types.Path`, but check whether the path is
-    a directory if it exists."""
+    """Similar to :class:`clixx.types.Path`, but check whether the path is a
+    directory if it exists."""
 
     @staticmethod
     def _check_path_stat(path: pathlib.Path, st: os.stat_result) -> None:
@@ -564,8 +564,8 @@ class DirPath(Path):
 
 
 class FilePath(Path):
-    """Similar to :class:`clixx.types.Path`, but check whether the path is
-    a file if it exists."""
+    """Similar to :class:`clixx.types.Path`, but check whether the path is a
+    file if it exists."""
 
     @staticmethod
     def _check_path_stat(path: pathlib.Path, st: os.stat_result) -> None:
@@ -578,7 +578,7 @@ class FilePath(Path):
 
 def resolve_type(type: Type | type) -> Type:
     """Convert Python's builtin type to CLIXX's type. Return as is if ``type``
-    is already an instance of :class:`Type`.
+    is already an instance of :class:`clixx.types.Type`.
 
     +----------------+------------------------------+
     | Source         | Target                       |
