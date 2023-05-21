@@ -54,12 +54,10 @@ def _exit_command(exit_code: int | None, standalone: bool) -> int | Never:
 
 
 class _Command:
-    #: The parent command. Should be set by parent.
-    parent: SuperCommand | None
-    #: The program name. Should be set by parent.
-    prog: str | None
-    #: The parsed arguments. Should be set after parsing by ``__call__``.
-    args: dict[str, Any] | None
+    parent: SuperCommand | None = None
+    prog: str | None = None
+    _args: dict[str, Any] | None = None
+    _argv: list[str] | None = None
 
     def __init__(
         self,
@@ -76,10 +74,6 @@ class _Command:
         self.epilog = epilog
 
         self.pass_cmd = pass_cmd
-
-        self.parent = None
-        self.prog = None
-        self.args = None
 
     def get_name(self) -> str:
         if self.name is not None:
@@ -100,6 +94,26 @@ class _Command:
         if self.parent is None:
             return prog
         return f"{self.parent.get_prog()} {prog}"
+
+    @property
+    def args(self) -> dict[str, Any]:
+        if self._args is None:
+            raise RuntimeError("This command is not running.")
+        return self._args
+
+    @args.setter
+    def args(self, value: dict[str, Any]) -> None:
+        self._args = value
+
+    @property
+    def argv(self) -> list[str]:
+        if self._argv is None:
+            raise RuntimeError("This command is not running.")
+        return self._argv
+
+    @argv.setter
+    def argv(self, value: list[str]) -> None:
+        self._argv = value
 
 
 class Command(_Command):
