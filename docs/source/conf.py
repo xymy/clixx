@@ -46,7 +46,7 @@ html_static_path = ["_static"]
 # -- Options for autodoc -----------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/extensions/autodoc.html#module-sphinx.ext.autodoc
 
-autodoc_member_order = "bysource"
+autodoc_default_options = {"members": True, "member-order": "bysource", "show-inheritance": True}
 
 # -- Options for intersphinx -------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/extensions/intersphinx.html#module-sphinx.ext.intersphinx
