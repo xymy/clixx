@@ -17,7 +17,7 @@ parser.add_argument("--clean", action="store_true", help="clean the build direct
 parser.add_argument("--dist", action="store_true", help="build a distribution")
 args = parser.parse_args()
 
-console = Console()
+console = Console(soft_wrap=True, highlight=False)
 
 docs_dir = Path(__file__).resolve().parent
 build_dir = docs_dir / "build"
@@ -28,7 +28,7 @@ html_dir = build_dir / "html"
 
 if args.clean and build_dir.exists():
     shutil.rmtree(build_dir)
-    console.print(f"[bold bright_white]Clean the build directory {build_dir}[/bold bright_white]")
+    console.print(f"[b blue]Clean the build directory [u]{build_dir}[/u][/b blue]")
 
 subprocess.run([sys.executable, "-m", "sphinx.cmd.build", "-b", "html", "-d", doctrees_dir, source_dir, html_dir])
 
@@ -38,4 +38,4 @@ if args.dist:
     dist_path = dist_dir / f"{dist_name}.tar.xz"
     with tarfile.open(dist_path, "w:xz") as tar:
         tar.add(html_dir, dist_name)
-    console.print(f"[bold bright_white]Build a distribution {dist_path}[/bold bright_white]")
+    console.print(f"[b green]Build a distribution [u]{dist_path}[/u][/b green]")
