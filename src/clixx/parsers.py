@@ -134,6 +134,8 @@ class OptionGroupNode:
 
 
 class Context:
+    """The context for a parsing."""
+
     def __init__(self, args: dict[str, Any], argv: list[str]) -> None:
         self.args = args
         self.argv = argv
@@ -164,6 +166,8 @@ class Context:
 
 
 class ArgumentParser:
+    """The parser for arguments."""
+
     def __init__(self, argument_groups: list[ArgumentGroup]) -> None:
         self.argument_tree, self.argument_seq = self._build(argument_groups)
         self._pos = 0
@@ -205,6 +209,8 @@ class ArgumentParser:
 
 
 class OptionParser:
+    """The parser for options."""
+
     def __init__(self, option_groups: list[OptionGroup]) -> None:
         self.option_tree, self.option_map = self._build(option_groups)
 
@@ -285,6 +291,8 @@ class OptionParser:
 
 
 class Parser:
+    """The command-line interface parser."""
+
     def __init__(self, argument_groups: list[ArgumentGroup], option_groups: list[OptionGroup]) -> None:
         self.argument_groups = argument_groups
         self.option_groups = option_groups
@@ -316,6 +324,8 @@ class Parser:
 
 
 class SuperParser:
+    """The super command-line interface parser."""
+
     def __init__(self, option_groups: list[OptionGroup]) -> None:
         self.option_groups = option_groups
 
