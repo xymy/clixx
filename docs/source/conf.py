@@ -51,7 +51,7 @@ autodoc_default_options = {"members": True, "member-order": "bysource", "show-in
 # -- Options for intersphinx -------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/extensions/intersphinx.html#module-sphinx.ext.intersphinx
 
-intersphinx_mapping = {"python": ("https://docs.python.org/3", None)}
+intersphinx_mapping = {"python": ("https://docs.python.org/3/", None)}
 
 # -- Options for mathjax -----------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/extensions/math.html#module-sphinx.ext.mathjax
