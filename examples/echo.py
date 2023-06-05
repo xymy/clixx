@@ -17,6 +17,7 @@ import clixx
 @clixx.version_option("-V", "--version")
 @clixx.count_option("-v", "--verbose", help="Show more information.")
 def main(cmd: clixx.Command, strings: list[str], red: bool, green: bool, blue: bool, verbose: int) -> None:
+    # At most one color will be True.
     style: str | None = None
     if red:
         style = "red"
@@ -25,14 +26,17 @@ def main(cmd: clixx.Command, strings: list[str], red: bool, green: bool, blue: b
     elif blue:
         style = "blue"
 
-    # Print colorful message via rich.
+    # Print colorful message via Rich.
     console = Console()
     for string in strings:
-        console.print(string, style=style, highlight=False)
+        console.out(string, style=style, highlight=False)
 
-    # Print args dict for verbose.
+    # Print prog, argv and args for verbose.
     if verbose > 0:
-        console.print(cmd.args)
+        console.out()
+        console.out("prog:", cmd.get_prog())
+        console.print("argv:", cmd.argv)
+        console.print("args:", cmd.args)
 
 
 if __name__ == "__main__":
