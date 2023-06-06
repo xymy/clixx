@@ -28,7 +28,7 @@ def _resolve_norm(case_sensitive: bool) -> Callable[[str], str]:
 class Type:
     """The base class for all CLIXX type converters.
 
-    This class also represents any type which does not apply type conversion.
+    This class also represents *any* type which does not apply type conversion.
     """
 
     def __call__(self, value: Any) -> Any:
@@ -49,9 +49,9 @@ class Type:
         return value
 
     def safe_convert(self, value: Any) -> Any:
-        """Safe convert to compatible value.
+        """Safe convert to compatible value without side effect.
 
-        This is used to verify and preprocess the constant/default values.
+        This is used to verify and preprocess the *constant*/*default* values.
         """
 
         return self(value)
@@ -399,6 +399,10 @@ class File(Type):
             The same as :func:`open`.
         dash (bool, default=True):
             If ``True``, recognize dash (-) as stdin/stdout.
+
+    Important:
+        CLIXX will not close the file automatically when the command is
+        finished. It's user's responsibility to close the file.
 
     Warning:
         The dash will be recognized only if ``value`` is a string. That means
