@@ -3,5 +3,12 @@
     "python.analysis.completeFunctionParens": true,
     "python.linting.mypyEnabled": true,
     "python.testing.pytestEnabled": true,
-    "ruff.organizeImports": false
+    "ruff.organizeImports": false,
+    "[python]": {
+        "editor.defaultFormatter": "ms-python.black-formatter",
+        "editor.formatOnSave": true,
+        "editor.codeActionsOnSave": {
+            "source.organizeImports": true
+        }
+    }
 }
