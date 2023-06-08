@@ -263,6 +263,8 @@ class Option:
             return
 
         result = self.type.convert_str(value)
+        if self.dest in args:
+            self.type.release(args[self.dest])
         args[self.dest] = result
 
     def store_const(self, args: dict[str, Any]) -> None:
@@ -372,6 +374,8 @@ class FlagOption(Option):
             return
 
         result = self.type(self.const) if self.const is not None else None
+        if self.dest in args:
+            self.type.release(args[self.dest])
         args[self.dest] = result
 
     @property
