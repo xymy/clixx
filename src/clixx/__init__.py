@@ -105,6 +105,6 @@ __all__ = [
 ]
 
 __title__ = "clixx"
-__version__ = "0.7.0a"
+__version__ = "0.8.0a"
 __author__ = "xymy"
 __email__ = "thyfan@163.com"
