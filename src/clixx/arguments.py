@@ -133,6 +133,8 @@ class Argument:
 
         result = self.type.convert_str(value)
         if self.nargs == 1:
+            if self.dest in args:  # noexcept
+                self.type.release(args[self.dest])
             args[self.dest] = result
         else:
             # Variadic arguments are stored as list.
@@ -263,7 +265,7 @@ class Option:
             return
 
         result = self.type.convert_str(value)
-        if self.dest in args:
+        if self.dest in args:  # noexcept
             self.type.release(args[self.dest])
         args[self.dest] = result
 
@@ -374,7 +376,7 @@ class FlagOption(Option):
             return
 
         result = self.type(self.const) if self.const is not None else None
-        if self.dest in args:
+        if self.dest in args:  # noexcept
             self.type.release(args[self.dest])
         args[self.dest] = result
 
