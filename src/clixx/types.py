@@ -19,7 +19,7 @@ def _force_decode(filename: Any) -> str:
     return fname.decode(sys.getfilesystemencoding(), "backslashreplace")
 
 
-def _resolve_norm(case_sensitive: bool) -> Callable[[str], str]:
+def _resolve_normcase(case_sensitive: bool) -> Callable[[str], str]:
     if case_sensitive:
         return str
     return str.casefold
@@ -218,10 +218,10 @@ class Choice(Type):
         raise TypeConversionError(f"{value!r} is not one of {choices_str}.")
 
     def convert_str(self, value: str) -> Any:
-        norm = _resolve_norm(self.case_sensitive)
-        v = norm(value)
+        normcase = _resolve_normcase(self.case_sensitive)
+        v = normcase(value)
         for choice in self.choices:
-            if v == norm(choice):
+            if v == normcase(choice):
                 return choice
 
         choices_str = ", ".join(map(repr, self.choices))
@@ -293,7 +293,7 @@ class Enum(Type):
         raise TypeConversionError(f"{value!r} is not a valid enumeration member of {self.enum_type!r}.")
 
     def convert_str(self, value: str) -> Any:
-        norm = _resolve_norm(self.case_sensitive)
+        norm = _resolve_normcase(self.case_sensitive)
         v = norm(value)
         for name, member in self.enum_type.__members__.items():
             if v == norm(name):
