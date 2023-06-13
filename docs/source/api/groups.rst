@@ -7,7 +7,7 @@ Classes
 -------
 
 .. autoclass:: _Group
-    :special-members: __len__, __iter__, __iadd__
+    :special-members: __len__, __iter__
 
 .. autoclass:: ArgumentGroup
 
