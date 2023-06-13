@@ -40,15 +40,14 @@ def argument(
         decl (str):
             The declaration for this argument.
         dest (str | None, default=None):
-            The destination used to store/forward the argument value. If ``None``,
-            infer from declaration. If empty string, disable store/forward.
+            The destination used to store the argument value. If ``None``, infer
+            from declaration. If empty string, disable the store action.
         nargs (int, default=1):
-            The number of argument values. Valid values are ``nargs == 1`` or
-            ``nargs == -1``.
+            The number of argument values. Valid values are ``1`` or ``-1``.
         required (bool, default=False):
             Whether this argument is required or optional.
         type (Type | type | None, default=None):
-            The type converter. If ``None``, use ``Str()``.
+            The type converter. If ``None``, use :class:`clixx.types.Str()`.
         default (Any, default=None):
             The default value used if argument omitted.
         hidden (bool, default=False):
@@ -98,12 +97,12 @@ def option(
         decls (tuple[str, ...]):
             The declarations for this option.
         dest (str | None, default=None):
-            The destination used to store/forward the option value. If ``None``,
-            infer from declarations. If empty string, disable store/forward.
+            The destination used to store the option value. If ``None``, infer
+            from declarations. If empty string, disable the store action.
         required (bool, default=False):
             Whether this option is required or optional.
         type (Type | type | None, default=None):
-            The type converter. If ``None``, use ``Str()``.
+            The type converter. If ``None``, use :class:`clixx.types.Str()`.
         default (Any, default=None):
             The default value used if option omitted.
         hidden (bool, default=False):
@@ -149,8 +148,8 @@ def flag_option(
         decls (tuple[str, ...]):
             The declarations for this option.
         dest (str | None, default=None):
-            The destination used to store/forward the option value. If ``None``,
-            infer from declarations. If empty string, disable store/forward.
+            The destination used to store the option value. If ``None``, infer
+            from declarations. If empty string, disable the store action.
         const (Any, default=True):
             The constant value used if option occurred.
         default (Any, default=False):
@@ -183,10 +182,10 @@ def append_option(
         decls (tuple[str, ...]):
             The declarations for this option.
         dest (str | None, default=None):
-            The destination used to store/forward the option value. If ``None``,
-            infer from declarations. If empty string, disable store/forward.
+            The destination used to store the option value. If ``None``, infer
+            from declarations. If empty string, disable the store action.
         type (Type | type | None, default=None):
-            The type converter. If ``None``, use ``Str()``.
+            The type converter. If ``None``, use :class:`clixx.types.Str()`.
         hidden (bool, default=False):
             If ``True``, hide this option from help information.
         metavar (str | None, default=None):
@@ -213,9 +212,9 @@ def count_option(
         decls (tuple[str, ...]):
             The declarations for this option.
         dest (str | None, default=None):
-            The destination used to store/forward the option value. If ``None``,
-            infer from declarations. If empty string, disable store/forward.
-        default (Any, default=0):
+            The destination used to store the option value. If ``None``, infer
+            from declarations. If empty string, disable the store action.
+        default (int, default=0):
             The default value used if option omitted.
         hidden (bool, default=False):
             If ``True``, hide this option from help information.
