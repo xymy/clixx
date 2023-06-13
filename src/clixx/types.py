@@ -72,10 +72,11 @@ class Type:
 
         return str(value)
 
-    def suggest_metavar(self) -> str | None:
-        """Suggest metavar for help information."""
+    @property
+    def metavar(self) -> str:
+        """The metavar suitable for this type. Empty string means inavailable."""
 
-        return None
+        return ""
 
 
 class Str(Type):
@@ -120,7 +121,8 @@ class Bool(Type):
         assert isinstance(value, bool)
         return "true" if value else "false"
 
-    def suggest_metavar(self) -> str | None:
+    @property
+    def metavar(self) -> str:
         return "BOOLEAN"
 
 
@@ -163,7 +165,8 @@ class Int(Type):
             else:
                 raise TypeConversionError(f"{value!r} is not a valid integer with base {self.base!r}.") from e
 
-    def suggest_metavar(self) -> str | None:
+    @property
+    def metavar(self) -> str:
         return "INTEGER"
 
 
@@ -187,7 +190,8 @@ class Float(Type):
         except ValueError as e:
             raise TypeConversionError(f"{value!r} is not a valid floating point number.") from e
 
-    def suggest_metavar(self) -> str | None:
+    @property
+    def metavar(self) -> str:
         return "FLOAT"
 
 
@@ -223,7 +227,8 @@ class Choice(Type):
         choices_str = ", ".join(map(repr, self.choices))
         raise TypeConversionError(f"{value!r} is not one of {choices_str}.")
 
-    def suggest_metavar(self) -> str | None:
+    @property
+    def metavar(self) -> str:
         return "[" + "|".join(self.choices) + "]"
 
 
@@ -259,7 +264,8 @@ class IntChoice(Type):
         choices_str = ", ".join(map(repr, self.choices))
         raise TypeConversionError(f"{value!r} is not one of {choices_str}.")
 
-    def suggest_metavar(self) -> str | None:
+    @property
+    def metavar(self) -> str:
         return "[" + "|".join(map(str, self.choices)) + "]"
 
 
@@ -300,8 +306,9 @@ class Enum(Type):
         assert isinstance(value, self.enum_type)
         return value.name
 
-    def suggest_metavar(self) -> str | None:
-        return "[" + "|".join(self.enum_type.__members__) + "]"
+    @property
+    def metavar(self) -> str:
+        return "[" + "|".join(m.name for m in self.enum_type) + "]"
 
 
 class IntEnum(Type):
@@ -341,7 +348,8 @@ class IntEnum(Type):
         assert isinstance(value, self.enum_type)
         return str(value.value)
 
-    def suggest_metavar(self) -> str | None:
+    @property
+    def metavar(self) -> str:
         return "[" + "|".join(str(m.value) for m in self.enum_type) + "]"
 
 
@@ -384,7 +392,8 @@ class DateTime(Type):
             hint = f"Valid formats are {formats_str}."
         raise TypeConversionError(f"{value!r} is not a valid datetime. {hint}")
 
-    def suggest_metavar(self) -> str | None:
+    @property
+    def metavar(self) -> str:
         return "DATETIME"
 
 
@@ -472,13 +481,13 @@ class File(Type):
         if isinstance(value, (str, bytes, pathlib.Path)):
             return _force_decode(value)
         # The file object may know its filename.
-        if (name := getattr(value, "name", None)) is not None:
-            with suppress(TypeError):
-                return _force_decode(name)
+        with suppress(AttributeError, TypeError):
+            return _force_decode(value.name)
         # This file does not have a pretty string representation. Just return a rough string.
         return str(value)
 
-    def suggest_metavar(self) -> str | None:
+    @property
+    def metavar(self) -> str:
         return "FILE"
 
 
@@ -560,7 +569,8 @@ class Path(Type):
     def format(self, value: Any) -> str:
         return _force_decode(value)
 
-    def suggest_metavar(self) -> str | None:
+    @property
+    def metavar(self) -> str:
         return "PATH"
 
 
@@ -573,7 +583,8 @@ class DirPath(Path):
         if not stat.S_ISDIR(st.st_mode):
             raise TypeConversionError(f"{str(path)!r} is not a directory.")
 
-    def suggest_metavar(self) -> str | None:
+    @property
+    def metavar(self) -> str:
         return "DIRECTORY"
 
 
@@ -586,7 +597,8 @@ class FilePath(Path):
         if not stat.S_ISREG(st.st_mode):
             raise TypeConversionError(f"{str(path)!r} is not a file.")
 
-    def suggest_metavar(self) -> str | None:
+    @property
+    def metavar(self) -> str:
         return "FILE"
 
 

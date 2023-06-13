@@ -296,7 +296,7 @@ class Option:
 
         if self.metavar is not None:
             return self.metavar
-        elif (metavar := self.type.suggest_metavar()) is not None:
+        elif metavar := self.type.metavar:
             return metavar
         elif self.long_options:
             return _norm_metavar(self.long_options[0][LONG_PREFIX_LEN:])
