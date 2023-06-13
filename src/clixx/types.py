@@ -110,10 +110,10 @@ class Bool(Type):
         raise TypeConversionError(f"{value!r} is not a valid boolean.")
 
     def convert_str(self, value: str) -> Any:
-        v = value.lower()
-        if v in {"t", "true", "y", "yes", "on", "1"}:
+        value_norm = value.lower()
+        if value_norm in {"t", "true", "y", "yes", "on", "1"}:
             return True
-        if v in {"f", "false", "n", "no", "off", "0"}:
+        if value_norm in {"f", "false", "n", "no", "off", "0"}:
             return False
         raise TypeConversionError(f"{value!r} is not a valid boolean.")
 
@@ -219,9 +219,9 @@ class Choice(Type):
 
     def convert_str(self, value: str) -> Any:
         normcase = _resolve_normcase(self.case_sensitive)
-        v = normcase(value)
+        value_norm = normcase(value)
         for choice in self.choices:
-            if v == normcase(choice):
+            if value_norm == normcase(choice):
                 return choice
 
         choices_str = ", ".join(map(repr, self.choices))
@@ -293,10 +293,10 @@ class Enum(Type):
         raise TypeConversionError(f"{value!r} is not a valid enumeration member of {self.enum_type!r}.")
 
     def convert_str(self, value: str) -> Any:
-        norm = _resolve_normcase(self.case_sensitive)
-        v = norm(value)
+        normcase = _resolve_normcase(self.case_sensitive)
+        value_norm = normcase(value)
         for name, member in self.enum_type.__members__.items():
-            if v == norm(name):
+            if value_norm == normcase(name):
                 return member
 
         enum_str = ", ".join(map(repr, self.enum_type.__members__))
@@ -308,7 +308,7 @@ class Enum(Type):
 
     @property
     def metavar(self) -> str:
-        return "[" + "|".join(m.name for m in self.enum_type) + "]"
+        return "[" + "|".join(self.enum_type.__members__) + "]"
 
 
 class IntEnum(Type):
