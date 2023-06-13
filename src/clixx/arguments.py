@@ -193,7 +193,7 @@ class Argument:
         try:
             return self.type.safe_convert(value)
         except TypeConversionError as e:
-            raise DefinitionError(f"Invalid default value for argument {self.format_decl()}. {str(e)}") from e
+            raise DefinitionError(f"Invalid default value for argument {self.format_decl()}. {e}") from e
 
 
 class Option:
@@ -323,7 +323,7 @@ class Option:
             try:
                 value = self.type.safe_convert(value)
             except TypeConversionError as e:
-                raise DefinitionError(f"Invalid default value for option {self.format_decls()}. {str(e)}") from e
+                raise DefinitionError(f"Invalid default value for option {self.format_decls()}. {e}") from e
         self._default = value
 
 
@@ -400,7 +400,7 @@ class FlagOption(Option):
             try:
                 value = self.type.safe_convert(value)
             except TypeConversionError as e:
-                raise DefinitionError(f"Invalid constant value for option {self.format_decls()}. {str(e)}") from e
+                raise DefinitionError(f"Invalid constant value for option {self.format_decls()}. {e}") from e
         self._const = value
 
 

@@ -27,7 +27,7 @@ def _raise_invalid_argument_value(format_decl: Callable[[], str]) -> Generator[N
         yield
     except TypeConversionError as e:
         name = format_decl()
-        raise InvalidArgumentValue(f"Invalid value for argument {name}. {str(e)}") from e
+        raise InvalidArgumentValue(f"Invalid value for argument {name}. {e}") from e
 
 
 @contextmanager
@@ -36,7 +36,7 @@ def _raise_invalid_option_value(format_decls: Callable[[], str]) -> Generator[No
         yield
     except TypeConversionError as e:
         name = format_decls()
-        raise InvalidOptionValue(f"Invalid value for option {name}. {str(e)}") from e
+        raise InvalidOptionValue(f"Invalid value for option {name}. {e}") from e
 
 
 class ArgumentNode:
