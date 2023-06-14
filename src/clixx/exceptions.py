@@ -1,13 +1,13 @@
-class DefinitionError(Exception):
+class TypeConversionError(TypeError):
+    """Type conversion error."""
+
+
+class DefinitionError(ValueError):
     """Define a bad command, group, argument, option, type, etc."""
 
 
-class ParserContextError(Exception):
+class ParserContextError(RuntimeError):
     """Parser context error."""
-
-
-class TypeConversionError(Exception):
-    """Type conversion error."""
 
 
 class CLIXXException(Exception):
@@ -23,44 +23,52 @@ class CLIXXException(Exception):
         return self.message
 
 
-class TooFewArguments(CLIXXException):
+class ArgumentError(CLIXXException):
+    """Argument error."""
+
+
+class TooFewArguments(ArgumentError):
     """Too few arguments given."""
 
 
-class TooManyArguments(CLIXXException):
+class TooManyArguments(ArgumentError):
     """Too many arguments given."""
 
 
-class MissingOption(CLIXXException):
-    """Missing option."""
-
-
-class UnknownOption(CLIXXException):
-    """Unknown option."""
-
-
-class TooFewOptionValues(CLIXXException):
-    """Too few option values given."""
-
-
-class TooManyOptionValues(CLIXXException):
-    """Too many option values given."""
-
-
-class InvalidArgumentValue(CLIXXException):
+class InvalidArgumentValue(ArgumentError):
     """Invalid argument value given."""
 
 
-class InvalidOptionValue(CLIXXException):
+class OptionError(CLIXXException):
+    """Option error."""
+
+
+class MissingOption(OptionError):
+    """Missing option."""
+
+
+class UnknownOption(OptionError):
+    """Unknown option."""
+
+
+class TooFewOptionValues(OptionError):
+    """Too few option values given."""
+
+
+class TooManyOptionValues(OptionError):
+    """Too many option values given."""
+
+
+class InvalidOptionValue(OptionError):
     """Invalid option value given."""
-
-
-class CommandError(CLIXXException):
-    """Command error."""
 
 
 class GroupError(CLIXXException):
     """Group error."""
+
+
+class CommandError(CLIXXException):
+    """Command error."""
 
 
 class CLIXXSignal(BaseException):

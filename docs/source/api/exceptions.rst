@@ -12,11 +12,20 @@ Exceptions
 
 .. autoexception:: TypeConversionError
 
+Exceptions for parsing
+----------------------
+
 .. autoexception:: CLIXXException
+
+.. autoexception:: ArgumentError
 
 .. autoexception:: TooFewArguments
 
 .. autoexception:: TooManyArguments
+
+.. autoexception:: InvalidArgumentValue
+
+.. autoexception:: OptionError
 
 .. autoexception:: MissingOption
 
@@ -26,10 +35,17 @@ Exceptions
 
 .. autoexception:: TooManyOptionValues
 
-.. autoexception:: InvalidArgumentValue
-
 .. autoexception:: InvalidOptionValue
+
+.. autoexception:: GroupError
 
 .. autoexception:: CommandError
 
-.. autoexception:: GroupError
+Signals
+-------
+
+.. autoexception:: CLIXXSignal
+
+.. autoexception:: HelpSignal
+
+.. autoexception:: VersionSignal
