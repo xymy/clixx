@@ -35,8 +35,8 @@ class TooManyArguments(ArgumentError):
     """Too many arguments given."""
 
 
-class InvalidArgumentValue(ArgumentError):
-    """Invalid argument value given."""
+class InvalidArgument(ArgumentError):
+    """Invalid argument given."""
 
 
 class OptionError(CLIXXException):

@@ -23,7 +23,7 @@ Exceptions for parsing
 
 .. autoexception:: TooManyArguments
 
-.. autoexception:: InvalidArgumentValue
+.. autoexception:: InvalidArgument
 
 .. autoexception:: OptionError
 
