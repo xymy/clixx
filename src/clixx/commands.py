@@ -55,7 +55,7 @@ def _exit_command(exit_code: int | None, standalone: bool) -> int | Never:
 
 class _Command:
     parent: SuperCommand | None = None
-    prog: str | None = None
+    _prog: str | None = None
     _args: dict[str, Any] | None = None
     _argv: list[str] | None = None
 
@@ -94,6 +94,16 @@ class _Command:
         if self.parent is None:
             return prog
         return f"{self.parent.get_prog()} {prog}"
+
+    @property
+    def prog(self) -> str:
+        if self._prog is None:
+            raise RuntimeError("This command is not running.")
+        return self._prog
+
+    @prog.setter
+    def prog(self, value: str) -> None:
+        self._prog = value
 
     @property
     def args(self) -> dict[str, Any]:
@@ -197,12 +207,12 @@ class Command(_Command):
         standalone: bool = True,
     ) -> int | Never:
         self._check_parent_args(parent, prog, args, argv)
-        with PrinterHelper(self, self.printer_factory, self.printer_config, **_interpret_standalone(standalone)):
-            self.parent = parent
-            self.prog = prog
-            self.args = args = args if args is not None else {}
-            self.argv = argv = argv if argv is not None else sys.argv[1:]
+        self.parent = parent
+        self.prog = prog if prog is not None else sys.argv[0]
+        self.args = args = args if args is not None else {}
+        self.argv = argv = argv if argv is not None else sys.argv[1:]
 
+        with PrinterHelper(self, self.printer_factory, self.printer_config, **_interpret_standalone(standalone)):
             parser = Parser(self.argument_groups, self.option_groups)
             parser.parse_args(args, argv)
 
@@ -283,12 +293,12 @@ class SuperCommand(_Command):
         standalone: bool = True,
     ) -> int | Never:
         self._check_parent_args(parent, prog, args, argv)
-        with SuperPrinterHelper(self, self.printer_factory, self.printer_config, **_interpret_standalone(standalone)):
-            self.parent = parent
-            self.prog = prog
-            self.args = args = args if args is not None else {}
-            self.argv = argv = argv if argv is not None else sys.argv[1:]
+        self.parent = parent
+        self.prog = prog if prog is not None else sys.argv[0]
+        self.args = args = args if args is not None else {}
+        self.argv = argv = argv if argv is not None else sys.argv[1:]
 
+        with SuperPrinterHelper(self, self.printer_factory, self.printer_config, **_interpret_standalone(standalone)):
             parser = SuperParser(self.option_groups)
             ctx = parser.parse_args(args, argv)
 
