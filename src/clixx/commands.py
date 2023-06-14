@@ -7,7 +7,7 @@ from typing import Any, Callable, Iterator, Literal, Optional, TypeVar, Union, o
 from typing_extensions import Never, Self, TypeAlias
 
 from .constants import DEST_COMMAND_NAME
-from .exceptions import CommandError
+from .exceptions import CommandError, ParserContextError
 from .groups import ArgumentGroup, CommandGroup, OptionGroup
 from .parsers import Parser, SuperParser
 from .printers import PrinterFactory, PrinterHelper, SuperPrinterFactory, SuperPrinterHelper
@@ -115,6 +115,18 @@ class _Command:
     def argv(self, value: list[str]) -> None:
         self._argv = value
 
+    @staticmethod
+    def _check_parent_args(
+        parent: SuperCommand | None, prog: str | None, args: dict[str, Any] | None, argv: list[str] | None
+    ) -> None:
+        if parent is not None:
+            if prog is None:
+                raise ParserContextError("Parent command must provide prog.")
+            if args is None:
+                raise ParserContextError("Parent command must provide args.")
+            if argv is None:
+                raise ParserContextError("Parent command must provide argv.")
+
 
 class Command(_Command):
     """The command.
@@ -184,6 +196,7 @@ class Command(_Command):
         prog: str | None = None,
         standalone: bool = True,
     ) -> int | Never:
+        self._check_parent_args(parent, prog, args, argv)
         with PrinterHelper(self, self.printer_factory, self.printer_config, **_interpret_standalone(standalone)):
             self.parent = parent
             self.prog = prog
@@ -269,6 +282,7 @@ class SuperCommand(_Command):
         prog: str | None = None,
         standalone: bool = True,
     ) -> int | Never:
+        self._check_parent_args(parent, prog, args, argv)
         with SuperPrinterHelper(self, self.printer_factory, self.printer_config, **_interpret_standalone(standalone)):
             self.parent = parent
             self.prog = prog
