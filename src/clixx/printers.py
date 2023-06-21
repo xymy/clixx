@@ -7,7 +7,7 @@ from typing_extensions import Self
 
 from .exceptions import CLIXXException, HelpSignal, VersionSignal
 
-if TYPE_CHECKING:  # pragma: no cover
+if TYPE_CHECKING:
     from .commands import Command, SuperCommand
 
 
