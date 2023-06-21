@@ -33,7 +33,7 @@ class RichPrinter:
         self.console_params = _get_console_params(config)
 
     def _print_usage(self, console: Console, cmd: Command) -> None:
-        text = Text("Usage: " + cmd.get_prog())
+        text = Text("Usage: " + cmd.get_cmd_path())
 
         if cmd.option_groups:
             text.append(" [OPTIONS]...")
@@ -49,9 +49,8 @@ class RichPrinter:
         console.print(text, soft_wrap=True)
 
     def _print_try_help(self, console: Console, cmd: Command) -> None:
-        prog = cmd.get_prog()
         option = self.config.get("try_help_option", "--help")
-        text = Text("Try " + repr(prog + " " + option) + " for help.")
+        text = Text("Try " + repr(cmd.get_cmd_path() + " " + option) + " for help.")
         console.print(text, soft_wrap=True)
 
     def print_error(self, cmd: Command, exc: CLIXXException) -> None:
@@ -108,7 +107,7 @@ class RichSuperPrinter:
         self.console_params = _get_console_params(config)
 
     def _print_usage(self, console: Console, cmd: SuperCommand) -> None:
-        text = Text("Usage: " + cmd.get_prog())
+        text = Text("Usage: " + cmd.get_cmd_path())
 
         if cmd.option_groups:
             text.append(" [OPTIONS]...")
@@ -118,9 +117,8 @@ class RichSuperPrinter:
         console.print(text, soft_wrap=True)
 
     def _print_try_help(self, console: Console, cmd: SuperCommand) -> None:
-        prog = cmd.get_prog()
         option = self.config.get("try_help_option", "--help")
-        text = Text("Try " + repr(prog + " " + option) + " for help.")
+        text = Text("Try " + repr(cmd.get_cmd_path() + " " + option) + " for help.")
         console.print(text, soft_wrap=True)
 
     def print_error(self, cmd: SuperCommand, exc: CLIXXException) -> None:

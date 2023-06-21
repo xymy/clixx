@@ -89,11 +89,10 @@ class _Command:
             return self.parent.get_version()
         return "Unknown Version"
 
-    def get_prog(self) -> str:
-        prog = sys.argv[0] if self.prog is None else self.prog
+    def get_cmd_path(self) -> str:
         if self.parent is None:
-            return prog
-        return f"{self.parent.get_prog()} {prog}"
+            return self.prog
+        return f"{self.parent.get_cmd_path()} {self.prog}"
 
     @property
     def prog(self) -> str:
