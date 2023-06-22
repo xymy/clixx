@@ -1,40 +1,33 @@
 from __future__ import annotations
 
 import sys
-from typing import TYPE_CHECKING, Any, Callable, Dict, Protocol
+from typing import Any, Callable, Dict, Generic, TypeVar
 
 from typing_extensions import Self
 
+from .commands import Command, SuperCommand
 from .exceptions import CLIXXException, HelpSignal, VersionSignal
 
-if TYPE_CHECKING:
-    from .commands import Command, SuperCommand
+T = TypeVar("T")
 
 
-class Printer(Protocol):
-    """The protocol class for printer."""
-
-    def print_error(self, cmd: Command, exc: CLIXXException) -> None:
+class _Printer(Generic[T]):
+    def print_error(self, cmd: T, exc: CLIXXException) -> None:
         """Print error information."""
 
-    def print_help(self, cmd: Command) -> None:
+    def print_help(self, cmd: T) -> None:
         """Print help information."""
 
-    def print_version(self, cmd: Command) -> None:
+    def print_version(self, cmd: T) -> None:
         """Print version information."""
 
 
-class SuperPrinter(Protocol):
-    """The protocol class for super printer."""
+class Printer(_Printer[Command]):
+    """The base class for printer."""
 
-    def print_error(self, cmd: SuperCommand, exc: CLIXXException) -> None:
-        """Print error information."""
 
-    def print_help(self, cmd: SuperCommand) -> None:
-        """Print help information."""
-
-    def print_version(self, cmd: SuperCommand) -> None:
-        """Print version information."""
+class SuperPrinter(_Printer[SuperCommand]):
+    """The base class for super printer."""
 
 
 #: The type of printer factory.

@@ -7,6 +7,8 @@ from rich.style import Style
 from rich.table import Table
 from rich.text import Text
 
+from .printers import Printer, SuperPrinter
+
 if TYPE_CHECKING:
     from .commands import Command, SuperCommand
     from .exceptions import CLIXXException
@@ -28,7 +30,7 @@ def _print_error(console: Console, exc: CLIXXException) -> None:
     console.print(text, soft_wrap=True)
 
 
-class RichPrinter:
+class RichPrinter(Printer):
     def __init__(self, config: dict[str, Any]) -> None:
         self.config = config
         self.console_params = _get_console_params(config)
@@ -102,7 +104,7 @@ class RichPrinter:
         console.print(version_info, highlight=False)
 
 
-class RichSuperPrinter:
+class RichSuperPrinter(SuperPrinter):
     def __init__(self, config: dict[str, Any]) -> None:
         self.config = config
         self.console_params = _get_console_params(config)
