@@ -24,8 +24,9 @@ select = [
     "B",      # flake8-bugbear
     "C4",     # flake8-comprehensions
     "ISC",    # flake8-implicit-str-concat
+    "PIE",    # flake8-pie
     "SIM",    # flake8-simplify
-    "INT",    # flake8-gettext
+    "TCH",    # flake8-type-checking
     "RUF100",
 ]
 ignore = [
@@ -37,6 +38,9 @@ ignore = [
 
 [tool.ruff.flake8-comprehensions]
 allow-dict-calls-with-keyword-arguments = true
+
+[tool.ruff.flake8-type-checking]
+exempt-modules = ["typing", "typing_extensions", "enum", "datetime", "pathlib"]
 
 [tool.mypy]
 ignore_missing_imports = true

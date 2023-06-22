@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import weakref
 from contextlib import contextmanager
-from typing import Any, Callable, Generator, cast
+from typing import TYPE_CHECKING, Any, Callable, Generator, cast
 
 from .arguments import Argument, Option, is_long_option, is_separator, is_short_option
 from .constants import DEST_COMMAND_NAME, SHORT_PREFIX_LEN
@@ -18,7 +18,9 @@ from .exceptions import (
     TypeConversionError,
     UnknownOption,
 )
-from .groups import ArgumentGroup, OptionGroup
+
+if TYPE_CHECKING:
+    from .groups import ArgumentGroup, OptionGroup
 
 
 @contextmanager

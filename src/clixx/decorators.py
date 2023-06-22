@@ -1,14 +1,16 @@
 from __future__ import annotations
 
 from contextlib import suppress
-from typing import Any, Callable, TypeVar, Union
+from typing import TYPE_CHECKING, Any, Callable, TypeVar, Union
 
 from .arguments import AppendOption, Argument, CountOption, FlagOption, HelpOption, Option, VersionOption
 from .commands import Command, CommandFunction, SimpleSuperCommand, SuperCommandFunction
 from .exceptions import DefinitionError
 from .groups import ANY, ArgumentGroup, GroupType, OptionGroup
-from .printers import PrinterFactory, SuperPrinterFactory
-from .types import Type
+
+if TYPE_CHECKING:
+    from .printers import PrinterFactory, SuperPrinterFactory
+    from .types import Type
 
 CF = TypeVar("CF", bound=CommandFunction)
 SCF = TypeVar("SCF", bound=SuperCommandFunction)

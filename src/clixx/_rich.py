@@ -1,14 +1,15 @@
 from __future__ import annotations
 
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 from rich.console import Console
 from rich.style import Style
 from rich.table import Table
 from rich.text import Text
 
-from .commands import Command, SuperCommand
-from .exceptions import CLIXXException
+if TYPE_CHECKING:
+    from .commands import Command, SuperCommand
+    from .exceptions import CLIXXException
 
 
 def _get_console_params(config: dict[str, Any]) -> dict[str, Any]:
