@@ -34,7 +34,7 @@ def main(cmd: clixx.Command, strings: list[str], red: bool, green: bool, blue: b
     if verbose > 0:
         console.out()
         console.out("-" * 80)
-        console.out("prog:", cmd.get_prog())
+        console.out("prog:", cmd.get_cmd_path())
         console.print("argv:", cmd.argv)
         console.print("args:", cmd.args)
 
