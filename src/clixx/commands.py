@@ -205,6 +205,8 @@ class Command(_Command):
         prog: str | None = None,
         standalone: bool = True,
     ) -> int | Never:
+        """Invoke this command."""
+
         self._check_parent_args(parent, prog, args, argv)
         self.parent = parent
         self.prog = prog if prog is not None else sys.argv[0]
@@ -237,9 +239,9 @@ class SuperCommand(_Command):
         pass_cmd (bool, default=False):
             If ``True``, pass this command instance to the command function.
         printer_factory (SuperPrinterFactory | None, default=None):
-            The super printer factory.
+            The printer factory.
         printer_config (dict[str, Any] | None, default=None):
-            The super printer config.
+            The printer config.
     """
 
     def __init__(
@@ -264,7 +266,7 @@ class SuperCommand(_Command):
 
     @property
     def function(self) -> SuperCommandFunction:
-        """The super command function."""
+        """The command function."""
 
         return self._function
 
@@ -291,6 +293,8 @@ class SuperCommand(_Command):
         prog: str | None = None,
         standalone: bool = True,
     ) -> int | Never:
+        """Invoke this command."""
+
         self._check_parent_args(parent, prog, args, argv)
         self.parent = parent
         self.prog = prog if prog is not None else sys.argv[0]
