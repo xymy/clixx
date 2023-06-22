@@ -97,7 +97,7 @@ class _Command:
     @property
     def prog(self) -> str:
         if self._prog is None:
-            raise RuntimeError("This command is not running.")
+            raise ParserContextError("This command is not running.")
         return self._prog
 
     @prog.setter
@@ -107,7 +107,7 @@ class _Command:
     @property
     def args(self) -> dict[str, Any]:
         if self._args is None:
-            raise RuntimeError("This command is not running.")
+            raise ParserContextError("This command is not running.")
         return self._args
 
     @args.setter
@@ -117,7 +117,7 @@ class _Command:
     @property
     def argv(self) -> list[str]:
         if self._argv is None:
-            raise RuntimeError("This command is not running.")
+            raise ParserContextError("This command is not running.")
         return self._argv
 
     @argv.setter

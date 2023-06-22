@@ -95,9 +95,9 @@ __all__ = [
     "command",
     "simple_super_command",
     # exceptions
-    "TypeConversionError",
     "DefinitionError",
     "ParserContextError",
+    "TypeConversionError",
     "CLIXXException",
     "ArgumentError",
     "TooFewArguments",

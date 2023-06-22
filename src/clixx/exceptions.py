@@ -1,13 +1,13 @@
-class TypeConversionError(TypeError):
-    """Type conversion error."""
-
-
 class DefinitionError(ValueError):
     """Define a bad command, group, argument, option, type, etc."""
 
 
 class ParserContextError(RuntimeError):
     """Parser context error."""
+
+
+class TypeConversionError(TypeError):
+    """Type conversion error."""
 
 
 class CLIXXException(Exception):
