@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import sys
 from contextlib import suppress
-from typing import Any, Callable, Iterator, Literal, Optional, TypeVar, Union, overload
+from typing import TYPE_CHECKING, Any, Callable, Iterator, Literal, Optional, TypeVar, Union, overload
 
 from typing_extensions import Never, Self, TypeAlias
 
@@ -10,7 +10,9 @@ from .constants import DEST_COMMAND_NAME
 from .exceptions import CommandError, ParserContextError
 from .groups import ArgumentGroup, CommandGroup, OptionGroup
 from .parsers import Parser, SuperParser
-from .printers import PrinterFactory, PrinterHelper, SuperPrinterFactory, SuperPrinterHelper
+
+if TYPE_CHECKING:
+    from .printers import PrinterFactory, PrinterHelper, SuperPrinterFactory, SuperPrinterHelper
 
 CommandFunction: TypeAlias = Callable[..., Optional[int]]
 SuperCommandFunction: TypeAlias = Callable[..., Optional["dict[str, Any]"]]
@@ -213,7 +215,7 @@ class Command(_Command):
         self.args = args = args if args is not None else {}
         self.argv = argv = argv if argv is not None else sys.argv[1:]
 
-        with PrinterHelper(self, self.printer_factory, self.printer_config, **_interpret_standalone(standalone)):
+        with self.attach_printer(standalone):
             parser = Parser(self.argument_groups, self.option_groups)
             parser.parse_args(args, argv)
 
@@ -222,6 +224,11 @@ class Command(_Command):
             else:
                 exit_code = self.function(**args)
         return _exit_command(exit_code, standalone)
+
+    def attach_printer(self, standalone: bool) -> PrinterHelper:
+        from .printers import PrinterHelper
+
+        return PrinterHelper(self, self.printer_factory, self.printer_config, **_interpret_standalone(standalone))
 
 
 class SuperCommand(_Command):
@@ -301,7 +308,7 @@ class SuperCommand(_Command):
         self.args = args = args if args is not None else {}
         self.argv = argv = argv if argv is not None else sys.argv[1:]
 
-        with SuperPrinterHelper(self, self.printer_factory, self.printer_config, **_interpret_standalone(standalone)):
+        with self.attach_printer(standalone):
             parser = SuperParser(self.option_groups)
             ctx = parser.parse_args(args, argv)
 
@@ -319,6 +326,11 @@ class SuperCommand(_Command):
             args = args if args is not None else {}
             exit_code = cmd(args, ctx.argv_remained, parent=self, standalone=standalone)
         return _exit_command(exit_code, standalone)
+
+    def attach_printer(self, standalone: bool) -> SuperPrinterHelper:
+        from .printers import SuperPrinterHelper
+
+        return SuperPrinterHelper(self, self.printer_factory, self.printer_config, **_interpret_standalone(standalone))
 
 
 AnyCommand = TypeVar("AnyCommand", bound=Union[Command, SuperCommand])
