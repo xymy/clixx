@@ -61,10 +61,10 @@ class _Group(Generic[T]):
 
         yield from self.members
 
-    def add(self, member: T) -> Self:
-        """Add the member to this group."""
+    def add(self, *members: T) -> Self:
+        """Add members to this group."""
 
-        self.members.append(member)
+        self.members.extend(members)
         return self
 
 

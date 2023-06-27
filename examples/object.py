@@ -15,12 +15,13 @@ def main(**kwargs: dict[str, Any]) -> None:
 cmd = clixx.Command("Object", "1.0.0")
 cmd.add_argument_group(clixx.ArgumentGroup("Arguments").add(clixx.Argument("strings", nargs=-1)))
 cmd.add_option_group(
-    clixx.OptionGroup("Options")
-    .add(clixx.Option("-n", "--number", type=clixx.Int(), help="This is a number."))
-    .add(clixx.Option("-p", "--path", type=clixx.Path(), help="This is a path."))
-    .add(clixx.FlagOption("-f", "--flag", help="This is a flag"))
-    .add(clixx.HelpOption("-h", "--help"))
-    .add(clixx.VersionOption("-V", "--version"))
+    clixx.OptionGroup("Options").add(
+        clixx.Option("-n", "--number", type=clixx.Int(), help="This is a number."),
+        clixx.Option("-p", "--path", type=clixx.Path(), help="This is a path."),
+        clixx.FlagOption("-f", "--flag", help="This is a flag"),
+        clixx.HelpOption("-h", "--help"),
+        clixx.VersionOption("-V", "--version"),
+    )
 )
 
 cmd.function = main
