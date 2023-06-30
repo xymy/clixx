@@ -28,7 +28,6 @@ release = pkg.__version__
 extensions = [
     "sphinx.ext.autodoc",
     "sphinx.ext.intersphinx",
-    "sphinx.ext.mathjax",
     "sphinx.ext.napoleon",
     "sphinx.ext.viewcode",
     "myst_parser",
@@ -53,15 +52,10 @@ autodoc_default_options = {"members": True, "member-order": "bysource", "show-in
 
 intersphinx_mapping = {"python": ("https://docs.python.org/3/", None)}
 
-# -- Options for mathjax -----------------------------------------------------
-# https://www.sphinx-doc.org/en/master/usage/extensions/math.html#module-sphinx.ext.mathjax
-
-# mathjax_path = "https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"
-
 # -- Options for myst-parser -------------------------------------------------
 # https://myst-parser.readthedocs.io/en/latest/
 
-myst_enable_extensions = ["deflist", "dollarmath", "tasklist"]
+myst_enable_extensions = ["deflist", "tasklist"]
 myst_heading_anchors = 3
 
 # -- Options for sphinx-copybutton -------------------------------------------
