@@ -474,7 +474,9 @@ class File(Type):
         raise TypeConversionError(f"{value!r} is not a valid file.")
 
     def release(self, value: Any) -> None:
-        cast(IO, value).close()
+        with suppress(AttributeError):
+            if value.fileno() > 2:  # skip stdin/stdout/stderr
+                value.close()
 
     def format(self, value: Any) -> str:
         # These types can be decoded anyway.
