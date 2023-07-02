@@ -7,10 +7,9 @@ from rich.style import Style
 from rich.table import Table
 from rich.text import Text
 
-from .commands import Command, SuperCommand
+from .commands import Command, SuperCommand, _Command
 
 if TYPE_CHECKING:
-    from .commands import _Command
     from .exceptions import CLIXXException
 
 

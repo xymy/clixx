@@ -2,9 +2,9 @@ from __future__ import annotations
 
 import sys
 from contextlib import suppress
-from typing import TYPE_CHECKING, Any, Callable, Iterator, Literal, Optional, TypeVar, Union, overload
+from typing import TYPE_CHECKING, Any, Callable, Iterator, Optional, TypeVar, Union
 
-from typing_extensions import Never, Self, TypeAlias
+from typing_extensions import Self, TypeAlias
 
 from .constants import DEST_COMMAND_NAME
 from .exceptions import CommandError, ParserContextError
@@ -30,26 +30,7 @@ def _print_args(*args: Any, **kwargs: Any) -> None:
     console.print(kwargs)
 
 
-def _interpret_standalone(standalone: bool) -> dict[str, bool]:
-    return {"is_exit": standalone, "is_raise": not standalone}
-
-
-@overload
-def _exit_command(exit_code: int | None, standalone: Literal[False]) -> int:
-    ...
-
-
-@overload
-def _exit_command(exit_code: int | None, standalone: Literal[True]) -> Never:
-    ...
-
-
-@overload
-def _exit_command(exit_code: int | None, standalone: bool) -> int | Never:
-    ...
-
-
-def _exit_command(exit_code: int | None, standalone: bool) -> int | Never:
+def _exit_command(exit_code: int | None, standalone: bool) -> int:
     if standalone:
         sys.exit(exit_code)
     return exit_code if exit_code is not None else 0
@@ -232,7 +213,7 @@ class Command(_Command):
         parent: SuperCommand | None = None,
         prog: str | None = None,
         standalone: bool = True,
-    ) -> int | Never:
+    ) -> int:
         """Invoke this command."""
 
         self._check_parent_args(parent, prog, args, argv)
@@ -325,7 +306,7 @@ class SuperCommand(_Command):
         parent: SuperCommand | None = None,
         prog: str | None = None,
         standalone: bool = True,
-    ) -> int | Never:
+    ) -> int:
         """Invoke this command."""
 
         self._check_parent_args(parent, prog, args, argv)
@@ -350,7 +331,7 @@ class SuperCommand(_Command):
                 args = self.function(**args)
 
             args = args if args is not None else {}
-            exit_code = cmd(args, ctx.argv_remained, parent=self, standalone=standalone)
+            exit_code = cmd(args, ctx.argv_remained, parent=self, prog=cmd_name, standalone=standalone)
         return _exit_command(exit_code, standalone)
 
 
