@@ -57,14 +57,14 @@ class Type:
         return self(value)
 
     def release(self, value: Any) -> None:
-        """Release the resource.
+        """Release resource held by value.
 
-        This is used to release the resource for the previous parsed values
+        This is used to release resource held by the previous parsed values
         which are overrided by the current value.
         """
 
     def format(self, value: Any) -> str:
-        """Format value.
+        """Format value to pretty string.
 
         The ``value`` must be compatible with this type, usually the return
         value of :meth:`~clixx.types.Type.safe_convert`.
@@ -498,7 +498,7 @@ class Path(Type):
 
     Parameters:
         resolve (bool, default=False):
-            If ``True``, make the path absolute, resolve all symlinks, and normalize it.
+            If ``True``, resolve the path via :meth:`pathlib.Path.resolve`.
         exists (bool, default=False):
             If ``True``, check whether the path exists.
         readable (bool, default=False):
