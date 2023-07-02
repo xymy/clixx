@@ -47,7 +47,6 @@ from .exceptions import (
     VersionSignal,
 )
 from .groups import ALL, ANY, AT_LEAST_ONE, AT_MOST_ONE, EXACTLY_ONE, NONE, ArgumentGroup, GroupType, OptionGroup
-from .printers import PrinterHelper, SuperPrinterHelper
 from .types import (
     Bool,
     Choice,
@@ -124,9 +123,6 @@ __all__ = [
     "EXACTLY_ONE",
     "ArgumentGroup",
     "OptionGroup",
-    # printers
-    "PrinterHelper",
-    "SuperPrinterHelper",
     # types
     "Type",
     "Str",

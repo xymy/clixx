@@ -9,7 +9,7 @@ from .exceptions import DefinitionError
 from .groups import ANY, ArgumentGroup, GroupType, OptionGroup
 
 if TYPE_CHECKING:
-    from .printers import PrinterFactory, SuperPrinterFactory
+    from .printers import PrinterFactory
     from .types import Type
 
 CF = TypeVar("CF", bound=CommandFunction)
@@ -367,7 +367,7 @@ def simple_super_command(
     epilog: str = "",
     *,
     pass_cmd: bool = False,
-    printer_factory: SuperPrinterFactory | None = None,
+    printer_factory: PrinterFactory | None = None,
     printer_config: dict[str, Any] | None = None,
 ) -> Callable[[SCF], SimpleSuperCommand]:
     def decorator(func: SCF) -> SimpleSuperCommand:

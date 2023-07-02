@@ -1,204 +1,74 @@
 from __future__ import annotations
 
 import sys
-from typing import Any, Callable, Dict, Generic, TypeVar
+from typing import TYPE_CHECKING, Any, Callable, Dict, Protocol
 
 from typing_extensions import Self
 
-from .commands import Command, SuperCommand
 from .exceptions import CLIXXException, HelpSignal, VersionSignal
 
-T = TypeVar("T")
+if TYPE_CHECKING:
+    from .commands import _Command
 
 
-class _Printer(Generic[T]):
-    def print_error(self, cmd: T, exc: CLIXXException) -> None:
+class Printer(Protocol):
+    def print_error(self, cmd: _Command, exc: CLIXXException) -> None:
         """Print error information."""
 
-    def print_help(self, cmd: T) -> None:
+    def print_help(self, cmd: _Command) -> None:
         """Print help information."""
 
-    def print_version(self, cmd: T) -> None:
+    def print_version(self, cmd: _Command) -> None:
         """Print version information."""
 
 
-class Printer(_Printer[Command]):
-    """The base class for printer."""
-
-
-class SuperPrinter(_Printer[SuperCommand]):
-    """The base class for super printer."""
-
-
-#: The type of printer factory.
 PrinterFactory = Callable[[Dict[str, Any]], Printer]
-#: The type of super printer factory.
-SuperPrinterFactory = Callable[[Dict[str, Any]], SuperPrinter]
 
 
-def _rich_printer_factory(config: dict[str, Any]) -> Printer:
-    from ._rich import RichPrinter
-
-    return RichPrinter(config)
-
-
-def _rich_super_printer_factory(config: dict[str, Any]) -> SuperPrinter:
-    from ._rich import RichSuperPrinter
-
-    return RichSuperPrinter(config)
-
-
-_default_printer_factory: PrinterFactory = _rich_printer_factory
-_default_super_printer_factory: SuperPrinterFactory = _rich_super_printer_factory
-
-
-class _PrinterHelper:
-    def __init__(
-        self,
-        cmd: Command | SuperCommand,
-        printer_factory: PrinterFactory | SuperPrinterFactory | None = None,
-        printer_config: dict[str, Any] | None = None,
-        *,
-        is_exit: bool = True,
-        is_raise: bool = False,
-    ) -> None:
-        self.cmd = cmd
-        self.printer_factory = printer_factory
-        self.printer_config = printer_config
-        self.is_exit = is_exit
-        self.is_raise = is_raise
-
-    def __enter__(self) -> Self:
-        """Attach exception and signal handlers."""
-
-        return self
-
-    def __exit__(self, exc_type: Any, exc_value: Any, traceback: Any) -> bool:
-        """Detach exception and signal handlers."""
-
-        if isinstance(exc_value, CLIXXException):
-            self.print_error(exc_value)
-            return self._exit(exc_value.exit_code)
-        if isinstance(exc_value, HelpSignal):
-            self.print_help()
-            return self._exit(exc_value.exit_code)
-        if isinstance(exc_value, VersionSignal):
-            self.print_version()
-            return self._exit(exc_value.exit_code)
-        return False
-
-    def _exit(self, exit_code: int) -> bool:
-        if self.is_exit:
-            sys.exit(exit_code)
-        return not self.is_raise
-
-    def make_printer(self) -> Printer | SuperPrinter:
-        if (factory := self.printer_factory) is None:
-            factory = self.get_factory()
-        if (config := self.printer_config) is None:
-            config = {}
-        return factory(config)
-
-    def print_error(self, exc: CLIXXException) -> None:
-        printer = self.make_printer()
-        printer.print_error(self.cmd, exc)  # type: ignore
-
-    def print_help(self) -> None:
-        printer = self.make_printer()
-        printer.print_help(self.cmd)  # type: ignore
-
-    def print_version(self) -> None:
-        printer = self.make_printer()
-        printer.print_version(self.cmd)  # type: ignore
-
-    @classmethod
-    def get_factory(cls) -> PrinterFactory | SuperPrinterFactory:
-        raise NotImplementedError
-
-    @classmethod
-    def set_factory(cls, printer_factory: PrinterFactory | SuperPrinterFactory) -> None:
-        raise NotImplementedError
-
-
-class PrinterHelper(_PrinterHelper):
+class PrinterHelper:
     """The printer helper.
 
     Parameters:
         cmd (Command):
             The command.
-        printer_factory (PrinterFactory | None, default=None):
-            The printer factory.
-        printer_config (dict[str, Any] | None, default=None):
-            The printer config.
-        is_exit (bool, default=True):
-            If ``True``, exit this process after handling exception or signal.
-        is_raise (bool, default=False):
-            If ``True``, propagate exception or signal after handling it.
-            Ignored if ``is_exit`` is ``True``.
+        printer (Printer):
+            The printer.
+        standalone (bool):
+            If ``True``, exit this process after handling exception or signal;
+            otherwise, propagate exception or signal.
     """
 
     def __init__(
         self,
-        cmd: Command,
-        printer_factory: PrinterFactory | None = None,
-        printer_config: dict[str, Any] | None = None,
+        cmd: _Command,
+        printer: Printer,
         *,
-        is_exit: bool = True,
-        is_raise: bool = False,
+        standalone: bool,
     ) -> None:
-        super().__init__(cmd, printer_factory, printer_config, is_exit=is_exit, is_raise=is_raise)
+        self.cmd = cmd
+        self.printer = printer
+        self.standalone = standalone
 
-    @classmethod
-    def get_factory(cls) -> PrinterFactory:
-        """Get default printer factory."""
+    def __enter__(self) -> Self:
+        """Attach exceptions and signals handlers."""
 
-        return _default_printer_factory
+        return self
 
-    @classmethod
-    def set_factory(cls, printer_factory: PrinterFactory) -> None:  # type: ignore [override]
-        """Set default printer factory."""
+    def __exit__(self, exc_type: Any, exc_value: Any, traceback: Any) -> bool:
+        """Dispatch exceptions and signals to handlers."""
 
-        global _default_printer_factory
-        _default_printer_factory = printer_factory
+        if isinstance(exc_value, CLIXXException):
+            self.printer.print_error(self.cmd, exc_value)
+            return self._exit(exc_value.exit_code)
+        if isinstance(exc_value, HelpSignal):
+            self.printer.print_help(self.cmd)
+            return self._exit(exc_value.exit_code)
+        if isinstance(exc_value, VersionSignal):
+            self.printer.print_version(self.cmd)
+            return self._exit(exc_value.exit_code)
+        return False
 
-
-class SuperPrinterHelper(_PrinterHelper):
-    """The super printer helper.
-
-    Parameters:
-        cmd (SuperCommand):
-            The super command.
-        printer_factory (SuperPrinterFactory | None, default=None):
-            The super printer factory.
-        printer_config (dict[str, Any] | None, default=None):
-            The super printer config.
-        is_exit (bool, default=True):
-            If ``True``, exit this process after handling exception or signal.
-        is_raise (bool, default=False):
-            If ``True``, propagate exception or signal after handling it.
-            Ignored if ``is_exit`` is ``True``.
-    """
-
-    def __init__(
-        self,
-        cmd: SuperCommand,
-        printer_factory: SuperPrinterFactory | None = None,
-        printer_config: dict[str, Any] | None = None,
-        *,
-        is_exit: bool = True,
-        is_raise: bool = False,
-    ) -> None:
-        super().__init__(cmd, printer_factory, printer_config, is_exit=is_exit, is_raise=is_raise)
-
-    @classmethod
-    def get_factory(cls) -> SuperPrinterFactory:
-        """Get default super printer factory."""
-
-        return _default_super_printer_factory
-
-    @classmethod
-    def set_factory(cls, super_printer_factory: SuperPrinterFactory) -> None:  # type: ignore [override]
-        """Set default super printer factory."""
-
-        global _default_super_printer_factory
-        _default_super_printer_factory = super_printer_factory
+    def _exit(self, exit_code: int) -> bool:
+        if self.standalone:
+            sys.exit(exit_code)
+        return False

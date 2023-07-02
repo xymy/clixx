@@ -12,7 +12,7 @@ from .groups import ArgumentGroup, CommandGroup, OptionGroup
 from .parsers import Parser, SuperParser
 
 if TYPE_CHECKING:
-    from .printers import PrinterFactory, PrinterHelper, SuperPrinterFactory, SuperPrinterHelper
+    from .printers import Printer, PrinterFactory, PrinterHelper
 
 CommandFunction: TypeAlias = Callable[..., Optional[int]]
 SuperCommandFunction: TypeAlias = Callable[..., Optional["dict[str, Any]"]]
@@ -69,6 +69,8 @@ class _Command:
         epilog: str = "",
         *,
         pass_cmd: bool = False,
+        printer_factory: PrinterFactory | None = None,
+        printer_config: dict[str, Any] | None = None,
     ) -> None:
         self.name = name
         self.version = version
@@ -76,6 +78,8 @@ class _Command:
         self.epilog = epilog
 
         self.pass_cmd = pass_cmd
+        self.printer_factory = printer_factory
+        self.printer_config = printer_config
 
     def get_name(self) -> str:
         if self.name is not None:
@@ -138,6 +142,23 @@ class _Command:
             if argv is None:
                 raise ParserContextError("Parent command must provide argv.")
 
+    def attach_printer(self, standalone: bool) -> PrinterHelper:
+        from .printers import PrinterHelper
+
+        printer = self.make_printer()
+        return PrinterHelper(self, printer, standalone=standalone)
+
+    def make_printer(self) -> Printer:
+        if (printer_factory := self.printer_factory) is None:
+            from ._rich import RichPrinter
+
+            printer_factory = RichPrinter
+
+        if (printer_config := self.printer_config) is None:
+            printer_config = {}
+
+        return printer_factory(printer_config)
+
 
 class Command(_Command):
     """The command.
@@ -170,15 +191,20 @@ class Command(_Command):
         printer_factory: PrinterFactory | None = None,
         printer_config: dict[str, Any] | None = None,
     ) -> None:
-        super().__init__(name, version, description, epilog, pass_cmd=pass_cmd)
+        super().__init__(
+            name,
+            version,
+            description,
+            epilog,
+            pass_cmd=pass_cmd,
+            printer_factory=printer_factory,
+            printer_config=printer_config,
+        )
 
         self.function = _print_args
 
         self.argument_groups: list[ArgumentGroup] = []
         self.option_groups: list[OptionGroup] = []
-
-        self.printer_factory = printer_factory
-        self.printer_config = printer_config
 
     @property
     def function(self) -> CommandFunction:
@@ -225,11 +251,6 @@ class Command(_Command):
                 exit_code = self.function(**args)
         return _exit_command(exit_code, standalone)
 
-    def attach_printer(self, standalone: bool) -> PrinterHelper:
-        from .printers import PrinterHelper
-
-        return PrinterHelper(self, self.printer_factory, self.printer_config, **_interpret_standalone(standalone))
-
 
 class SuperCommand(_Command):
     """The super command.
@@ -259,17 +280,22 @@ class SuperCommand(_Command):
         epilog: str = "",
         *,
         pass_cmd: bool = False,
-        printer_factory: SuperPrinterFactory | None = None,
+        printer_factory: PrinterFactory | None = None,
         printer_config: dict[str, Any] | None = None,
     ) -> None:
-        super().__init__(name, version, description, epilog, pass_cmd=pass_cmd)
+        super().__init__(
+            name,
+            version,
+            description,
+            epilog,
+            pass_cmd=pass_cmd,
+            printer_factory=printer_factory,
+            printer_config=printer_config,
+        )
 
         self.function = _print_args
 
         self.option_groups: list[OptionGroup] = []
-
-        self.printer_factory = printer_factory
-        self.printer_config = printer_config
 
     @property
     def function(self) -> SuperCommandFunction:
@@ -327,11 +353,6 @@ class SuperCommand(_Command):
             exit_code = cmd(args, ctx.argv_remained, parent=self, standalone=standalone)
         return _exit_command(exit_code, standalone)
 
-    def attach_printer(self, standalone: bool) -> SuperPrinterHelper:
-        from .printers import SuperPrinterHelper
-
-        return SuperPrinterHelper(self, self.printer_factory, self.printer_config, **_interpret_standalone(standalone))
-
 
 AnyCommand = TypeVar("AnyCommand", bound=Union[Command, SuperCommand])
 
@@ -345,7 +366,7 @@ class SimpleSuperCommand(SuperCommand):
         epilog: str = "",
         *,
         pass_cmd: bool = False,
-        printer_factory: SuperPrinterFactory | None = None,
+        printer_factory: PrinterFactory | None = None,
         printer_config: dict[str, Any] | None = None,
     ) -> None:
         super().__init__(
@@ -357,6 +378,7 @@ class SimpleSuperCommand(SuperCommand):
             printer_factory=printer_factory,
             printer_config=printer_config,
         )
+
         self.commands: dict[str, dict[str, Command | SuperCommand]] = {}
 
     def add_command(self, group_name: str, cmd_name: str, cmd: Command | SuperCommand) -> Self:
