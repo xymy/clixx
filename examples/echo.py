@@ -8,14 +8,14 @@ import clixx
 @clixx.command("MyEcho", "1.0.0", pass_cmd=True)
 @clixx.argument_group("Arguments")
 @clixx.argument("strings", nargs=-1)
-@clixx.option_group("Style Options", type=clixx.AT_MOST_ONE)
-@clixx.flag_option("--red", help="print red message.")
-@clixx.flag_option("--green", help="print green message.")
-@clixx.flag_option("--blue", help="print blue message.")
 @clixx.option_group("General Options")
 @clixx.help_option("-h", "--help")
 @clixx.version_option("-V", "--version")
 @clixx.count_option("-v", "--verbose", help="Show more information.")
+@clixx.option_group("Style Options", type=clixx.AT_MOST_ONE)
+@clixx.flag_option("--red", help="print red message.")
+@clixx.flag_option("--green", help="print green message.")
+@clixx.flag_option("--blue", help="print blue message.")
 def main(cmd: clixx.Command, strings: list[str], red: bool, green: bool, blue: bool, verbose: int) -> None:
     # At most one color will be True.
     style: str | None = None
