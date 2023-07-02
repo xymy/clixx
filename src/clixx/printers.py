@@ -3,7 +3,7 @@ from __future__ import annotations
 import sys
 from typing import TYPE_CHECKING, Any, Callable, Dict, Protocol
 
-from typing_extensions import Self
+from typing_extensions import Self, TypeAlias
 
 from .exceptions import CLIXXException, HelpSignal, VersionSignal
 
@@ -12,6 +12,8 @@ if TYPE_CHECKING:
 
 
 class Printer(Protocol):
+    """The printer protocol."""
+
     def print_error(self, cmd: _Command, exc: CLIXXException) -> None:
         """Print error information."""
 
@@ -22,7 +24,7 @@ class Printer(Protocol):
         """Print version information."""
 
 
-PrinterFactory = Callable[[Dict[str, Any]], Printer]
+PrinterFactory: TypeAlias = Callable[[Dict[str, Any]], Printer]
 
 
 class PrinterHelper:
