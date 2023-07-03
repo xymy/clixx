@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import sys
 from contextlib import suppress
-from typing import TYPE_CHECKING, Any, Callable, Iterator, Optional, TypeVar, Union
+from typing import Any, Callable, Iterator, Optional, TypeVar, Union
 
 from typing_extensions import Self, TypeAlias
 
@@ -10,9 +10,7 @@ from .constants import DEST_COMMAND_NAME
 from .exceptions import CommandError, ParserContextError
 from .groups import ArgumentGroup, CommandGroup, OptionGroup
 from .parsers import Parser, SuperParser
-
-if TYPE_CHECKING:
-    from .printers import Printer, PrinterFactory, PrinterHelper
+from .printers import PrinterFactory, PrinterHelper
 
 CommandFunction: TypeAlias = Callable[..., Optional[int]]
 SuperCommandFunction: TypeAlias = Callable[..., Optional["dict[str, Any]"]]
@@ -50,8 +48,6 @@ class _Command:
         epilog: str = "",
         *,
         pass_cmd: bool = False,
-        printer_factory: PrinterFactory | None = None,
-        printer_config: dict[str, Any] | None = None,
     ) -> None:
         self.name = name
         self.version = version
@@ -59,8 +55,6 @@ class _Command:
         self.epilog = epilog
 
         self.pass_cmd = pass_cmd
-        self.printer_factory = printer_factory
-        self.printer_config = printer_config
 
     def get_name(self) -> str:
         if self.name is not None:
@@ -123,23 +117,6 @@ class _Command:
             if argv is None:
                 raise ParserContextError("Parent command must provide argv.")
 
-    def attach_printer(self, standalone: bool) -> PrinterHelper:
-        from .printers import PrinterHelper
-
-        printer = self.make_printer()
-        return PrinterHelper(self, printer, standalone=standalone)
-
-    def make_printer(self) -> Printer:
-        if (printer_factory := self.printer_factory) is None:
-            from ._rich import RichPrinter
-
-            printer_factory = RichPrinter
-
-        if (printer_config := self.printer_config) is None:
-            printer_config = {}
-
-        return printer_factory(printer_config)
-
 
 class Command(_Command):
     """The command.
@@ -178,9 +155,10 @@ class Command(_Command):
             description,
             epilog,
             pass_cmd=pass_cmd,
-            printer_factory=printer_factory,
-            printer_config=printer_config,
         )
+
+        self.printer_factory = printer_factory
+        self.printer_config = printer_config
 
         self.function = _print_args
 
@@ -222,7 +200,7 @@ class Command(_Command):
         self.args = args = args if args is not None else {}
         self.argv = argv = argv if argv is not None else sys.argv[1:]
 
-        with self.attach_printer(standalone):
+        with PrinterHelper(self, self.printer_factory, self.printer_config, standalone=standalone):
             parser = Parser(self.argument_groups, self.option_groups)
             parser.parse_args(args, argv)
 
@@ -270,9 +248,10 @@ class SuperCommand(_Command):
             description,
             epilog,
             pass_cmd=pass_cmd,
-            printer_factory=printer_factory,
-            printer_config=printer_config,
         )
+
+        self.printer_factory = printer_factory
+        self.printer_config = printer_config
 
         self.function = _print_args
 
@@ -315,7 +294,7 @@ class SuperCommand(_Command):
         self.args = args = args if args is not None else {}
         self.argv = argv = argv if argv is not None else sys.argv[1:]
 
-        with self.attach_printer(standalone):
+        with PrinterHelper(self, self.printer_factory, self.printer_config, standalone=standalone):
             parser = SuperParser(self.option_groups)
             ctx = parser.parse_args(args, argv)
 

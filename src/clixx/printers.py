@@ -33,8 +33,10 @@ class PrinterHelper:
     Parameters:
         cmd (Command):
             The command.
-        printer (Printer):
-            The printer.
+        printer_factory (PrinterFactory | None, default=None):
+            The printer factory.
+        printer_config (dict[str, Any] | None, default=None):
+            The printer config.
         standalone (bool):
             If ``True``, exit this process after handling exception or signal;
             otherwise, propagate exception or signal.
@@ -43,13 +45,27 @@ class PrinterHelper:
     def __init__(
         self,
         cmd: _Command,
-        printer: Printer,
+        printer_factory: PrinterFactory | None = None,
+        printer_config: dict[str, Any] | None = None,
         *,
         standalone: bool,
     ) -> None:
         self.cmd = cmd
-        self.printer = printer
+        self.printer_factory = printer_factory
+        self.printer_config = printer_config
         self.standalone = standalone
+
+    @property
+    def printer(self) -> Printer:
+        if (printer_factory := self.printer_factory) is None:
+            from ._rich import RichPrinter
+
+            printer_factory = RichPrinter
+
+        if (printer_config := self.printer_config) is None:
+            printer_config = {}
+
+        return printer_factory(printer_config)
 
     def __enter__(self) -> Self:
         """Attach exceptions and signals handlers."""
