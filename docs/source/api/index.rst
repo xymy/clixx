@@ -5,6 +5,7 @@ API Reference
     :titlesonly:
 
     arguments
+    decorators
     exceptions
     groups
     printers
