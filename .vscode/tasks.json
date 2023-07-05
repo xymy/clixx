@@ -1,0 +1,17 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "Open docs in browser",
+            "type": "shell",
+            "command": "open ./docs/build/html/index.html",
+            "windows": {
+                "command": "start .\\docs\\build\\html\\index.html"
+            },
+            "presentation": {
+                "reveal": "silent"
+            },
+            "problemMatcher": []
+        }
+    ]
+}
