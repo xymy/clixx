@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import sys
 from contextlib import suppress
+from importlib import import_module
 from typing import Any, Callable, Iterator, Optional, TypeVar, Union
 
 from typing_extensions import Self, TypeAlias
@@ -364,4 +365,63 @@ class SimpleSuperCommand(SuperCommand):
         for group_dict in self.commands.values():
             with suppress(KeyError):
                 return group_dict[name]
+        return None
+
+
+class DynamicSuperCommand(SuperCommand):
+    def __init__(
+        self,
+        name: str | None = None,
+        version: str | None = None,
+        description: str = "",
+        epilog: str = "",
+        *,
+        pass_cmd: bool = False,
+        printer_factory: PrinterFactory | None = None,
+        printer_config: dict[str, Any] | None = None,
+    ) -> None:
+        super().__init__(
+            name,
+            version,
+            description,
+            epilog,
+            pass_cmd=pass_cmd,
+            printer_factory=printer_factory,
+            printer_config=printer_config,
+        )
+
+        self.entry_points: dict[str, dict[str, str]] = {}
+
+    def add_entry_point(self, group_name: str, cmd_name: str, ep: str) -> Self:
+        group_dict = self.entry_points.setdefault(group_name, {})
+        group_dict[cmd_name] = ep
+        return self
+
+    def extend_entry_points(self, entry_points: dict[str, dict[str, str]]) -> Self:
+        self.entry_points.update(entry_points)
+        return self
+
+    def iter_command_group(self) -> Iterator[CommandGroup]:
+        for group_name, group_dict in self.entry_points.items():
+            group = CommandGroup(group_name)
+            for cmd_name in group_dict:
+                group.add(cmd_name)
+            yield group
+
+    def load_entry_point(self, name: str) -> str | None:
+        for group_dict in self.entry_points.values():
+            with suppress(KeyError):
+                return group_dict[name]
+        return None
+
+    def load_command(self, name: str) -> Command | SuperCommand | None:
+        ep = self.load_entry_point(name)
+        if ep is not None:
+            split_result = ep.split(":", maxsplit=1)
+            if len(split_result) != 2:
+                return None
+            mod_name, cmd_obj_name = split_result
+            mod = import_module(mod_name)
+            cmd = getattr(mod, cmd_obj_name)
+            return cmd
         return None
