@@ -2,9 +2,8 @@ from __future__ import annotations
 
 from typing import Any
 
-from rich.console import Console
-
 import clixx
+from rich.console import Console
 
 
 def main(**kwargs: dict[str, Any]) -> None:
