@@ -32,6 +32,10 @@ ignore = [
     "E402",
     # Line too long ({width} > {limit} characters)
     "E501",
+    # Use a single if statement instead of nested if statements
+    "SIM102",
+    # Use ternary operator {contents} instead of if-else-block
+    "SIM108",
 ]
 
 [tool.ruff.flake8-comprehensions]

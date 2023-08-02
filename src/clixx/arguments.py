@@ -119,7 +119,7 @@ class Argument:
     def _parse(decl: str, *, dest: str | None) -> tuple[str, str]:
         argument = _parse_decl(decl)
 
-        if dest is not None:  # noqa
+        if dest is not None:
             dest = _check_dest(dest) if dest else ""
         else:
             dest = _check_dest(argument)
@@ -146,7 +146,7 @@ class Argument:
         if not self.dest or self.dest in args:
             return
 
-        if self.nargs == 1:  # noqa
+        if self.nargs == 1:
             result = self.type(self.default) if self.default is not None else None
         else:
             # Variadic arguments default to empty list.

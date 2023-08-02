@@ -37,7 +37,7 @@ class RichPrinter:
     def _print_usage(self, console: Console, cmd: _Command) -> None:
         text = Text("Usage: " + cmd.get_cmd_path())
 
-        if isinstance(cmd, (Command, SuperCommand)):  # noqa
+        if isinstance(cmd, (Command, SuperCommand)):
             if cmd.option_groups:
                 text.append(" [OPTIONS]...")
 

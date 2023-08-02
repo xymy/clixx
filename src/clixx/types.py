@@ -386,7 +386,7 @@ class DateTime(Type):
                 return datetime.datetime.strptime(value, format)
 
         formats_str = ", ".join(map(repr, self.formats))
-        if len(self.formats) == 1:  # noqa
+        if len(self.formats) == 1:
             hint = f"Valid format is {formats_str}."
         else:
             hint = f"Valid formats are {formats_str}."

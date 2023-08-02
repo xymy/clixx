@@ -205,7 +205,7 @@ class Command(_Command):
             parser = Parser(self.argument_groups, self.option_groups)
             parser.parse_args(args, argv)
 
-            if self.pass_cmd:  # noqa
+            if self.pass_cmd:
                 exit_code = self.function(self, **args)
             else:
                 exit_code = self.function(**args)
@@ -305,7 +305,7 @@ class SuperCommand(_Command):
             if (cmd := self.load_command(cmd_name)) is None:
                 raise CommandError(f"Unknown command {cmd_name!r}.")
 
-            if self.pass_cmd:  # noqa
+            if self.pass_cmd:
                 args = self.function(self, **args)
             else:
                 args = self.function(**args)
