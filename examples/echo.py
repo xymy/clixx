@@ -1,7 +1,8 @@
 from __future__ import annotations
 
-import clixx
 from rich.console import Console
+
+import clixx
 
 
 @clixx.command("MyEcho", "1.0.0", pass_cmd=True)
