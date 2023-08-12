@@ -5,18 +5,12 @@
             "label": "Build",
             "type": "shell",
             "command": "python -m build",
-            "presentation": {
-                "reveal": "always"
-            },
             "problemMatcher": []
         },
         {
             "label": "Build docs",
             "type": "shell",
             "command": "tox run -e docs",
-            "presentation": {
-                "reveal": "always"
-            },
             "problemMatcher": []
         },
         {
