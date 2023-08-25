@@ -56,13 +56,6 @@ class Type:
 
         return self(value)
 
-    def release(self, value: Any) -> None:
-        """Release resource held by value.
-
-        This is used to release resource held by the previous parsed values
-        which are overrided by the current value.
-        """
-
     def format(self, value: Any) -> str:
         """Format value to pretty string.
 
@@ -472,11 +465,6 @@ class File(Type):
         if isinstance(value, (str, bytes, pathlib.Path)) or hasattr(value, "read") or hasattr(value, "write"):
             return value
         raise TypeConversionError(f"{value!r} is not a valid file.")
-
-    def release(self, value: Any) -> None:
-        with suppress(AttributeError):
-            if value.fileno() > 2:  # skip stdin/stdout/stderr
-                value.close()
 
     def format(self, value: Any) -> str:
         # These types can be decoded anyway.
