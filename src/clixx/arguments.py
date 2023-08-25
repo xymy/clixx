@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from keyword import iskeyword
-from typing import Any, Sequence, cast
+from typing import Any, Literal, Sequence, cast
 
 from .constants import LONG_PREFIX, LONG_PREFIX_LEN, RESERVED_CHARACTERS, SEPARATOR, SHORT_PREFIX, SHORT_PREFIX_LEN
 from .exceptions import DefinitionError, HelpSignal, TypeConversionError, VersionSignal
@@ -19,6 +19,13 @@ def _check_dest(dest: str) -> str:
 
 def _norm_metavar(metavar: str) -> str:
     return metavar.replace("-", "_").upper()
+
+
+def _remove_prefix(decl: str) -> str:
+    if decl.startswith(LONG_PREFIX):
+        return decl[LONG_PREFIX_LEN:]
+    else:
+        return decl[SHORT_PREFIX_LEN:]
 
 
 def _parse_decl(decl: str) -> str:
@@ -404,6 +411,80 @@ class FlagOption(Option):
             except TypeConversionError as e:
                 raise DefinitionError(f"Invalid constant value for option {self.format_decls()}. {e}") from e
         self._const = value
+
+
+class OnOffOption(FlagOption):
+    """The on off option.
+
+    Parameters:
+        on (str):
+            The declarations for the on flag.
+        off (str):
+            The declarations for the off flag.
+        dest (str):
+            The destination used to store the option value. If empty string,
+            disable the store action.
+        allow_multi (bool, default=False):
+            If ``True``, allow this option to occur multiple times.
+        on_value (Any, default=True):
+            The value used if the on flag occurred.
+        off_value (Any, default=False):
+            The value used if the off flag occurred.
+        default_flag (Literal["on", "off"], default='off'):
+            The default flag.
+        hidden (bool, default=False):
+            If ``True``, hide this option from help information.
+        help (str, default=''):
+            The help information.
+    """
+
+    def __init__(
+        self,
+        on: str,
+        off: str,
+        dest: str,
+        allow_multi: bool = False,
+        on_value: Any = True,
+        off_value: Any = False,
+        default_flag: Literal["on", "off"] = "off",
+        hidden: bool = False,
+        help: str = "",
+    ) -> None:
+        if default_flag == "on":
+            default = on_value
+            const = off_value
+        else:
+            default = off_value
+            const = on_value
+        super().__init__(
+            on, off, dest=dest, allow_multi=allow_multi, const=const, default=default, hidden=hidden, help=help
+        )
+        self.on = _remove_prefix(on)
+        self.off = _remove_prefix(off)
+        self.default_flag = default_flag
+
+    def store_const(self, args: dict[str, Any], *, key: str) -> None:
+        if not self.dest:
+            return
+
+        result = self.on_value if key == self.on else self.off_value
+        args[self.dest] = result
+
+    @property
+    def on_value(self) -> Any:
+        if self.default_flag == "on":
+            result = self.type(self.default) if self.default is not None else None
+        else:
+            result = self.type(self.const) if self.const is not None else None
+        return result
+
+    @property
+    def off_value(self) -> Any:
+        if self.default_flag == "off":
+            result = self.type(self.default) if self.default is not None else None
+        else:
+            result = self.type(self.const) if self.const is not None else None
+        return result
 
 
 class AppendOption(Option):
