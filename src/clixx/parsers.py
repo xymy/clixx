@@ -99,12 +99,12 @@ class OptionNode:
 
     def store(self, args: dict[str, Any], value: str, *, key: str) -> None:
         with _raise_invalid_option_value(lambda: repr(key)):
-            self._option.store(args, value)
+            self._option.store(args, value, key=key)
         self._inc_occurred()
 
-    def store_const(self, args: dict[str, Any]) -> None:
+    def store_const(self, args: dict[str, Any], *, key: str) -> None:
         with _raise_invalid_option_value(self.format_decls):
-            self._option.store_const(args)
+            self._option.store_const(args, key=key)
         self._inc_occurred()
 
     def store_default(self, args: dict[str, Any]) -> None:
@@ -265,7 +265,7 @@ class OptionParser:
             key = arg
             option = self._get_option(key)
             if option.nargs == 0:
-                option.store_const(args)
+                option.store_const(args, key=key)
             else:
                 if (value := ctx.next_arg) is None:
                     raise TooFewOptionValues(f"Option {key!r} requires a value.")
@@ -279,7 +279,7 @@ class OptionParser:
             option = self._get_option(key)
 
             if option.nargs == 0:
-                option.store_const(args)
+                option.store_const(args, key=key)
             else:
                 value: str | None
 

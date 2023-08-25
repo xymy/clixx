@@ -257,7 +257,7 @@ class Option:
             dest = _check_dest(short_options[0][SHORT_PREFIX_LEN:])
         return dest, long_options, short_options
 
-    def store(self, args: dict[str, Any], value: str) -> None:
+    def store(self, args: dict[str, Any], value: str, *, key: str) -> None:
         """Store value to destination.
 
         Availability: ``nargs == 1``.
@@ -269,7 +269,7 @@ class Option:
         result = self.type.convert_str(value)
         args[self.dest] = result
 
-    def store_const(self, args: dict[str, Any]) -> None:
+    def store_const(self, args: dict[str, Any], *, key: str) -> None:
         """Store constant value to destination.
 
         Availability: ``nargs == 0``.
@@ -372,10 +372,10 @@ class FlagOption(Option):
         )
         self.const = const
 
-    def store(self, args: dict[str, Any], value: str) -> None:
+    def store(self, args: dict[str, Any], value: str, *, key: str) -> None:
         raise NotImplementedError
 
-    def store_const(self, args: dict[str, Any]) -> None:
+    def store_const(self, args: dict[str, Any], *, key: str) -> None:
         if not self.dest:
             return
 
@@ -448,7 +448,7 @@ class AppendOption(Option):
             help=help,
         )
 
-    def store(self, args: dict[str, Any], value: str) -> None:
+    def store(self, args: dict[str, Any], value: str, *, key: str) -> None:
         if not self.dest:
             return
 
@@ -506,10 +506,10 @@ class CountOption(Option):
             help=help,
         )
 
-    def store(self, args: dict[str, Any], value: str) -> None:
+    def store(self, args: dict[str, Any], value: str, *, key: str) -> None:
         raise NotImplementedError
 
-    def store_const(self, args: dict[str, Any]) -> None:
+    def store_const(self, args: dict[str, Any], *, key: str) -> None:
         if not self.dest:
             return
 
@@ -553,10 +553,10 @@ class SignalOption(Option):
             help=help,
         )
 
-    def store(self, args: dict[str, Any], value: str) -> None:
+    def store(self, args: dict[str, Any], value: str, *, key: str) -> None:
         raise NotImplementedError
 
-    def store_const(self, args: dict[str, Any]) -> None:
+    def store_const(self, args: dict[str, Any], *, key: str) -> None:
         raise NotImplementedError
 
     def store_default(self, args: dict[str, Any]) -> None:
@@ -584,7 +584,7 @@ class HelpOption(SignalOption):
     def __init__(self, *decls: str, hidden: bool = False, help: str = "Show help information and exit.") -> None:
         super().__init__(*decls, hidden=hidden, help=help)
 
-    def store_const(self, args: dict[str, Any]) -> None:
+    def store_const(self, args: dict[str, Any], *, key: str) -> None:
         raise HelpSignal
 
 
@@ -603,7 +603,7 @@ class VersionOption(SignalOption):
     def __init__(self, *decls: str, hidden: bool = False, help: str = "Show version information and exit.") -> None:
         super().__init__(*decls, hidden=hidden, help=help)
 
-    def store_const(self, args: dict[str, Any]) -> None:
+    def store_const(self, args: dict[str, Any], *, key: str) -> None:
         raise VersionSignal
 
 
