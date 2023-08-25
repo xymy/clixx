@@ -207,6 +207,8 @@ class Option:
             from declarations. If empty string, disable the store action.
         required (bool, default=False):
             Whether this option is required or optional.
+        allow_multi (bool, default=False):
+            If ``True``, allow this option to occur multiple times.
         type (Type | type | None, default=None):
             The type converter. If ``None``, use :class:`clixx.types.Str()`.
         default (Any, default=None):
@@ -227,6 +229,7 @@ class Option:
         *decls: str,
         dest: str | None = None,
         required: bool = False,
+        allow_multi: bool = False,
         type: Type | type | None = None,
         default: Any = None,
         hidden: bool = False,
@@ -236,6 +239,7 @@ class Option:
     ) -> None:
         self.dest, self.long_options, self.short_options = self._parse(decls, dest=dest)
         self.required = required
+        self.allow_multi = allow_multi
         self.type = resolve_type(type or Str())
         self.default = default
         self.hidden = hidden
@@ -336,6 +340,8 @@ class FlagOption(Option):
         dest (str | None, default=None):
             The destination used to store the option value. If ``None``, infer
             from declarations. If empty string, disable the store action.
+        allow_multi (bool, default=False):
+            If ``True``, allow this option to occur multiple times.
         const (Any, default=True):
             The constant value used if option occurred.
         default (Any, default=False):
@@ -350,6 +356,7 @@ class FlagOption(Option):
         self,
         *decls: str,
         dest: str | None = None,
+        allow_multi: bool = False,
         const: Any = True,
         default: Any = False,
         hidden: bool = False,
@@ -359,6 +366,7 @@ class FlagOption(Option):
             *decls,
             dest=dest,
             required=False,
+            allow_multi=allow_multi,
             type=Type(),
             default=default,
             hidden=hidden,
@@ -437,6 +445,7 @@ class AppendOption(Option):
             *decls,
             dest=dest,
             required=False,
+            allow_multi=True,
             type=type,
             default=None,
             hidden=hidden,
@@ -494,6 +503,7 @@ class CountOption(Option):
             *decls,
             dest=dest,
             required=False,
+            allow_multi=True,
             type=Int(),
             default=default,
             hidden=hidden,
@@ -540,6 +550,7 @@ class SignalOption(Option):
             *decls,
             dest="",
             required=False,
+            allow_multi=False,
             type=Type(),
             default=None,
             hidden=hidden,
