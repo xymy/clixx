@@ -2,12 +2,13 @@ from __future__ import annotations
 
 import datetime
 import enum
+import operator
 import os
 import pathlib
 import stat
 import sys
 from contextlib import suppress
-from typing import IO, Any, Callable, Sequence, Union, cast
+from typing import IO, Any, Callable, Generic, Sequence, TypeVar, Union, cast
 
 from .exceptions import DefinitionError, TypeConversionError
 
@@ -186,6 +187,57 @@ class Float(Type):
     @property
     def metavar(self) -> str:
         return "FLOAT"
+
+
+T = TypeVar("T", int, float)
+
+
+class _Range(Type, Generic[T]):
+    _type: Type
+
+    def __init__(
+        self, minval: T | None = None, maxval: T | None = None, *, min_open: bool = False, max_open: bool = False
+    ) -> None:
+        self.minval: T | None = minval
+        self.maxval: T | None = maxval
+        self.min_open = min_open
+        self.max_open = max_open
+
+    def convert(self, value: Any) -> Any:
+        return self._check(cast(T, self._type.convert(value)))
+
+    def convert_str(self, value: str) -> Any:
+        return self._check(cast(T, self._type.convert_str(value)))
+
+    def _check(self, value: T) -> T:
+        if self.minval is not None:
+            min_comp = operator.le if self.min_open else operator.lt
+            if min_comp(value, self.minval):
+                raise TypeConversionError(f"{value} is not in range {self._format_range()}.")
+        if self.maxval is not None:
+            max_comp = operator.ge if self.max_open else operator.gt
+            if max_comp(value, self.maxval):
+                raise TypeConversionError(f"{value} is not in range {self._format_range()}.")
+        return value
+
+    def _format_range(self) -> str:
+        lb = "(" if self.min_open or self.minval is None else "["
+        rb = ")" if self.max_open or self.maxval is None else "]"
+        lv = self.minval if self.minval is not None else "-inif"
+        rv = self.maxval if self.maxval is not None else "inf"
+        return f"{lb}{lv},{rv}{rb}"
+
+    @property
+    def metavar(self) -> str:
+        return self._format_range()
+
+
+class IntRange(_Range[int]):
+    _type = Int()
+
+
+class FloatRange(_Range[float]):
+    _type = Float()
 
 
 class Choice(Type):

@@ -17,6 +17,10 @@ Classes
 
 .. autoclass:: Float
 
+.. autoclass:: IntRange
+
+.. autoclass:: FloatRange
+
 .. autoclass:: Choice
 
 .. autoclass:: IntChoice
