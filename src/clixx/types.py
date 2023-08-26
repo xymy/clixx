@@ -10,6 +10,8 @@ import sys
 from contextlib import suppress
 from typing import IO, Any, Callable, Generic, Sequence, TypeVar, Union, cast
 
+from typing_extensions import Never
+
 from .exceptions import DefinitionError, TypeConversionError
 
 
@@ -304,8 +306,7 @@ class Choice(Type):
         self.case_sensitive = case_sensitive
 
     def convert(self, value: Any) -> Any:
-        choices_str = ", ".join(map(repr, self.choices))
-        raise TypeConversionError(f"{value!r} is not one of {choices_str}.")
+        return self._error(value)
 
     def convert_str(self, value: str) -> Any:
         normcase = _resolve_normcase(self.case_sensitive)
@@ -313,7 +314,9 @@ class Choice(Type):
         for choice in self.choices:
             if value_norm == normcase(choice):
                 return choice
+        return self._error(value)
 
+    def _error(self, value: Any) -> Never:
         choices_str = ", ".join(map(repr, self.choices))
         raise TypeConversionError(f"{value!r} is not one of {choices_str}.")
 
@@ -340,17 +343,20 @@ class IntChoice(Type):
     def convert(self, value: Any) -> Any:
         if isinstance(value, int):
             return self._check(value)
-        choices_str = ", ".join(map(repr, self.choices))
-        raise TypeConversionError(f"{value!r} is not one of {choices_str}.")
+        return self._error(value)
 
     def convert_str(self, value: str) -> Any:
-        return self._check(cast(int, Int().convert_str(value)))
+        with suppress(ValueError):
+            return self._check(int(value))
+        return self._error(value)
 
     def _check(self, value: int) -> int:
         for choice in self.choices:
             if value == choice:
                 return choice
+        return self._error(value)
 
+    def _error(self, value: Any) -> Never:
         choices_str = ", ".join(map(repr, self.choices))
         raise TypeConversionError(f"{value!r} is not one of {choices_str}.")
 
