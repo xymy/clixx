@@ -227,7 +227,7 @@ class _Range(Type, Generic[T]):
         rb = ")" if self.max_open or self.maxval is None else "]"
         lv = self.minval if self.minval is not None else "-inif"
         rv = self.maxval if self.maxval is not None else "inf"
-        return f"{lb}{lv},{rv}{rb}"
+        return f"{lb}{lv}, {rv}{rb}"
 
     @property
     def metavar(self) -> str:
