@@ -394,7 +394,9 @@ class Enum(Type):
         for name, member in self.enum_type.__members__.items():
             if value_norm == normcase(name):
                 return member
+        return self._error(value)
 
+    def _error(self, value: Any) -> Never:
         enum_str = ", ".join(map(repr, self.enum_type.__members__))
         raise TypeConversionError(f"{value!r} is not one of {enum_str}.")
 
@@ -430,13 +432,17 @@ class IntEnum(Type):
         raise TypeConversionError(f"{value!r} is not a valid enumeration member of {self.enum_type!r}.")
 
     def convert_str(self, value: str) -> Any:
-        return self._check(cast(int, Int().convert_str(value)))
+        with suppress(ValueError):
+            return self._check(int(value))
+        return self._error(value)
 
     def _check(self, value: int) -> enum.IntEnum:
         for member in self.enum_type:
             if value == member:
                 return member
+        return self._error(value)
 
+    def _error(self, value: Any) -> Never:
         enum_str = ", ".join(repr(m.value) for m in self.enum_type)
         raise TypeConversionError(f"{value!r} is not one of {enum_str}.")
 
