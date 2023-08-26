@@ -198,6 +198,8 @@ class _Range(Type, Generic[T]):
     def __init__(
         self, minval: T | None = None, maxval: T | None = None, *, min_open: bool = False, max_open: bool = False
     ) -> None:
+        if minval is not None and maxval is not None and minval > maxval:
+            raise DefinitionError(f"Require minval <= maxval, but {minval} > {maxval}.")
         self.minval: T | None = minval
         self.maxval: T | None = maxval
         self.min_open = min_open
