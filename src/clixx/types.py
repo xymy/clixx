@@ -504,14 +504,14 @@ class File(Type):
         newline (str | None, default=None):
             The same as :func:`open`.
         dash (bool, default=True):
-            If ``True``, recognize dash (-) as stdin/stdout.
+            If ``True``, recognize dash (``-``) as stdin/stdout.
 
     Important:
         CLIXX will not close the file automatically when the command is
         finished. It's user's responsibility to close the file.
 
     Warning:
-        The dash will be recognized only if ``value`` is a string. That means
+        The dash will be recognized only if ``value`` is a string. It means that
         ``pathlib.Path("-")`` will never be recognized as stdin/stdout.
 
     See Also:
