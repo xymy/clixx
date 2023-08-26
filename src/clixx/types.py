@@ -193,7 +193,7 @@ T = TypeVar("T", int, float)
 
 
 class _Range(Type, Generic[T]):
-    _type: Type
+    _type_class: type[Type]
 
     def __init__(
         self, minval: T | None = None, maxval: T | None = None, *, min_open: bool = False, max_open: bool = False
@@ -204,10 +204,10 @@ class _Range(Type, Generic[T]):
         self.max_open = max_open
 
     def convert(self, value: Any) -> Any:
-        return self._check(cast(T, self._type.convert(value)))
+        return self._check(cast(T, self._type_class().convert(value)))
 
     def convert_str(self, value: str) -> Any:
-        return self._check(cast(T, self._type.convert_str(value)))
+        return self._check(cast(T, self._type_class().convert_str(value)))
 
     def _check(self, value: T) -> T:
         if self.minval is not None:
@@ -233,11 +233,56 @@ class _Range(Type, Generic[T]):
 
 
 class IntRange(_Range[int]):
-    _type = Int()
+    """The class used to convert command-line arguments to integer in given range.
+
+    Target type: :class:`int`.
+
+    Parameters:
+        minval (int | None, default=None):
+            The minimum value. ``None`` means negative infinity.
+        maxval (int | None, default=None):
+            The maximum value. ``None`` means infinity.
+        min_open (bool, default=False):
+            If ``True``, exclude ``minval``.
+        max_open (bool, default=False):
+            If ``True``, exclude ``maxval``.
+    """
+
+    _type_class = Int
+
+    def __init__(  # make sphinx show specialization
+        self, minval: int | None = None, maxval: int | None = None, *, min_open: bool = False, max_open: bool = False
+    ) -> None:
+        super().__init__(minval, maxval, min_open=min_open, max_open=max_open)
 
 
 class FloatRange(_Range[float]):
-    _type = Float()
+    """The class used to convert command-line arguments to floating point number in given range.
+
+    Target type: :class:`float`.
+
+    Parameters:
+        minval (float | None, default=None):
+            The minimum value. ``None`` means negative infinity.
+        maxval (float | None, default=None):
+            The maximum value. ``None`` means infinity.
+        min_open (bool, default=False):
+            If ``True``, exclude ``minval``.
+        max_open (bool, default=False):
+            If ``True``, exclude ``maxval``.
+    """
+
+    _type_class = Float
+
+    def __init__(  # make sphinx show specialization
+        self,
+        minval: float | None = None,
+        maxval: float | None = None,
+        *,
+        min_open: bool = False,
+        max_open: bool = False,
+    ) -> None:
+        super().__init__(minval, maxval, min_open=min_open, max_open=max_open)
 
 
 class Choice(Type):
