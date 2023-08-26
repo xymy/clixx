@@ -3,7 +3,7 @@ from __future__ import annotations
 import enum
 from typing import Final, Generic, Iterator, TypeVar
 
-from typing_extensions import Self
+from typing_extensions import Self, assert_never
 
 from .arguments import Argument, Option
 from .exceptions import GroupError
@@ -120,7 +120,7 @@ class OptionGroup(_Group[Option]):
         elif type == EXACTLY_ONE:
             return self._check_exactly_one(num_occurred)
         else:
-            raise AssertionError
+            assert_never(type)
 
     def _check_any(self, num_occurred: int) -> None:
         pass
