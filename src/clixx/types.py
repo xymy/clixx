@@ -147,19 +147,18 @@ class Int(Type):
         raise TypeConversionError(f"{value!r} is not a valid integer.")
 
     def convert_str(self, value: str) -> Any:
-        try:
+        with suppress(ValueError):
             return int(value, base=self.base)
-        except ValueError as e:
-            if self.base in {0, 10}:
-                raise TypeConversionError(f"{value!r} is not a valid integer.") from e
-            elif self.base == 16:
-                raise TypeConversionError(f"{value!r} is not a valid hexadecimal integer.") from e
-            elif self.base == 8:
-                raise TypeConversionError(f"{value!r} is not a valid octal integer.") from e
-            elif self.base == 2:
-                raise TypeConversionError(f"{value!r} is not a valid binary integer.") from e
-            else:
-                raise TypeConversionError(f"{value!r} is not a valid integer with base {self.base!r}.") from e
+        if self.base in {0, 10}:
+            raise TypeConversionError(f"{value!r} is not a valid integer.")
+        elif self.base == 16:
+            raise TypeConversionError(f"{value!r} is not a valid hexadecimal integer.")
+        elif self.base == 8:
+            raise TypeConversionError(f"{value!r} is not a valid octal integer.")
+        elif self.base == 2:
+            raise TypeConversionError(f"{value!r} is not a valid binary integer.")
+        else:
+            raise TypeConversionError(f"{value!r} is not a valid integer with base {self.base!r}.")
 
     @property
     def metavar(self) -> str:
@@ -181,10 +180,9 @@ class Float(Type):
         raise TypeConversionError(f"{value!r} is not a valid floating point number.")
 
     def convert_str(self, value: str) -> Any:
-        try:
+        with suppress(ValueError):
             return float(value)
-        except ValueError as e:
-            raise TypeConversionError(f"{value!r} is not a valid floating point number.") from e
+        raise TypeConversionError(f"{value!r} is not a valid floating point number.")
 
     @property
     def metavar(self) -> str:
