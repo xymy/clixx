@@ -199,7 +199,7 @@ class _Range(Type, Generic[T]):
         self, minval: T | None = None, maxval: T | None = None, *, min_open: bool = False, max_open: bool = False
     ) -> None:
         if minval is not None and maxval is not None and minval > maxval:
-            raise DefinitionError(f"Require minval <= maxval, but {minval} > {maxval}.")
+            raise DefinitionError(f"Require minval <= maxval, but {minval!r} > {maxval!r}.")
         self.minval: T | None = minval
         self.maxval: T | None = maxval
         self.min_open = min_open
@@ -215,11 +215,11 @@ class _Range(Type, Generic[T]):
         if self.minval is not None:
             min_comp = operator.le if self.min_open else operator.lt
             if min_comp(value, self.minval):
-                raise TypeConversionError(f"{value} is not in range {self._format_range()}.")
+                raise TypeConversionError(f"{value!r} is not in range {self._format_range()}.")
         if self.maxval is not None:
             max_comp = operator.ge if self.max_open else operator.gt
             if max_comp(value, self.maxval):
-                raise TypeConversionError(f"{value} is not in range {self._format_range()}.")
+                raise TypeConversionError(f"{value!r} is not in range {self._format_range()}.")
         return value
 
     def _format_range(self) -> str:
