@@ -42,7 +42,15 @@ ignore = [
 allow-dict-calls-with-keyword-arguments = true
 
 [tool.ruff.flake8-type-checking]
-exempt-modules = ["typing", "typing_extensions", "enum", "datetime", "pathlib"]
+exempt-modules = [
+    "typing",
+    "typing_extensions",
+    "enum",
+    "datetime",
+    "pathlib",
+    "pytest",
+    "_pytest",
+]
 
 [tool.mypy]
 ignore_missing_imports = true
