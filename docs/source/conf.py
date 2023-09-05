@@ -34,12 +34,12 @@ extensions = [
     "sphinx_copybutton",
 ]
 templates_path = ["_templates"]
-exclude_patterns = ["**/.DS_Store"]
 
 # -- Options for HTML output -------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#options-for-html-output
 
 html_theme = "furo"
+html_title = f"{project} {release}"
 html_static_path = ["_static"]
 
 # -- Options for autodoc -----------------------------------------------------
