@@ -140,7 +140,7 @@ class OptionGroupNode:
 
 
 class Context:
-    """The context for a parsing."""
+    """The context for a parsing process."""
 
     def __init__(self, args: dict[str, Any], argv: list[str]) -> None:
         self.args = args
