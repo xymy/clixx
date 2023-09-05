@@ -19,23 +19,25 @@ Exceptions for parsing
 
 .. autoexception:: ArgumentError
 
+.. autoexception:: InvalidArgument
+
 .. autoexception:: TooFewArguments
 
 .. autoexception:: TooManyArguments
-
-.. autoexception:: InvalidArgument
 
 .. autoexception:: OptionError
 
 .. autoexception:: MissingOption
 
+.. autoexception:: MultiOption
+
 .. autoexception:: UnknownOption
+
+.. autoexception:: InvalidOptionValue
 
 .. autoexception:: TooFewOptionValues
 
 .. autoexception:: TooManyOptionValues
-
-.. autoexception:: InvalidOptionValue
 
 .. autoexception:: GroupError
 

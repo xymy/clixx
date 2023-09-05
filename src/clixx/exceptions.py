@@ -27,16 +27,16 @@ class ArgumentError(CLIXXException):
     """Argument error."""
 
 
+class InvalidArgument(ArgumentError):
+    """Invalid argument given."""
+
+
 class TooFewArguments(ArgumentError):
     """Too few arguments given."""
 
 
 class TooManyArguments(ArgumentError):
     """Too many arguments given."""
-
-
-class InvalidArgument(ArgumentError):
-    """Invalid argument given."""
 
 
 class OptionError(CLIXXException):
@@ -47,12 +47,16 @@ class MissingOption(OptionError):
     """Missing option."""
 
 
+class MultiOption(OptionError):
+    """Multi option."""
+
+
 class UnknownOption(OptionError):
     """Unknown option."""
 
 
-class MultiOption(OptionError):
-    """Multi option."""
+class InvalidOptionValue(OptionError):
+    """Invalid option value given."""
 
 
 class TooFewOptionValues(OptionError):
@@ -61,10 +65,6 @@ class TooFewOptionValues(OptionError):
 
 class TooManyOptionValues(OptionError):
     """Too many option values given."""
-
-
-class InvalidOptionValue(OptionError):
-    """Invalid option value given."""
 
 
 class GroupError(CLIXXException):
