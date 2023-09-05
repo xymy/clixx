@@ -10,6 +10,7 @@ from .exceptions import (
     InvalidArgument,
     InvalidOptionValue,
     MissingOption,
+    MultiOption,
     ParserContextError,
     TooFewArguments,
     TooFewOptionValues,
@@ -92,20 +93,23 @@ class OptionNode:
         self.parent = cast(OptionGroupNode, weakref.proxy(parent))
         self.occurred = False
 
-    def _inc_occurred(self) -> None:
+    def _inc_occurred(self, key: str) -> None:
         if not self.occurred:
             self.occurred = True
             self.parent.num_occurred += 1
+        else:
+            if not self._option.allow_multi:
+                raise MultiOption(f"Option {key!r} is not allowed to occur multiple times.")
 
     def store(self, args: dict[str, Any], value: str, *, key: str) -> None:
         with _raise_invalid_option_value(lambda: repr(key)):
             self._option.store(args, value, key=key)
-        self._inc_occurred()
+        self._inc_occurred(key)
 
     def store_const(self, args: dict[str, Any], *, key: str) -> None:
         with _raise_invalid_option_value(self.format_decls):
             self._option.store_const(args, key=key)
-        self._inc_occurred()
+        self._inc_occurred(key)
 
     def store_default(self, args: dict[str, Any]) -> None:
         with _raise_invalid_option_value(self.format_decls):

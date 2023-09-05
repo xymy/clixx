@@ -51,6 +51,10 @@ class UnknownOption(OptionError):
     """Unknown option."""
 
 
+class MultiOption(OptionError):
+    """Multi option."""
+
+
 class TooFewOptionValues(OptionError):
     """Too few option values given."""
 
