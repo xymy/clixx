@@ -7,25 +7,31 @@
 /temp/
 /venv/
 
-__pycache__/
-*.egg-info/
+/.cache/
 
-/.ruff_cache/
 /.mypy_cache/
-/.dmypy.json
+/.ruff_cache/
 
-/.tox/
 /.hypothesis/
 /.pytest_cache/
+/.tox/
+
 /htmlcov/
 /.coverage
 /.coverage.*
-/.env
 
+# Python
+__pycache__/
+*.egg-info/
 *.py[cod]
+
+# C/C++
+*.obj
 *.lib
 *.dll
+*.o
 *.a
 *.so
 
+# macOS
 .DS_Store
